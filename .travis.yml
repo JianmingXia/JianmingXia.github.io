@@ -1,0 +1,24 @@
+language: node_js
+node_js: stable
+
+install:
+  - npm install
+
+script:
+  - hexo g
+
+after_script:
+  - cd ./public
+  - git init
+  - git config user.name "JianmingXia"
+  - git config user.email "1179801728@qq.com"
+  - git add .
+  - git commit -m "Update docs"
+  - git push --force --quiet "https://${GithubToken}@${GH_REF}" master:master
+
+branches:
+  only:
+    - source
+env:
+ global:
+   - GH_REF: github.com/JianmingXia/JianmingXia.github.io.git
