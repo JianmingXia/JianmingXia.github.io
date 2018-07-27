@@ -8,8 +8,8 @@ script:
   - hexo g
 
 after_script:
-  - mv ../CNAME CNAME
   - cd ./public
+  - mv ../CNAME CNAME
   - git init
   - git config user.name "JianmingXia"
   - git config user.email "1179801728@qq.com"
