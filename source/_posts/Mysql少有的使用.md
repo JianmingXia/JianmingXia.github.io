@@ -34,5 +34,5 @@ categories: Mysql
 - 看到了上次的blog，五月十二号，写博客真的是一件很难的事，之前好不容易开始了，没想到还是停下了。看的东西倒是挺多，但是很难提笔去写，这段时间沉迷农药不可自拔，该打。
 - 竟然连本地hexo的使用都忘记了，幸好存了这篇[入门文章](http://blog.ryoma.top/2017/05/06/hello-world/)。
 - 启动hexo之后，localhost:4000没办法打开，果然4000端口被占用：
-  ![端口占用](http://img1-1253291688.cossh.myqcloud.com/Mysql/%E5%8D%A0%E7%94%A8%E7%AB%AF%E5%8F%A3.png)
+  ![端口占用](https://img.ryoma.top/Mysql/%E5%8D%A0%E7%94%A8%E7%AB%AF%E5%8F%A3.png)
 由俭入奢易，由奢入俭难啊，篇幅不长，但是当做新的开始。捋起袖子努力干！！！

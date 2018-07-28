@@ -14,22 +14,22 @@ categories: Git
 
 ## 行动
 ### A B项目基于同一套代码，包括之前的commit全部一样
-![](http://img1-1253291688.cossh.myqcloud.com/Git/2_0.png)
+![](https://img.ryoma.top/Git/2_0.png)
 
 ### git remote add ryoma-test git@git.quqi.com:html/html-doc-draft.git
 - git remote
-![](http://img1-1253291688.cossh.myqcloud.com/Git/2_2.png)
+![](https://img.ryoma.top/Git/2_2.png)
 在A项目中，建立一个远程库，指向B项目
-![](http://img1-1253291688.cossh.myqcloud.com/Git/2_1.png)
+![](https://img.ryoma.top/Git/2_1.png)
 
 ### git push ryoma-test bugfix/ryoma/git-test
 - 在A上完成了feature，现在希望同步到B上
-![](http://img1-1253291688.cossh.myqcloud.com/Git/2_4.png)
-![](http://img1-1253291688.cossh.myqcloud.com/Git/2_3.png)
+![](https://img.ryoma.top/Git/2_4.png)
+![](https://img.ryoma.top/Git/2_3.png)
 
 ### 切换至B项目：git remote show origin
 - 在A项目中的feature分支出现在B项目中
-![](http://img1-1253291688.cossh.myqcloud.com/Git/2_5.png)
+![](https://img.ryoma.top/Git/2_5.png)
 
 ### 使用cherry-pick
 - merge 指定的commit

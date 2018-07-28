@@ -89,7 +89,7 @@ crontab -e
 ```
 
 ### 即时使用.sh
-![](http://img1-1253291688.cossh.myqcloud.com/NginxLogCut/1.png)
+![](https://img.ryoma.top/NginxLogCut/1.png)
 - nginx log被移至目标目录
 - nginx logs目录中，log重新开始
 

@@ -147,7 +147,7 @@ update user set host = '%' where user = 'user';
 
 ### Https
 可以在腾讯云申请一个证书，按照文档进行配置即可。
-![](http://img1-1253291688.cossh.myqcloud.com/WordPress/stella.blog.png)
+![](https://img.ryoma.top/WordPress/stella.blog.png)
 
 ### 自定义配置
 如果不满足WordPress默认的内容，可以通过后台修改，或者直接修改源代码

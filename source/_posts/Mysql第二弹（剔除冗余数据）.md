@@ -33,7 +33,7 @@ categories: Mysql
 ```
 select passport_id,count(*) as total, min(user_id) as min_user_id from `tk_user`  group by passport_id having total > 1
 ```
-![基准](http://img1-1253291688.cossh.myqcloud.com/MysqlSecond/1.png)
+![基准](https://img.ryoma.top/MysqlSecond/1.png)
 
 查找出需要清理数据的基础数据，如上，passport_id=2时，user_id>2的都需要清除。
 
@@ -44,7 +44,7 @@ create table 2017_08_11_tmp_user as (select b.user_id from
 where a.passport_id=b.passport_id and a.min_user_id<b.user_id);
 ```
 
-![临时表](http://img1-1253291688.cossh.myqcloud.com/MysqlSecond/2.png)
+![临时表](https://img.ryoma.top/MysqlSecond/2.png)
 
 ### 基于临时表删除数据
 ```
@@ -56,7 +56,7 @@ where a.passport_id=b.passport_id and a.min_user_id<b.user_id);
 delete from `tk_user` where tk_user.user_id in (select user_id from 2017_08_11_tmp_user); 
 drop table 2017_08_11_tmp_user;
 ```
-![结果](http://img1-1253291688.cossh.myqcloud.com/MysqlSecond/3.png)
+![结果](https://img.ryoma.top/MysqlSecond/3.png)
 
 ## 结语
 工作时突然遇到这个问题，代码的发布需要走的流程太多，故而选择了直接执行sql。当时，写代码的话，方法是更简单的。不过，sql还是超级强大的。

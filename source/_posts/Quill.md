@@ -38,4 +38,4 @@ categories: JavaScript
 
 ## demo
 我也简单写了个[demo](https://demo.ryoma.top/quill/)，查阅与编辑，大家如果感兴趣，赶快去研究文档吧。
-![quill操作](http://img1-1253291688.cossh.myqcloud.com/quill/quill.gif)
+![quill操作](https://img.ryoma.top/quill/quill.gif)

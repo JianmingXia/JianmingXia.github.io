@@ -33,9 +33,9 @@ dva——是一个基于 React 和 Redux 的轻量应用框架，概念来自 el
 
 ## 成果
 ### 网页应用页面
-![](http://img1-1253291688.cossh.myqcloud.com/antd%26dva%26electron/0.png)
+![](https://img.ryoma.top/antd%26dva%26electron/0.png)
 
 ### 桌面应用页面（electron）
-![](http://img1-1253291688.cossh.myqcloud.com/antd%26dva%26electron/1.png)
+![](https://img.ryoma.top/antd%26dva%26electron/1.png)
 
 ### 项目源码（https://github.com/JianmingXia/StudyTest/tree/master/antd-dva/dva-restart）

@@ -9,11 +9,11 @@ categories: 读书笔记
 由于篇幅较大，拆分成了两张图：
 
 ## XMind
-![](http://img1-1253291688.cossh.myqcloud.com/XMind/%E8%AE%A4%E7%9F%A5%E4%B8%8E%E8%AE%BE%E8%AE%A1%E2%80%94%E2%80%94%E7%90%86%E8%A7%A3UI%E8%AE%BE%E8%AE%A1%E5%87%86%E5%88%99-1.png)
+![](https://img.ryoma.top/XMind/%E8%AE%A4%E7%9F%A5%E4%B8%8E%E8%AE%BE%E8%AE%A1%E2%80%94%E2%80%94%E7%90%86%E8%A7%A3UI%E8%AE%BE%E8%AE%A1%E5%87%86%E5%88%99-1.png)
 <!-- more -->
 
-![](http://img1-1253291688.cossh.myqcloud.com/XMind/%E8%AE%A4%E7%9F%A5%E4%B8%8E%E8%AE%BE%E8%AE%A1%E2%80%94%E2%80%94%E7%90%86%E8%A7%A3UI%E8%AE%BE%E8%AE%A1%E5%87%86%E5%88%99-2.png)
-[原图地址](http://img1-1253291688.cossh.myqcloud.com/XMind/%E8%AE%A4%E7%9F%A5%E4%B8%8E%E8%AE%BE%E8%AE%A1%E2%80%94%E2%80%94%E7%90%86%E8%A7%A3UI%E8%AE%BE%E8%AE%A1%E5%87%86%E5%88%99.svg)
+![](https://img.ryoma.top/XMind/%E8%AE%A4%E7%9F%A5%E4%B8%8E%E8%AE%BE%E8%AE%A1%E2%80%94%E2%80%94%E7%90%86%E8%A7%A3UI%E8%AE%BE%E8%AE%A1%E5%87%86%E5%88%99-2.png)
+[原图地址](https://img.ryoma.top/XMind/%E8%AE%A4%E7%9F%A5%E4%B8%8E%E8%AE%BE%E8%AE%A1%E2%80%94%E2%80%94%E7%90%86%E8%A7%A3UI%E8%AE%BE%E8%AE%A1%E5%87%86%E5%88%99.svg)
 
 ## 观后感
 - 首先，就我而言，在看本书之前。尽管平时工作中觉得有设计不合理的地方，我最多会说一句：感觉页面怪怪的。
@@ -29,12 +29,12 @@ categories: 读书笔记
   - 这是我们的上传页面
     弹出窗：不可进行其它操作；
     退出：弹出窗没有看到`×`按钮，其实是有的，配色在某个版本出现了问题
-    ![](http://img1-1253291688.cossh.myqcloud.com/Book/JeffJohnson/2.png)
+    ![](https://img.ryoma.top/Book/JeffJohnson/2.png)
 
   - 百度云
     这一点上，我觉得百度云做得比我们好，用户知道自己上传了不就ok了么，其它操作照常进行。
-  ![](http://img1-1253291688.cossh.myqcloud.com/Book/JeffJohnson/3.png)
+  ![](https://img.ryoma.top/Book/JeffJohnson/3.png)
 
 - 糟糕提示
 这是我在某个网站上看到的，填了一些基本信息，然后对应的错误提示，完全不知道发生了什么
-![](http://img1-1253291688.cossh.myqcloud.com/Book/JeffJohnson/4.png)
+![](https://img.ryoma.top/Book/JeffJohnson/4.png)
