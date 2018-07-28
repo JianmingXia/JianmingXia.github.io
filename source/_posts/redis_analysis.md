@@ -1,5 +1,6 @@
 ---
 title: Redis 引入分析
+date: 2018/07/28 15:00:00
 tags:
   - Redis
 categories: Redis
@@ -29,7 +30,13 @@ categories: Redis
 
 ![Cache Aside](https://img.ryoma.top/Redis/cache_aside_1.png)
 
-可能看到这，有人觉得很奇怪，因为写数据这部分，是先让缓存失效还是后让缓存失效，大家都有自己的看法。我原先也是打算使用后缓存失效的，直至看了这一篇[文章](https://mp.weixin.qq.com/s?__biz=MjM5ODYxMDA5OQ==&mid=2651961341&idx=1&sn=e27916b8e96bd771c72c055f1f53e5be&chksm=bd2d02218a5a8b37ecffd78d20b65501645ac07c7ba2eb65b7e501a3eb9de023febe63bfdb36&scene=21#wechat_redirect)。简单来说，当我们更新完数据库，再去更新缓存时，如果缓存更新失败，这个时候缓存内的数据就是脏数据了。
+可能看到这，有人觉得很奇怪，因为写数据这部分，是先让缓存失效还是后让缓存失效，是很有争议的。我原先也是打算使用后缓存失效的，直至看了这一篇[文章](https://mp.weixin.qq.com/s?__biz=MjM5ODYxMDA5OQ==&mid=2651961341&idx=1&sn=e27916b8e96bd771c72c055f1f53e5be&chksm=bd2d02218a5a8b37ecffd78d20b65501645ac07c7ba2eb65b7e501a3eb9de023febe63bfdb36&scene=21#wechat_redirect)：
+- 类型1：先操作数据库，再操作缓存；
+- 类型2：先操作缓存，再操作数据库；
+
+但是，我们希望保证两个操作的原子性，要么同时成功，要么同时失败。如果第一步操作那还好说，就当做请求失败就有，如果第二个请求时失败，那就另说了（第二个请求失败情况分析）：
+- 类型1：数据库里是新数据，而缓存里是旧数据——出现了数据不一致情况
+- 类型2：缓存里没有数据，数据库里是之前的数据——对业务没有影响（记得要使用delete操作，不要使用set更新数据，否则就是：缓存里是新数据，数据库里是旧数据的情况了）
 
 ### Write Behind Caching Pattern
 > Write Behind 又名 Write Back

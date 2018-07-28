@@ -1,5 +1,6 @@
 ---
 title: Redis 安装
+date: 2018/07/28 15:30:00
 tags:
   - Redis
 categories: Redis

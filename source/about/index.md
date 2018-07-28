@@ -8,6 +8,6 @@ date: 2018-07-28 14:37:10
 
 ## 其它说明
 在2018-07-27因为一些骚操作，之前的博客被我删了，最近几份MarkDown文件也没了。经过一番努力，恢复了博客，并修改了一些：
-- 将主题由jacman->next
+- 将主题由[jacman](https://github.com/wuchong/jacman/)->[next](https://github.com/theme-next)
 - 文章中添加了[date字段](https://hexo.io/docs/front-matter.html)（目前的创建日期都被重置为2018-07-23了）
 - 使用travis自动构建博客并发布
