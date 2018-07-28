@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Ant Design,dva,Electron," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="目前h5引擎正在处于研究阶段，基于Cocos2d-html5封装一个TS版的引擎库。  前言之前在封装UI及Scene这块的内容，UI部分涉及到加载素材，也了解到cocos可以直接使用TexturePacker合成后的plist文件及png。但是对于H5的项目来说，减少网络请求是很重要的一步，特别是在页面初始化加载的时候。这时候在官网看到如下内容：cc.spriteFrameCache 改造说明">
+<meta name="keywords" content="Ant Design,dva,Electron">
+<meta property="og:type" content="article">
+<meta property="og:title" content="博客启用Https">
+<meta property="og:url" content="http://yoursite.com/2018/07/28/Cocos2d-html5 plist优化 & plist文件加载解析/index.html">
+<meta property="og:site_name" content="Ryoma&#39;s Blog">
+<meta property="og:description" content="目前h5引擎正在处于研究阶段，基于Cocos2d-html5封装一个TS版的引擎库。  前言之前在封装UI及Scene这块的内容，UI部分涉及到加载素材，也了解到cocos可以直接使用TexturePacker合成后的plist文件及png。但是对于H5的项目来说，减少网络请求是很重要的一步，特别是在页面初始化加载的时候。这时候在官网看到如下内容：cc.spriteFrameCache 改造说明">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2018-07-28T04:58:09.053Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="博客启用Https">
+<meta name="twitter:description" content="目前h5引擎正在处于研究阶段，基于Cocos2d-html5封装一个TS版的引擎库。  前言之前在封装UI及Scene这块的内容，UI部分涉及到加载素材，也了解到cocos可以直接使用TexturePacker合成后的plist文件及png。但是对于H5的项目来说，减少网络请求是很重要的一步，特别是在页面初始化加载的时候。这时候在官网看到如下内容：cc.spriteFrameCache 改造说明">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2018/07/28/Cocos2d-html5 plist优化 & plist文件加载解析/"/>
+
+
+
+
+
+  <title>博客启用Https | Ryoma's Blog</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Ryoma's Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">纸上得来终觉浅</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/07/28/Cocos2d-html5 plist优化 & plist文件加载解析/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Ryoma">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Ryoma's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">博客启用Https</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-07-28T04:58:09+00:00">
+                2018-07-28
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/前端/" itemprop="url" rel="index">
+                    <span itemprop="name">前端</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <blockquote>
+<p>目前h5引擎正在处于研究阶段，基于Cocos2d-html5封装一个TS版的引擎库。</p>
+</blockquote>
+<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>之前在封装UI及Scene这块的内容，UI部分涉及到加载素材，也了解到cocos可以直接使用TexturePacker合成后的plist文件及png。但是对于H5的项目来说，减少网络请求是很重要的一步，特别是在页面初始化加载的时候。这时候在官网看到如下内容：<a href="http://www.cocos.com/docs/html5/v3/cc-spriteframecache/zh.html" target="_blank" rel="noopener">cc.spriteFrameCache 改造说明</a><br>通俗来说，就是在知道SpriteFrame的数据结构之后，提前将plist文件的解析(这样可以做到将多个plist文件集合到一个文件中，减少加载次数）。官网有一个做法：<br><a id="more"></a></p>
+<ul>
+<li>提取n个plist文件至一个xx.pkgJson文件中，文件加载完毕后，使用自定义的_pkgJsonLoader对文件内容再次处理</li>
+</ul>
+<p>我在按照此方法的处理过程中，发现_pkgJsonLoader中对数据结构处理的很少，只是做了数据提取部分。所以个人觉得在生成.pkgJson文件时，就可以直接按照SpriteFrame数据结构来生成数据，没有必要经过两次处理。以下是官网提供的思路：<br><a id="more"></a></p>
+<p><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line">// SpriteFrame数据结构</div><div class="line">&#123;</div><div class="line">    _inited : true,</div><div class="line">    frames : &#123;</div><div class="line">        &quot;a_frame_0.png&quot; : &#123;</div><div class="line">            rect : &#123;x : 0, y : 0, width : 1, height : 1&#125;,</div><div class="line">            rotated : false,</div><div class="line">            offset : &#123;x : 0, y : 0&#125;,</div><div class="line">            size : &#123;width : 1, height : 1&#125;</div><div class="line">            aliases : [&quot;a_f_0&quot;]</div><div class="line">        &#125;</div><div class="line">    &#125;,</div><div class="line">    meta : &#123;</div><div class="line">        image : &quot;a.png&quot;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div></pre></td><td class="code"><pre><div class="line">// pkgJsonLoader核心代码</div><div class="line">cc._pkgJsonLoader = &#123;</div><div class="line">    /*<em></em></div><div class="line">      @constant</div><div class="line">     */</div><div class="line">    _parse : function(data)&#123;</div><div class="line">        var KEY = data instanceof Array ? this.MIN_KEY : this.KEY;</div><div class="line">        var frames = &#123;&#125;, meta = data[KEY.meta] ? &#123;image : data[KEY.meta][KEY.image]&#125; : &#123;&#125;;</div><div class="line">        var tempFrames = data[KEY.frames];</div><div class="line">        for (var frameName in tempFrames) &#123;</div><div class="line">            var f = tempFrames[frameName];</div><div class="line">            var rect = f[KEY.rect];</div><div class="line">            var size = f[KEY.size];</div><div class="line">            var offset = f[KEY.offset];</div><div class="line">            frames[frameName] = &#123;</div><div class="line">                rect : &#123;x : rect[0], y : rect[1], width : rect[2], height : rect[3]&#125;,</div><div class="line">                size : &#123;width : size[0], height : size[1]&#125;,</div><div class="line">                offset : &#123;x : offset[0], y : offset[1]&#125;,</div><div class="line">                rotated : f[KEY.rotated],</div><div class="line">                aliases : f[KEY.aliases]</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line">        return &#123;_inited : true, frames : frames, meta : meta&#125;;</div><div class="line">    &#125;,</div><div class="line">    load : function(realUrl, url, res, cb)&#123;</div><div class="line">        var self = this, locLoader = cc.loader, cache = locLoader.cache;</div><div class="line">        locLoader.loadJson(realUrl, function(err, pkg)&#123;</div><div class="line">            if(err) return cb(err);</div><div class="line">            var dir = cc.path.dirname(url);</div><div class="line">            for (var key in pkg) &#123;</div><div class="line">                var filePath = cc.path.join(dir, key);</div><div class="line">                cache[filePath] = self._parse(pkg[key]);</div><div class="line">            &#125;</div><div class="line">            cb(null, true);</div><div class="line">        &#125;);</div><div class="line">    &#125;</div><div class="line">&#125;;</div></pre></td></tr></table></figure></p>
+<p></p><h2 id="cocos-pkgjson"><a href="#cocos-pkgjson" class="headerlink" title="cocos-pkgjson"></a><a href="https://www.npmjs.com/package/cocos-pkgjson" target="_blank" rel="external">cocos-pkgjson</a></h2><p>上面说了那么多，首先需要解决的是plist数据解析的工具，可惜在官网上只提供了解析后的数据结构，没有解析工具。为此我在中文论坛及其它相关论坛都问了一遍，但是没有得到满意的答复。所以，决定自己造个轮子。我在npm上找到了plist包，试用了之后，发现plist可以将plist文件的数据提取出来，数据结构如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div></pre></td><td class="code"><pre><div class="line">&#123;</div><div class="line">    &quot;frames&quot;: &#123;</div><div class="line">        &quot;0.png&quot;: &#123;</div><div class="line">            &quot;aliases&quot;: [</div><div class="line">                </div><div class="line">            ],</div><div class="line">            &quot;spriteOffset&quot;: &quot;&#123;0,0&#125;&quot;,</div><div class="line">            &quot;spriteSize&quot;: &quot;&#123;64,49&#125;&quot;,</div><div class="line">            &quot;spriteSourceSize&quot;: &quot;&#123;64,49&#125;&quot;,</div><div class="line">            &quot;textureRect&quot;: &quot;&#123;&#123;1,55&#125;,&#123;64,49&#125;&#125;&quot;,</div><div class="line">            &quot;textureRotated&quot;: false</div><div class="line">        &#125;,</div><div class="line">        &quot;1.png&quot;: &#123;</div><div class="line">            &quot;aliases&quot;: [</div><div class="line">                </div><div class="line">            ],</div><div class="line">            &quot;spriteOffset&quot;: &quot;&#123;0,0&#125;&quot;,</div><div class="line">            &quot;spriteSize&quot;: &quot;&#123;67,52&#125;&quot;,</div><div class="line">            &quot;spriteSourceSize&quot;: &quot;&#123;67,52&#125;&quot;,</div><div class="line">            &quot;textureRect&quot;: &quot;&#123;&#123;1,1&#125;,&#123;67,52&#125;&#125;&quot;,</div><div class="line">            &quot;textureRotated&quot;: false</div><div class="line">        &#125;</div><div class="line">    &#125;,</div><div class="line">    &quot;metadata&quot;: &#123;</div><div class="line">        &quot;format&quot;: 3,</div><div class="line">        &quot;pixelFormat&quot;: &quot;RGBA8888&quot;,</div><div class="line">        &quot;premultiplyAlpha&quot;: false,</div><div class="line">        &quot;realTextureFileName&quot;: &quot;radio.png&quot;,</div><div class="line">        &quot;size&quot;: &quot;&#123;69,105&#125;&quot;,</div><div class="line">        &quot;smartupdate&quot;: &quot;$TexturePacker:SmartUpdate:305947cb63527c2d3a81c456831d3508:0ffe9fa733c7901a53ebea001548ed6d:eed519fbbdd46973eb5ec3b717bd80b1$&quot;,</div><div class="line">        &quot;textureFileName&quot;: &quot;radio.png&quot;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p><p></p>
+<p>其实，到了这一步，我要做的东西就很简单了。基于plist转换后的结构，提取出SprimeFrame需要的数据即可。提取结果：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div></pre></td><td class="code"><pre><div class="line">&#123;</div><div class="line">    &quot;_inited&quot;: true,</div><div class="line">    &quot;frames&quot;: &#123;</div><div class="line">        &quot;0.png&quot;: &#123;</div><div class="line">            &quot;rect&quot;: &#123;</div><div class="line">                &quot;x&quot;: 1,</div><div class="line">                &quot;y&quot;: 55,</div><div class="line">                &quot;width&quot;: 64,</div><div class="line">                &quot;height&quot;: 49</div><div class="line">            &#125;,</div><div class="line">            &quot;rotated&quot;: false,</div><div class="line">            &quot;offset&quot;: &#123;</div><div class="line">                &quot;x&quot;: 0,</div><div class="line">                &quot;y&quot;: 0</div><div class="line">            &#125;,</div><div class="line">            &quot;size&quot;: &#123;</div><div class="line">                &quot;width&quot;: 64,</div><div class="line">                &quot;height&quot;: 49</div><div class="line">            &#125;,</div><div class="line">            &quot;aliases&quot;: [</div><div class="line">                </div><div class="line">            ]</div><div class="line">        &#125;,</div><div class="line">        &quot;1.png&quot;: &#123;</div><div class="line">            &quot;rect&quot;: &#123;</div><div class="line">                &quot;x&quot;: 1,</div><div class="line">                &quot;y&quot;: 1,</div><div class="line">                &quot;width&quot;: 67,</div><div class="line">                &quot;height&quot;: 52</div><div class="line">            &#125;,</div><div class="line">            &quot;rotated&quot;: false,</div><div class="line">            &quot;offset&quot;: &#123;</div><div class="line">                &quot;x&quot;: 0,</div><div class="line">                &quot;y&quot;: 0</div><div class="line">            &#125;,</div><div class="line">            &quot;size&quot;: &#123;</div><div class="line">                &quot;width&quot;: 67,</div><div class="line">                &quot;height&quot;: 52</div><div class="line">            &#125;,</div><div class="line">            &quot;aliases&quot;: [</div><div class="line">                </div><div class="line">            ]</div><div class="line">        &#125;</div><div class="line">    &#125;,</div><div class="line">    &quot;meta&quot;: &#123;</div><div class="line">        &quot;image&quot;: &quot;radio.png&quot;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p><br><p>配合自定义的cc._pkgJsonLoader:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line">cc._pkgJsonLoader = &#123;</div><div class="line">    load: function (realUrl, url, res, cb) &#123;</div><div class="line">        var self = this, locLoader = cc.loader, cache = locLoader.cache;</div><div class="line">        locLoader.loadJson(realUrl, function (err, pkg) &#123;</div><div class="line">            if (err) return cb(err);</div><div class="line">            var dir = cc.path.dirname(url);</div><div class="line">            for (var key in pkg) &#123;</div><div class="line">                var filePath = cc.path.join(dir, key);</div><div class="line">                cache[filePath] = pkg[key];</div><div class="line">            &#125;</div><div class="line">            cb(null, true);</div><div class="line">        &#125;);</div><div class="line">    &#125;</div><div class="line">&#125;;</div><div class="line"></div><div class="line">cc.loader.register([&quot;pkgJson&quot;], cc._pkgJsonLoader);</div></pre></td></tr></table></figure></p>
+
+<h2 id="问题解析"><a href="#问题解析" class="headerlink" title="问题解析"></a>问题解析</h2><h3 id="可能不了解的人会有疑问，为什么plist经过此处理就可以直接使用了，有什么优点呢？"><a href="#可能不了解的人会有疑问，为什么plist经过此处理就可以直接使用了，有什么优点呢？" class="headerlink" title="可能不了解的人会有疑问，为什么plist经过此处理就可以直接使用了，有什么优点呢？"></a>可能不了解的人会有疑问，为什么plist经过此处理就可以直接使用了，有什么优点呢？</h3><p>其实之前提到过一部分，在此重点再说一次：</p>
+<ul>
+<li>减少网络请求——原先游戏在启动时，要将plist文件全部加载完成（不清楚到底有多少个），现在讲n个plist集成到一个.pkgJson文件中，一次网络请求即可</li>
+<li>避免解析数据——原有的plist文件加载完成后，底层还需要再次解析，而现在，.pkgJson中的内容就是直接可用的</li>
+</ul>
+<h3 id="cocos加载png-plist时发生了什么"><a href="#cocos加载png-plist时发生了什么" class="headerlink" title="cocos加载png plist时发生了什么"></a>cocos加载png plist时发生了什么</h3><p>这部分是在和同事交流时发现一位使用了cocos很久的开发，对此过程中到底发生了什么也不太了解。</p>
+<h4 id="png-其它图片资源也是同样的情况"><a href="#png-其它图片资源也是同样的情况" class="headerlink" title="png(其它图片资源也是同样的情况)"></a>png(其它图片资源也是同样的情况)</h4><ul>
+<li>发起加载png资源的请求</li>
+<li>cc.loader.cache缓存对应数据</li>
+<li>cc.textureCache._textures缓存对应数据</li>
+</ul>
+<h4 id="plist"><a href="#plist" class="headerlink" title="plist"></a>plist</h4><ul>
+<li>发起加载plist资源的请求</li>
+<li>cc.loader.cache缓存对应数据</li>
+</ul>
+<p>此时，cc.loader.cache存储的还是xml中的内容：<br>当我们使用如下命令是：<code>cc.spriteFrameCache.addSpriteFrames(&quot;xx.plist&quot;);</code></p>
+<ul>
+<li>获取plist对应的内容<ul>
+<li>未初始化：解析数据，解析完数据后添加：<code>&quot;_inited&quot;: true</code>属性，标记解析完成</li>
+<li>已初始化：直接使用数据</li>
+</ul>
+</li>
+<li>从plist对应的图片资源中加载资源（这个时候使用cc.textureCache._textures，如果没有数据，会发起一次网络请求）</li>
+<li>将spriteFrame存储至_spriteFrames;</li>
+</ul>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Ant-Design/" rel="tag"># Ant Design</a>
+          
+            <a href="/tags/dva/" rel="tag"># dva</a>
+          
+            <a href="/tags/Electron/" rel="tag"># Electron</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/07/28/Quill/" rel="prev" title="Quill">
+                Quill <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/avatar.jpg"
+                alt="Ryoma" />
+            
+              <p class="site-author-name" itemprop="name">Ryoma</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">34</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">10</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">48</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/JianmingXia" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="mailto:xiajianming_xjm@163.com" target="_blank" title="E-Mail">
+                      
+                        <i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#cocos-pkgjson"><span class="nav-number">2.</span> <span class="nav-text">cocos-pkgjson</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#问题解析"><span class="nav-number">3.</span> <span class="nav-text">问题解析</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#可能不了解的人会有疑问，为什么plist经过此处理就可以直接使用了，有什么优点呢？"><span class="nav-number">3.1.</span> <span class="nav-text">可能不了解的人会有疑问，为什么plist经过此处理就可以直接使用了，有什么优点呢？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#cocos加载png-plist时发生了什么"><span class="nav-number">3.2.</span> <span class="nav-text">cocos加载png plist时发生了什么</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#png-其它图片资源也是同样的情况"><span class="nav-number">3.2.1.</span> <span class="nav-text">png(其它图片资源也是同样的情况)</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#plist"><span class="nav-number">3.2.2.</span> <span class="nav-text">plist</span></a></li></ol></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2017 &mdash; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Ryoma</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Gemini</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
