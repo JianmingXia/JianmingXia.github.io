@@ -4,7 +4,6 @@ tags:
   - QRCodeJS
   - JavaScript
   - canvas
-  - img
   - cross domain
 categories: JavaScript
 ---
