@@ -1,5 +1,6 @@
 ---
 title: 二维码添加图片
+date: 2017/12/31 12:00:00
 tags:
   - QRCodeJS
   - JavaScript

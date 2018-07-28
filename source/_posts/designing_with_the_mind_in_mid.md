@@ -1,5 +1,6 @@
 ---
 title: 认知与设计：理解UI设计准则
+date: 2017/12/31 12:00:00
 tags:
   - 设计
 categories: 读书笔记

@@ -1,5 +1,6 @@
 ---
 title: Hexo, Hello World!
+date: 2017/12/31 12:00:00
 tags:
   - Hexo
 categories: 基础
