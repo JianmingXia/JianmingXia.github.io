@@ -187,6 +187,16 @@
         </li>
       
         
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
         <li class="menu-item menu-item-tags">
           <a href="/tags/" rel="section">
             
@@ -249,7 +259,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/posts/qrcodejs_logo_issue/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/posts/redis_analysis/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Ryoma">
@@ -268,7 +278,7 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/posts/qrcodejs_logo_issue/" itemprop="url">QRCodeJS——logo</a></h1>
+                <a class="post-title-link" href="/posts/redis_analysis/" itemprop="url">Redis 引入分析</a></h1>
         
 
         <div class="post-meta">
@@ -280,7 +290,7 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-07-28T14:16:39+08:00">
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-07-28T15:07:01+08:00">
                 2018-07-28
               </time>
             
@@ -303,8 +313,8 @@
               
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/JavaScript/" itemprop="url" rel="index">
-                    <span itemprop="name">JavaScript</span>
+                  <a href="/categories/Redis/" itemprop="url" rel="index">
+                    <span itemprop="name">Redis</span>
                   </a>
                 </span>
 
@@ -341,11 +351,20 @@
 
       
         
-          <h2 id="资源"><a href="#资源" class="headerlink" title="资源"></a>资源</h2><p>详情见<a href="https://github.com/JianmingXia/QRCodeJS" target="_blank" rel="noopener">项目地址</a></p>
-<h2 id="闲谈-amp-缘由"><a href="#闲谈-amp-缘由" class="headerlink" title="闲谈&amp;缘由"></a>闲谈&amp;缘由</h2><p>QRCode加了logo之后，很久也没有修改过了，毕竟现在线上也都在稳定使用。但是本周项目中有人提了一个issue-<a href="https://github.com/JianmingXia/QRCodeJS/issues/1" target="_blank" rel="noopener">用toDataURL获取不到LOGO内容,想把canvas变成img，数据中没有LOGO内容</a>，总结下问题是：希望渲染出来的二维码是使用img标签的。<br>为什么此时的QRCodeJS做不到呢？因为我上次添加logo这个特性的时候，设置默认的就是canvas表现。<br>
+          <blockquote>
+<p>在本文中，<strong>数据库</strong>与<strong>mysql</strong>的意义相同</p>
+</blockquote>
+<h2 id="缓存策略分析"><a href="#缓存策略分析" class="headerlink" title="缓存策略分析"></a>缓存策略分析</h2><blockquote>
+<p>根据场景选择缓存策略，不要在一个场景下混用策略</p>
+</blockquote>
+<h3 id="Cache-Aside-Pattern"><a href="#Cache-Aside-Pattern" class="headerlink" title="Cache Aside Pattern"></a>Cache Aside Pattern</h3><p>适用场景：</p>
+<ul>
+<li>数据非常重要</li>
+<li>多读少写</li>
+</ul>
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/posts/qrcodejs_logo_issue/#more" rel="contents">
+            <a class="btn" href="/posts/redis_analysis/#more" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -396,7 +415,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/posts/nginx_config/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/posts/redis_install/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Ryoma">
@@ -415,7 +434,7 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/posts/nginx_config/" itemprop="url">nginx 配置</a></h1>
+                <a class="post-title-link" href="/posts/redis_install/" itemprop="url">Redis 安装</a></h1>
         
 
         <div class="post-meta">
@@ -427,7 +446,7 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-07-28T14:16:39+08:00">
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-07-28T15:07:01+08:00">
                 2018-07-28
               </time>
             
@@ -450,8 +469,8 @@
               
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/nginx/" itemprop="url" rel="index">
-                    <span itemprop="name">nginx</span>
+                  <a href="/categories/Redis/" itemprop="url" rel="index">
+                    <span itemprop="name">Redis</span>
                   </a>
                 </span>
 
@@ -488,16 +507,11 @@
 
       
         
-          <h2 id="题外话"><a href="#题外话" class="headerlink" title="题外话"></a>题外话</h2><p>最近参与的项目做了较大的更新，原来通用的nginx配置需要做调整，所以对nginx配置这块看的也比较多，在此做个整理</p>
-<h2 id="location-配置"><a href="#location-配置" class="headerlink" title="location 配置"></a>location 配置</h2><h3 id="location-匹配规则"><a href="#location-匹配规则" class="headerlink" title="location 匹配规则"></a>location 匹配规则</h3><ul>
-<li>=：普通字符精确匹配</li>
-<li>^~：uri以字符串开头，一般用来匹配目录（空格可用20%匹配）</li>
-<li>~：区分大小写的正则匹配（!~区分大小写不匹配）</li>
-<li>~*：不区分大小写的正则匹配（!~*不区分大小写不匹配）</li>
-<li>/：通用匹配，任何请求都会匹配到
+          <h2 id="windows-版"><a href="#windows-版" class="headerlink" title="windows 版"></a>windows 版</h2><p>官方没有维护Windows版的Redis，但是<a href="https://github.com/MicrosoftArchive/redis/releases" target="_blank" rel="noopener">微软</a>有支持。不过很久不维护了，最近版本是3.2.100，本地调试够用了。</p>
+<h2 id="Linux版本"><a href="#Linux版本" class="headerlink" title="Linux版本"></a>Linux版本</h2><p>我们要在腾讯云购买的 “社区版Redis-主从版”是基于开源Redis引擎的高性能版本，兼容Redis2.8版本，所以我在测试机上安装的也是2.8版本。<br>
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/posts/nginx_config/#more" rel="contents">
+            <a class="btn" href="/posts/redis_install/#more" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -548,7 +562,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/posts/hello-world/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/posts/cocos2d-html5_plist/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Ryoma">
@@ -567,7 +581,7 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/posts/hello-world/" itemprop="url">Hexo, Hello World!</a></h1>
+                <a class="post-title-link" href="/posts/cocos2d-html5_plist/" itemprop="url">Cocos2d-html5 plist优化 & plist文件加载解析</a></h1>
         
 
         <div class="post-meta">
@@ -579,8 +593,157 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-07-28T14:16:39+08:00">
-                2018-07-28
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-05-05T12:00:00+08:00">
+                2018-05-05
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/前端/" itemprop="url" rel="index">
+                    <span itemprop="name">前端</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <blockquote>
+<p>目前h5引擎正在处于研究阶段，基于Cocos2d-html5封装一个TS版的引擎库。</p>
+</blockquote>
+<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>之前在封装UI及Scene这块的内容，UI部分涉及到加载素材，也了解到cocos可以直接使用TexturePacker合成后的plist文件及png。但是对于H5的项目来说，减少网络请求是很重要的一步，特别是在页面初始化加载的时候。这时候在官网看到如下内容：<a href="http://www.cocos.com/docs/html5/v3/cc-spriteframecache/zh.html" target="_blank" rel="noopener">cc.spriteFrameCache 改造说明</a><br>通俗来说，就是在知道SpriteFrame的数据结构之后，提前将plist文件的解析(这样可以做到将多个plist文件集合到一个文件中，减少加载次数）。官网有一个做法：<br>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/posts/cocos2d-html5_plist/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/posts/blog_https/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Ryoma">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Ryoma's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/posts/blog_https/" itemprop="url">博客启用Https</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-05-03T12:00:00+08:00">
+                2018-05-03
               </time>
             
 
@@ -640,10 +803,10 @@
 
       
         
-          <p>Welcome to <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a>! This is your very first post. Check <a href="https://hexo.io/docs/" target="_blank" rel="noopener">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a href="https://hexo.io/docs/troubleshooting.html" target="_blank" rel="noopener">troubleshooting</a> or you can ask me on <a href="https://github.com/hexojs/hexo/issues" target="_blank" rel="noopener">GitHub</a>.</p>
+          <h2 id="说明"><a href="#说明" class="headerlink" title="说明"></a>说明</h2><p>当初使用Github Pages服务搭建博客完毕之后，因为之前自己买了个域名，故而也配置了自定义域名。配置之后，就发现左上角那个美丽的锁不见了，当时也查了很多办法，但是最后都不了了之。但是最近，在逛github时，突然看到一个新闻：<img src="https://img.ryoma.top/HttpsDomain/0.png" alt=""><br><a href="https://blog.github.com/2018-05-01-github-pages-custom-domains-https/" target="_blank" rel="noopener">原文链接</a><br>
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/posts/hello-world/#more" rel="contents">
+            <a class="btn" href="/posts/blog_https/#more" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -694,7 +857,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/posts/mysql_0/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/posts/antd_dva_electron/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Ryoma">
@@ -713,7 +876,7 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/posts/mysql_0/" itemprop="url">Mysql（清除空数据）</a></h1>
+                <a class="post-title-link" href="/posts/antd_dva_electron/" itemprop="url">Ant Design + dva + Electron</a></h1>
         
 
         <div class="post-meta">
@@ -725,8 +888,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-07-28T14:16:39+08:00">
-                2018-07-28
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-03-04T12:00:00+08:00">
+                2018-03-04
               </time>
             
 
@@ -748,8 +911,8 @@
               
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Mysql/" itemprop="url" rel="index">
-                    <span itemprop="name">Mysql</span>
+                  <a href="/categories/前端/" itemprop="url" rel="index">
+                    <span itemprop="name">前端</span>
                   </a>
                 </span>
 
@@ -786,194 +949,17 @@
 
       
         
-          <h2 id="Mysql-清除空格-换行"><a href="#Mysql-清除空格-换行" class="headerlink" title="Mysql 清除空格 换行"></a>Mysql 清除空格 换行</h2><ul>
-<li>最近从后台拉数据的时候，突然发现数据中有很多格式很奇怪的数据。比如拉出来的数据保存至excel中的时候，会有一些奇怪的换行。原因当然是存储的时候没有对数据进行严格的处理，这部分由于使用的是公司的C++框架，之前使用的时候也忽略了这类数据的处理。（之前在使用PHP的时候，数据会先统一处理，保证在action中的数据都是可以直接使用的）</li>
+          <h2 id="说明"><a href="#说明" class="headerlink" title="说明"></a>说明</h2><p>上周一开会后，确认了接下来的开发方向，之前研究的Blockly暂且放置，先完成一个内部的UI编辑器，基于React, Ant Design及Electron。</p>
+<h2 id="技术说明"><a href="#技术说明" class="headerlink" title="技术说明"></a>技术说明</h2><h3 id="UI库——Ant-Design"><a href="#UI库——Ant-Design" class="headerlink" title="UI库——Ant Design"></a>UI库——Ant Design</h3><p><a href="https://reactjs.org/" target="_blank" rel="noopener">React</a>自不必说，如今已是非常火了。<a href="https://ant.design/docs/react/introduce-cn" target="_blank" rel="noopener">Ant Design</a>有基于React的实现，这也是我们选用Ant Design的原因，而且就Ant Design而言，现在已是非常成熟的技术，它的特性：</p>
+<ul>
+<li>提炼自企业级中后台产品的交互语言和视觉风格</li>
+<li>开箱即用的高质量 React 组件</li>
+<li>使用 TypeScript 构建，提供完整的类型定义文件</li>
+<li>基于 npm + webpack + babel 的工作流，支持 ES2015 和 TypeScript</li>
 </ul>
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/posts/mysql_0/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/posts/mysql_1/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Ryoma">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Ryoma's Blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/posts/mysql_1/" itemprop="url">Mysql（剔除冗余数据）</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-07-28T14:16:39+08:00">
-                2018-07-28
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Mysql/" itemprop="url" rel="index">
-                    <span itemprop="name">Mysql</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <h2 id="Mysql-剔除冗余数据"><a href="#Mysql-剔除冗余数据" class="headerlink" title="Mysql 剔除冗余数据"></a>Mysql 剔除冗余数据</h2><blockquote>
-<p>事出有因，解释起来太麻烦了，举个例子，简化说下问题。</p>
-</blockquote>
-<table>
-<thead>
-<tr>
-<th>user_id</th>
-<th style="text-align:center">passport_id</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>1</td>
-<td style="text-align:center">1</td>
-</tr>
-<tr>
-<td>2</td>
-<td style="text-align:center">2</td>
-</tr>
-<tr>
-<td>4</td>
-<td style="text-align:center">2</td>
-</tr>
-<tr>
-<td>3</td>
-<td style="text-align:center">3</td>
-</tr>
-<tr>
-<td>5</td>
-<td style="text-align:center">3</td>
-</tr>
-<tr>
-<td>6</td>
-<td style="text-align:center">3</td>
-</tr>
-</tbody>
-</table>
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/posts/mysql_1/#more" rel="contents">
+            <a class="btn" href="/posts/antd_dva_electron/#more" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -1015,7 +1001,7 @@
 
   
   <nav class="pagination">
-    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><span class="space">&hellip;</span><a class="page-number" href="/page/7/">7</a><a class="extend next" rel="next" href="/page/2/"><i class="fa fa-angle-right"></i></a>
+    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><span class="space">&hellip;</span><a class="page-number" href="/page/8/">8</a><a class="extend next" rel="next" href="/page/2/"><i class="fa fa-angle-right"></i></a>
   </nav>
 
 
@@ -1065,7 +1051,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">34</span>
+                  <span class="site-state-item-count">36</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -1076,7 +1062,7 @@
               
               <div class="site-state-item site-state-categories">
                 <a href="/categories/index.html">
-                  <span class="site-state-item-count">10</span>
+                  <span class="site-state-item-count">11</span>
                   <span class="site-state-item-name">分类</span>
                 </a>
               </div>
@@ -1087,7 +1073,7 @@
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">49</span>
+                  <span class="site-state-item-count">50</span>
                   <span class="site-state-item-name">标签</span>
                 </a>
               </div>
