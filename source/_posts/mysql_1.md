@@ -1,5 +1,5 @@
 ---
-title: Mysql第二弹（剔除冗余数据）
+title: Mysql（剔除冗余数据）
 tags:
   - Mysql
 categories: Mysql

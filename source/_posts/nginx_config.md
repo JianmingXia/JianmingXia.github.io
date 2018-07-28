@@ -3,7 +3,7 @@ title: nginx 配置
 tags:
   - linux
   - nginx
-  - nginx log
+  - config
 categories: nginx
 ---
 

@@ -1,5 +1,5 @@
 ---
-title: Mysql技巧
+title: Mysql（清除空数据）
 tags:
   - Mysql
   - replace

@@ -1,5 +1,5 @@
 ---
-title: QRCodeJS第二弹
+title: QRCodeJS——logo
 tags:
   - QRCodeJS
   - JavaScript

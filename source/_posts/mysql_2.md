@@ -1,5 +1,5 @@
 ---
-title: Mysql少有的使用
+title: Mysql(截取数据)
 tags:
   - Mysql
   - left right concat
