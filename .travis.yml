@@ -1,20 +1,28 @@
 language: node_js
 node_js: stable
 
+before_install:
+    - export TZ='Asia/Shanghai'
+
 install:
   - yarn install
 
 script:
+  - hexo clean
   - hexo g
 
 after_script:
+  - git clone https://${GH_REF} .deploy_git
+  - cd .deploy_git
+  - git checkout master
+  - cd ../
+  - mv .deploy_git/.git/ ./public/
   - cd ./public
   - mv ../CNAME CNAME
-  - git init
   - git config user.name "JianmingXia"
   - git config user.email "1179801728@qq.com"
   - git add .
-  - git commit -m "Update docs"
+  - git commit -m "Travis CI Auto Builder at `date +"%Y-%m-%d %H:%M"`"
   - git push --force --quiet "https://${GithubToken}@${GH_REF}" master:master
 
 branches:
