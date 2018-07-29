@@ -43,7 +43,7 @@ Redis 自带了一个叫 [redis-benchmark](http://www.redis.cn/topics/benchmarks
 ## GUI 工具
 如果大家喜欢用GUI工具，给大家推荐一个GUI工具——[Medis](https://github.com/luin/medis)。
 
-## 参考资料
+## 资料
 - https://github.com/MicrosoftArchive/redis
 - http://www.redis.cn/download.html
 - http://www.redis.cn/topics/benchmarks.html

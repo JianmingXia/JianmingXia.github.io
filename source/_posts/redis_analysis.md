@@ -87,7 +87,7 @@ Redis缓存的存在，有效的保护了数据库。但是如果Redis由于某�
 ## 说明
 以上分析是基于团队要使用腾讯云Redis服务为前提，大家如果要是自建Redis，还需要具体情况具体分析。
 
-## 参考文档
+## 资料
 - 中文官网：http://www.redis.cn/
 - 英文官网：https://redis.io/
 - Redis命令掌握：http://try.redis.io/
