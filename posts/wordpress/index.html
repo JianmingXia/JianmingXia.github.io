@@ -117,7 +117,7 @@
 <meta property="og:description" content="WordPress 是一款常用的搭建个人博客网站软件，使用 PHP 语言和 MySQL 数据库开发。  前言近期我的女神希望建立自己的个人博客，明确表示不喜欢平时我写博客的方式——目前我使用hexo+github的方式。她希望有一种创建博客的感觉，能够所见即所得，而且不喜欢用markdown语法，就目前而言，我能想到的只有WordPress，恰好最近在腾讯云上买了一台服务器，于是立即着手。在构建">
 <meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="https://img.ryoma.top/WordPress/stella.blog.png">
-<meta property="og:updated_time" content="2018-07-28T08:27:44.384Z">
+<meta property="og:updated_time" content="2018-07-29T03:48:12.803Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="搭建WordPress个人站点">
 <meta name="twitter:description" content="WordPress 是一款常用的搭建个人博客网站软件，使用 PHP 语言和 MySQL 数据库开发。  前言近期我的女神希望建立自己的个人博客，明确表示不喜欢平时我写博客的方式——目前我使用hexo+github的方式。她希望有一种创建博客的感觉，能够所见即所得，而且不喜欢用markdown语法，就目前而言，我能想到的只有WordPress，恰好最近在腾讯云上买了一台服务器，于是立即着手。在构建">
@@ -234,14 +234,6 @@
         
         
           
-          <li class="menu-item menu-item-about">
-    <a href="/about/" rel="section">
-      <i class="menu-item-icon fa fa-fw fa-user"></i> <br />关于</a>
-  </li>
-        
-        
-        
-          
           <li class="menu-item menu-item-tags">
     <a href="/tags/" rel="section">
       <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />标签</a>
@@ -261,6 +253,14 @@
           <li class="menu-item menu-item-archives">
     <a href="/archives/" rel="section">
       <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />归档</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+    <a href="/about/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-user"></i> <br />关于我</a>
   </li>
 
       
@@ -316,7 +316,7 @@
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Ryoma">
       <meta itemprop="description" content="Ryoma's Blog">
-      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="image" content="/images/avatar.jpg">
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
@@ -357,22 +357,6 @@
             
 
             
-              
-
-              
-                
-                <span class="post-meta-divider">|</span>
-                
-
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">更新于</span>
-                
-                <time title="修改时间：2018-07-28 16:27:44" itemprop="dateModified" datetime="2018-07-28T16:27:44+08:00">2018-07-28</time>
-              
-            
           </span>
 
           
@@ -396,6 +380,18 @@
           
 
           
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/posts/wordpress/#comments" itemprop="discussionUrl">
+                
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="posts/wordpress/" itemprop="commentCount"></span>
+                </a>
+              </span>
             
           
 
@@ -564,6 +560,16 @@
           
 
   
+    <div class="comments" id="comments">
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    </div>
+
+  
 
 
 
@@ -600,6 +606,10 @@
         <div class="site-overview">
           <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
             
+              <img class="site-author-image" itemprop="image"
+                src="/images/avatar.jpg"
+                alt="Ryoma" />
+            
               <p class="site-author-name" itemprop="name">Ryoma</p>
               <p class="site-description motion-element" itemprop="description">Ryoma's Blog</p>
           </div>
@@ -611,7 +621,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">36</span>
+                    <span class="site-state-item-count">37</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
@@ -815,7 +825,7 @@
 
     <footer id="footer" class="footer">
       <div class="footer-inner">
-        <div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
+        <div class="copyright">&copy; 2017 &mdash; <span itemprop="copyrightYear">2018</span>
   <span class="with-love" id="animate">
     <i class="fa fa-user"></i>
   </span>
@@ -952,9 +962,44 @@
 
   
 
-
+  
+    <script id="dsq-count-scr" src="https://ryoma-blog.disqus.com/count.js" async></script>
+  
 
   
+    <script type="text/javascript">
+      var disqus_config = function () {
+        this.page.url = 'https://blog.ryoma.top/posts/wordpress/';
+        this.page.identifier = 'posts/wordpress/';
+        this.page.title = '搭建WordPress个人站点';
+        };
+      function loadComments () {
+        var d = document, s = d.createElement('script');
+        s.src = 'https://ryoma-blog.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', '' + +new Date());
+        (d.head || d.body).appendChild(s);
+      }
+      
+        $(function () {
+          var offsetTop = $('#comments').offset().top - $(window).height();
+          if (offsetTop <= 0) {
+            // load directly when there's no a scrollbar
+            loadComments();
+          } else {
+            $(window).on('scroll.disqus_scroll', function () {
+              var scrollTop = document.documentElement.scrollTop;
+              if (scrollTop >= offsetTop) {
+                $(window).off('.disqus_scroll');
+                loadComments();
+              }
+            });
+          }
+        });
+      
+    </script>
+  
+
+
 
 
 

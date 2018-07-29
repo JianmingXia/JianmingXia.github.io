@@ -116,7 +116,7 @@
 <meta property="og:site_name" content="Ryoma&#39;s Blog">
 <meta property="og:description" content="前言很久之前就打算记录下nginx源码的安装记录，因为最初搭建服务器的使用，是直接使用了yum直接安装，毕竟安装方式粗暴简单。后端开发也很久了，但是从来也没怎么注意服务器这块，所以尝试使用源码包来安装nginx，而且在当前服务器编译，更符合系统的性能，性能效率也会更好。 我为什么会选择使用源码包安装 安装位置不受控制我更希望能够自定义安装目录，包括名称，确认我知道自己安装的nginx版本 启动方式">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2018-07-28T08:27:44.384Z">
+<meta property="og:updated_time" content="2018-07-29T03:48:12.803Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="nginx 源码安装">
 <meta name="twitter:description" content="前言很久之前就打算记录下nginx源码的安装记录，因为最初搭建服务器的使用，是直接使用了yum直接安装，毕竟安装方式粗暴简单。后端开发也很久了，但是从来也没怎么注意服务器这块，所以尝试使用源码包来安装nginx，而且在当前服务器编译，更符合系统的性能，性能效率也会更好。 我为什么会选择使用源码包安装 安装位置不受控制我更希望能够自定义安装目录，包括名称，确认我知道自己安装的nginx版本 启动方式">
@@ -232,14 +232,6 @@
         
         
           
-          <li class="menu-item menu-item-about">
-    <a href="/about/" rel="section">
-      <i class="menu-item-icon fa fa-fw fa-user"></i> <br />关于</a>
-  </li>
-        
-        
-        
-          
           <li class="menu-item menu-item-tags">
     <a href="/tags/" rel="section">
       <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />标签</a>
@@ -259,6 +251,14 @@
           <li class="menu-item menu-item-archives">
     <a href="/archives/" rel="section">
       <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />归档</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+    <a href="/about/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-user"></i> <br />关于我</a>
   </li>
 
       
@@ -314,7 +314,7 @@
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Ryoma">
       <meta itemprop="description" content="Ryoma's Blog">
-      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="image" content="/images/avatar.jpg">
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
@@ -355,22 +355,6 @@
             
 
             
-              
-
-              
-                
-                <span class="post-meta-divider">|</span>
-                
-
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">更新于</span>
-                
-                <time title="修改时间：2018-07-28 16:27:44" itemprop="dateModified" datetime="2018-07-28T16:27:44+08:00">2018-07-28</time>
-              
-            
           </span>
 
           
@@ -394,6 +378,18 @@
           
 
           
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/posts/nginx_install/#comments" itemprop="discussionUrl">
+                
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="posts/nginx_install/" itemprop="commentCount"></span>
+                </a>
+              </span>
             
           
 
@@ -487,14 +483,18 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
+              <a href="/posts/hello-world/" rel="next" title="Hexo, Hello World!">
+                <i class="fa fa-chevron-left"></i> Hexo, Hello World!
+              </a>
+            
           </div>
 
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/posts/microservices/" rel="prev" title="微服务的模式语言">
-                微服务的模式语言 <i class="fa fa-chevron-right"></i>
+              <a href="/posts/fiddler_0/" rel="prev" title="fiddler抓包之旅">
+                fiddler抓包之旅 <i class="fa fa-chevron-right"></i>
               </a>
             
           </div>
@@ -516,6 +516,16 @@
 
           </div>
           
+
+  
+    <div class="comments" id="comments">
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    </div>
 
   
 
@@ -554,6 +564,10 @@
         <div class="site-overview">
           <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
             
+              <img class="site-author-image" itemprop="image"
+                src="/images/avatar.jpg"
+                alt="Ryoma" />
+            
               <p class="site-author-name" itemprop="name">Ryoma</p>
               <p class="site-description motion-element" itemprop="description">Ryoma's Blog</p>
           </div>
@@ -565,7 +579,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">36</span>
+                    <span class="site-state-item-count">37</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
@@ -769,7 +783,7 @@
 
     <footer id="footer" class="footer">
       <div class="footer-inner">
-        <div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
+        <div class="copyright">&copy; 2017 &mdash; <span itemprop="copyrightYear">2018</span>
   <span class="with-love" id="animate">
     <i class="fa fa-user"></i>
   </span>
@@ -906,9 +920,44 @@
 
   
 
-
+  
+    <script id="dsq-count-scr" src="https://ryoma-blog.disqus.com/count.js" async></script>
+  
 
   
+    <script type="text/javascript">
+      var disqus_config = function () {
+        this.page.url = 'https://blog.ryoma.top/posts/nginx_install/';
+        this.page.identifier = 'posts/nginx_install/';
+        this.page.title = 'nginx 源码安装';
+        };
+      function loadComments () {
+        var d = document, s = d.createElement('script');
+        s.src = 'https://ryoma-blog.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', '' + +new Date());
+        (d.head || d.body).appendChild(s);
+      }
+      
+        $(function () {
+          var offsetTop = $('#comments').offset().top - $(window).height();
+          if (offsetTop <= 0) {
+            // load directly when there's no a scrollbar
+            loadComments();
+          } else {
+            $(window).on('scroll.disqus_scroll', function () {
+              var scrollTop = document.documentElement.scrollTop;
+              if (scrollTop >= offsetTop) {
+                $(window).off('.disqus_scroll');
+                loadComments();
+              }
+            });
+          }
+        });
+      
+    </script>
+  
+
+
 
 
 

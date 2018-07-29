@@ -118,7 +118,7 @@
 <meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="https://img.ryoma.top/Redis/cache_aside_1.png">
 <meta property="og:image" content="https://img.ryoma.top/Redis/write_back.png">
-<meta property="og:updated_time" content="2018-07-28T08:27:44.384Z">
+<meta property="og:updated_time" content="2018-07-29T03:48:12.803Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Redis 引入分析">
 <meta name="twitter:description" content="在本文中，数据库与mysql的意义相同  缓存策略分析 根据场景选择缓存策略，不要在一个场景下混用策略  Cache Aside Pattern适用场景：  数据非常重要 多读少写">
@@ -235,14 +235,6 @@
         
         
           
-          <li class="menu-item menu-item-about">
-    <a href="/about/" rel="section">
-      <i class="menu-item-icon fa fa-fw fa-user"></i> <br />关于</a>
-  </li>
-        
-        
-        
-          
           <li class="menu-item menu-item-tags">
     <a href="/tags/" rel="section">
       <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />标签</a>
@@ -262,6 +254,14 @@
           <li class="menu-item menu-item-archives">
     <a href="/archives/" rel="section">
       <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />归档</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+    <a href="/about/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-user"></i> <br />关于我</a>
   </li>
 
       
@@ -317,7 +317,7 @@
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Ryoma">
       <meta itemprop="description" content="Ryoma's Blog">
-      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="image" content="/images/avatar.jpg">
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
@@ -354,13 +354,9 @@
                 
               
 
-              <time title="创建时间：2018-07-28 15:00:00 / 修改时间：16:27:44" itemprop="dateCreated datePublished" datetime="2018-07-28T15:00:00+08:00">2018-07-28</time>
+              <time title="创建时间：2018-07-28 15:00:00" itemprop="dateCreated datePublished" datetime="2018-07-28T15:00:00+08:00">2018-07-28</time>
             
 
-            
-              
-
-              
             
           </span>
 
@@ -385,6 +381,18 @@
           
 
           
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/posts/redis_analysis/#comments" itemprop="discussionUrl">
+                
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="posts/redis_analysis/" itemprop="commentCount"></span>
+                </a>
+              </span>
             
           
 
@@ -498,7 +506,7 @@
 <li>一定的降级策略（如有需要，提前做演练）</li>
 </ul>
 <h2 id="说明"><a href="#说明" class="headerlink" title="说明"></a>说明</h2><p>以上分析是基于团队要使用腾讯云Redis服务为前提，大家如果要是自建Redis，还需要具体情况具体分析。</p>
-<h2 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h2><ul>
+<h2 id="资料"><a href="#资料" class="headerlink" title="资料"></a>资料</h2><ul>
 <li>中文官网：<a href="http://www.redis.cn/" target="_blank" rel="noopener">http://www.redis.cn/</a></li>
 <li>英文官网：<a href="https://redis.io/" target="_blank" rel="noopener">https://redis.io/</a></li>
 <li>Redis命令掌握：<a href="http://try.redis.io/" target="_blank" rel="noopener">http://try.redis.io/</a></li>
@@ -576,6 +584,16 @@
           
 
   
+    <div class="comments" id="comments">
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    </div>
+
+  
 
 
 
@@ -612,6 +630,10 @@
         <div class="site-overview">
           <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
             
+              <img class="site-author-image" itemprop="image"
+                src="/images/avatar.jpg"
+                alt="Ryoma" />
+            
               <p class="site-author-name" itemprop="name">Ryoma</p>
               <p class="site-description motion-element" itemprop="description">Ryoma's Blog</p>
           </div>
@@ -623,7 +645,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">36</span>
+                    <span class="site-state-item-count">37</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
@@ -807,7 +829,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#缓存策略分析"><span class="nav-number">1.</span> <span class="nav-text">缓存策略分析</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Cache-Aside-Pattern"><span class="nav-number">1.1.</span> <span class="nav-text">Cache Aside Pattern</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Write-Behind-Caching-Pattern"><span class="nav-number">1.2.</span> <span class="nav-text">Write Behind Caching Pattern</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#数据同步分析"><span class="nav-number">2.</span> <span class="nav-text">数据同步分析</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#防雪崩设计"><span class="nav-number">3.</span> <span class="nav-text">防雪崩设计</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#缓存穿透预防"><span class="nav-number">3.1.</span> <span class="nav-text">缓存穿透预防</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#解决方案"><span class="nav-number">3.1.1.</span> <span class="nav-text">解决方案</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#缓存雪崩问题"><span class="nav-number">3.2.</span> <span class="nav-text">缓存雪崩问题</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#说明"><span class="nav-number">4.</span> <span class="nav-text">说明</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考文档"><span class="nav-number">5.</span> <span class="nav-text">参考文档</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#缓存策略分析"><span class="nav-number">1.</span> <span class="nav-text">缓存策略分析</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Cache-Aside-Pattern"><span class="nav-number">1.1.</span> <span class="nav-text">Cache Aside Pattern</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Write-Behind-Caching-Pattern"><span class="nav-number">1.2.</span> <span class="nav-text">Write Behind Caching Pattern</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#数据同步分析"><span class="nav-number">2.</span> <span class="nav-text">数据同步分析</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#防雪崩设计"><span class="nav-number">3.</span> <span class="nav-text">防雪崩设计</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#缓存穿透预防"><span class="nav-number">3.1.</span> <span class="nav-text">缓存穿透预防</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#解决方案"><span class="nav-number">3.1.1.</span> <span class="nav-text">解决方案</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#缓存雪崩问题"><span class="nav-number">3.2.</span> <span class="nav-text">缓存雪崩问题</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#说明"><span class="nav-number">4.</span> <span class="nav-text">说明</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#资料"><span class="nav-number">5.</span> <span class="nav-text">资料</span></a></li></ol></div>
             
 
           </div>
@@ -827,7 +849,7 @@
 
     <footer id="footer" class="footer">
       <div class="footer-inner">
-        <div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
+        <div class="copyright">&copy; 2017 &mdash; <span itemprop="copyrightYear">2018</span>
   <span class="with-love" id="animate">
     <i class="fa fa-user"></i>
   </span>
@@ -964,9 +986,44 @@
 
   
 
-
+  
+    <script id="dsq-count-scr" src="https://ryoma-blog.disqus.com/count.js" async></script>
+  
 
   
+    <script type="text/javascript">
+      var disqus_config = function () {
+        this.page.url = 'https://blog.ryoma.top/posts/redis_analysis/';
+        this.page.identifier = 'posts/redis_analysis/';
+        this.page.title = 'Redis 引入分析';
+        };
+      function loadComments () {
+        var d = document, s = d.createElement('script');
+        s.src = 'https://ryoma-blog.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', '' + +new Date());
+        (d.head || d.body).appendChild(s);
+      }
+      
+        $(function () {
+          var offsetTop = $('#comments').offset().top - $(window).height();
+          if (offsetTop <= 0) {
+            // load directly when there's no a scrollbar
+            loadComments();
+          } else {
+            $(window).on('scroll.disqus_scroll', function () {
+              var scrollTop = document.documentElement.scrollTop;
+              if (scrollTop >= offsetTop) {
+                $(window).off('.disqus_scroll');
+                loadComments();
+              }
+            });
+          }
+        });
+      
+    </script>
+  
+
+
 
 
 

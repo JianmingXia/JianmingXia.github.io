@@ -1,0 +1,1015 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=6.3.0" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=6.3.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=6.3.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=6.3.0">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=6.3.0" color="#222">
+
+
+
+
+
+
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '6.3.0',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="redis不是垃圾桶也不是 SUPER MAN，能力和资源都有限，不合理的使用会降低它的健康度，严重时甚至会引起redis抖动、阻塞等进而导致服务不可用，每一个使用redis的开发人员都应当掌握规范的开发和使用方法。  键值设计key 设计可读性以业务名(或数据库名)为前缀，用冒号分隔格式：业务名：子业务名：id eg：活动系统-人拉人红包活动-id1ACTIVITY:INVITE_REDPAC">
+<meta name="keywords" content="Redis">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Redis 规范">
+<meta property="og:url" content="https://blog.ryoma.top/posts/redis_standard/index.html">
+<meta property="og:site_name" content="Ryoma&#39;s Blog">
+<meta property="og:description" content="redis不是垃圾桶也不是 SUPER MAN，能力和资源都有限，不合理的使用会降低它的健康度，严重时甚至会引起redis抖动、阻塞等进而导致服务不可用，每一个使用redis的开发人员都应当掌握规范的开发和使用方法。  键值设计key 设计可读性以业务名(或数据库名)为前缀，用冒号分隔格式：业务名：子业务名：id eg：活动系统-人拉人红包活动-id1ACTIVITY:INVITE_REDPAC">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2018-07-29T03:48:12.803Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Redis 规范">
+<meta name="twitter:description" content="redis不是垃圾桶也不是 SUPER MAN，能力和资源都有限，不合理的使用会降低它的健康度，严重时甚至会引起redis抖动、阻塞等进而导致服务不可用，每一个使用redis的开发人员都应当掌握规范的开发和使用方法。  键值设计key 设计可读性以业务名(或数据库名)为前缀，用冒号分隔格式：业务名：子业务名：id eg：活动系统-人拉人红包活动-id1ACTIVITY:INVITE_REDPAC">
+
+
+
+
+
+
+  <link rel="canonical" href="https://blog.ryoma.top/posts/redis_standard/"/>
+
+
+
+<script type="text/javascript" id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>Redis 规范 | Ryoma's Blog</title>
+  
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style type="text/css">
+    .use-motion .motion-element,
+    .use-motion .brand,
+    .use-motion .menu-item,
+    .sidebar-inner,
+    .use-motion .post-block,
+    .use-motion .pagination,
+    .use-motion .comments,
+    .use-motion .post-header,
+    .use-motion .post-body,
+    .use-motion .collection-title { opacity: initial; }
+
+    .use-motion .logo,
+    .use-motion .site-title,
+    .use-motion .site-subtitle {
+      opacity: initial;
+      top: initial;
+    }
+
+    .use-motion {
+      .logo-line-before i { left: initial; }
+      .logo-line-after i { right: initial; }
+    }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Ryoma's Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+      
+        <p class="site-subtitle">纸上得来终觉浅</p>
+      
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+    <a href="/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-home"></i> <br />首页</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+    <a href="/tags/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />标签</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+    <a href="/categories/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-th"></i> <br />分类</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+    <a href="/archives/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />归档</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+    <a href="/about/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-user"></i> <br />关于我</a>
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.ryoma.top/posts/redis_standard/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Ryoma">
+      <meta itemprop="description" content="Ryoma's Blog">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Ryoma's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Redis 规范
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2018-07-29 11:00:00" itemprop="dateCreated datePublished" datetime="2018-07-29T11:00:00+08:00">2018-07-29</time>
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/Redis/" itemprop="url" rel="index"><span itemprop="name">Redis</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/posts/redis_standard/#comments" itemprop="discussionUrl">
+                
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="posts/redis_standard/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <blockquote>
+<p>redis不是垃圾桶也不是 SUPER MAN，能力和资源都有限，不合理的使用会降低它的健康度，严重时甚至会引起redis抖动、阻塞等进而导致服务不可用，每一个使用redis的开发人员都应当掌握规范的开发和使用方法。</p>
+</blockquote>
+<h2 id="键值设计"><a href="#键值设计" class="headerlink" title="键值设计"></a>键值设计</h2><h3 id="key-设计"><a href="#key-设计" class="headerlink" title="key 设计"></a>key 设计</h3><h4 id="可读性"><a href="#可读性" class="headerlink" title="可读性"></a>可读性</h4><p>以业务名(或数据库名)为前缀，用冒号分隔<br>格式：业务名：子业务名：id</p>
+<p>eg：活动系统-人拉人红包活动-id<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ACTIVITY:INVITE_REDPACKET:001</span><br></pre></td></tr></table></figure></p>
+<a id="more"></a>
+<h4 id="简洁性"><a href="#简洁性" class="headerlink" title="简洁性"></a>简洁性</h4><p>保证语义的前提下，控制key的长度，当key较多时，内存占用也不容忽视</p>
+<h4 id="不包含转义字符"><a href="#不包含转义字符" class="headerlink" title="不包含转义字符"></a>不包含转义字符</h4><p>不包含空格、换行、单双引号以及其他转义字符</p>
+<h3 id="value-设计"><a href="#value-设计" class="headerlink" title="value 设计"></a>value 设计</h3><h4 id="拒绝大值"><a href="#拒绝大值" class="headerlink" title="拒绝大值"></a>拒绝大值</h4><ul>
+<li>string类型尽量控制在10KB以内</li>
+<li>hash、list、set、zset元素个数不要超过5000</li>
+</ul>
+<p>虽然redis对单个key可以缓存的对象长度能够支持的很大，但是实际使用场合一定要合理拆分过大的缓存项，1k 基本是redis性能的一个拐点。</p>
+<h4 id="选择适合的数据类型"><a href="#选择适合的数据类型" class="headerlink" title="选择适合的数据类型"></a>选择适合的数据类型</h4><ul>
+<li><p>错误的使用姿势：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">set user:1:name tom</span><br><span class="line">set user:1:age 19</span><br><span class="line">set user:1:favor football</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>正确的使用姿势：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hmset user:1 name tom age 19 favor football</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h4 id="合理设置过期时间"><a href="#合理设置过期时间" class="headerlink" title="合理设置过期时间"></a>合理设置过期时间</h4><p>redis不是垃圾桶，建议使用expire设置过期时间(条件允许可以打散过期时间，防止集中过期)，不过期的数据重点关注idletime。<br>如果key没有设置超时时间，会导致一直占用内存。<br>对于可以预估使用生命周期的key应当设置合理的过期时间或在最后一次操作时进行清理，避免垃圾数据残留redis。</p>
+<h2 id="命令使用"><a href="#命令使用" class="headerlink" title="命令使用"></a>命令使用</h2><h3 id="禁用命令"><a href="#禁用命令" class="headerlink" title="禁用命令"></a>禁用命令</h3><ul>
+<li>keys</li>
+<li>monitor</li>
+<li>flushall</li>
+<li>flushdb</li>
+</ul>
+<p>应当通过redis的rename机制禁掉命令。</p>
+<p>若没有禁用，开发人员要谨慎使用。其中flushall、flushdb会清空redis数据；keys命令可能会引起慢日志；monitor命令在开启的情况下会降低redis的吞吐量，根据压测结果大概会降低redis50%的吞吐量，越多客户端开启该命令，吞吐量下降会越多。</p>
+<h3 id="O-N-命令关注N的数量"><a href="#O-N-命令关注N的数量" class="headerlink" title="O(N)命令关注N的数量"></a>O(N)命令关注N的数量</h3><p>例如hgetall、lrange、smembers、zrange、sinter等。<br>以上命令并非不能使用，但是需要明确N的值，有遍历的需求可以使用hscan、sscan、zscan代替。</p>
+<h3 id="合理使用select"><a href="#合理使用select" class="headerlink" title="合理使用select"></a>合理使用select</h3><p>redis的多数据库较弱，使用数字进行区分，很多客户端支持较差，同时多业务用多数据库实际还是单线程处理，会有干扰。</p>
+<h3 id="合理利用批操作命令"><a href="#合理利用批操作命令" class="headerlink" title="合理利用批操作命令"></a>合理利用批操作命令</h3><p>在redis使用过程中，要正视网络往返时间，合理利用批量操作命令，减少通讯时延和redis访问频次。redis为了减少大量小数据CMD操作的网络通讯时间开销 RTT (Round Trip Time)，支持多种批操作技术：</p>
+<ul>
+<li>MSET/HMSET等都支持一次输入多个key，LPUSH/RPUSH/SADD等命令都支持一次输入多个value,也要注意每次操作数量不要过多,建议控制在500个以内；</li>
+<li>PipeLining 模式 可以一次输入多个指令。redis提供一个 pipeline 的管道操作模式，将多个指令汇总到队列中批量执行，可以减少tcp交互产生的时间，一般情况下能够有10%~30%不等的性能提升；</li>
+<li>更快的是Lua Script模式，还可以包含逻辑。redis内嵌了 lua 解析器，可以执行lua 脚本，脚本可以通过eval等命令直接执行，也可以使用script load等方式上传到服务器端的script cache中重复使用。</li>
+</ul>
+<h3 id="Redis事务功能较弱，不建议过多使用"><a href="#Redis事务功能较弱，不建议过多使用" class="headerlink" title="Redis事务功能较弱，不建议过多使用"></a>Redis事务功能较弱，不建议过多使用</h3><p>Redis的事务功能较弱(不支持回滚)</p>
+<h2 id="客户端使用"><a href="#客户端使用" class="headerlink" title="客户端使用"></a>客户端使用</h2><h3 id="避免多个应用使用一个Redis实例"><a href="#避免多个应用使用一个Redis实例" class="headerlink" title="避免多个应用使用一个Redis实例"></a>避免多个应用使用一个Redis实例</h3><p>将不相干的业务拆分，减少不同业务相互操作的影响，提高请求响应速度</p>
+<h3 id="连接池使用"><a href="#连接池使用" class="headerlink" title="连接池使用"></a>连接池使用</h3><p>可以有效控制连接，同时提高效率</p>
+<h3 id="设置密码"><a href="#设置密码" class="headerlink" title="设置密码"></a>设置密码</h3><h2 id="使用场景分析"><a href="#使用场景分析" class="headerlink" title="使用场景分析"></a>使用场景分析</h2><h3 id="冷热数据分离，不要将所有数据全部都放到Redis中"><a href="#冷热数据分离，不要将所有数据全部都放到Redis中" class="headerlink" title="冷热数据分离，不要将所有数据全部都放到Redis中"></a>冷热数据分离，不要将所有数据全部都放到Redis中</h3><h3 id="使用多个键存储同一对象"><a href="#使用多个键存储同一对象" class="headerlink" title="使用多个键存储同一对象"></a>使用多个键存储同一对象</h3><p>尽管使用多个键存储同一对象就使得使用一个键和索引号来进行访问时带来便利，但是当缓存是基于远程缓存的话，任何关于对象改变都是不可见的，这样会导致缓存数据同步问题的发生</p>
+<h3 id="内存使用分析"><a href="#内存使用分析" class="headerlink" title="内存使用分析"></a>内存使用分析</h3><p>我们要买的Redis实例一般会是8G，在使用Redis之前，内存的占用一定要心里有数。</p>
+<h3 id="常见使用场景"><a href="#常见使用场景" class="headerlink" title="常见使用场景"></a>常见使用场景</h3><h4 id="计数器"><a href="#计数器" class="headerlink" title="计数器"></a>计数器</h4><p>数据统计的需求非常普遍，通过原子递增保持计数。例如，点赞数、收藏数、分享数等。</p>
+<h4 id="排行榜"><a href="#排行榜" class="headerlink" title="排行榜"></a>排行榜</h4><p>排行榜按照得分进行排序，例如，展示最近、最热、点击率最高、活跃度最高等等条件的top list。</p>
+<h4 id="记录用户判定信息"><a href="#记录用户判定信息" class="headerlink" title="记录用户判定信息"></a>记录用户判定信息</h4><p>记录用户判定信息的需求也非常普遍，可以知道一个用户是否进行了某个操作。例如，用户是否点赞、用户是否收藏、用户是否分享等。</p>
+<h4 id="社交列表"><a href="#社交列表" class="headerlink" title="社交列表"></a>社交列表</h4><p>社交属性相关的列表信息，例如，用户点赞列表、用户收藏列表、用户关注列表等。</p>
+<h4 id="缓存"><a href="#缓存" class="headerlink" title="缓存"></a>缓存</h4><p>缓存一些热点数据，例如，PC版本文件更新内容、资讯标签和分类信息、生日祝福寿星列表。</p>
+<h4 id="会话缓存"><a href="#会话缓存" class="headerlink" title="会话缓存"></a>会话缓存</h4><p>使用Redis进行会话缓存。例如，将web session存放在Redis中。</p>
+<h4 id="队列"><a href="#队列" class="headerlink" title="队列"></a>队列</h4><p>Redis能作为一个很好的消息队列来使用，通过list的lpop及lpush接口进行队列的写入和消费，本身性能较好能解决大部分问题。但是，不提倡使用，更加建议使用rabbitmq等服务，作为消息中间件。</p>
+<h2 id="资料"><a href="#资料" class="headerlink" title="资料"></a>资料</h2><ul>
+<li><a href="https://yq.aliyun.com/articles/531067?spm=5176.10695662.1996646101.searchclickresult.411a3928fBKcPk" target="_blank" rel="noopener">https://yq.aliyun.com/articles/531067?spm=5176.10695662.1996646101.searchclickresult.411a3928fBKcPk</a></li>
+<li><a href="http://www.infoq.com/cn/news/2014/09/ten-cache-misunderstanding" target="_blank" rel="noopener">http://www.infoq.com/cn/news/2014/09/ten-cache-misunderstanding</a></li>
+<li><a href="https://mp.weixin.qq.com/s/_5fzR6xDqZhOvv-bKuJzGg" target="_blank" rel="noopener">https://mp.weixin.qq.com/s/_5fzR6xDqZhOvv-bKuJzGg</a></li>
+</ul>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Redis/" rel="tag"># Redis</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/posts/redis_install/" rel="next" title="Redis 安装">
+                <i class="fa fa-chevron-left"></i> Redis 安装
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+    <div class="comments" id="comments">
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/avatar.jpg"
+                alt="Ryoma" />
+            
+              <p class="site-author-name" itemprop="name">Ryoma</p>
+              <p class="site-description motion-element" itemprop="description">Ryoma's Blog</p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">37</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  <a href="/categories/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">11</span>
+                    <span class="site-state-item-name">分类</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  <a href="/tags/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">50</span>
+                    <span class="site-state-item-name">标签</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#键值设计"><span class="nav-number">1.</span> <span class="nav-text">键值设计</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#key-设计"><span class="nav-number">1.1.</span> <span class="nav-text">key 设计</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#可读性"><span class="nav-number">1.1.1.</span> <span class="nav-text">可读性</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#简洁性"><span class="nav-number">1.1.2.</span> <span class="nav-text">简洁性</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#不包含转义字符"><span class="nav-number">1.1.3.</span> <span class="nav-text">不包含转义字符</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#value-设计"><span class="nav-number">1.2.</span> <span class="nav-text">value 设计</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#拒绝大值"><span class="nav-number">1.2.1.</span> <span class="nav-text">拒绝大值</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#选择适合的数据类型"><span class="nav-number">1.2.2.</span> <span class="nav-text">选择适合的数据类型</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#合理设置过期时间"><span class="nav-number">1.2.3.</span> <span class="nav-text">合理设置过期时间</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#命令使用"><span class="nav-number">2.</span> <span class="nav-text">命令使用</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#禁用命令"><span class="nav-number">2.1.</span> <span class="nav-text">禁用命令</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#O-N-命令关注N的数量"><span class="nav-number">2.2.</span> <span class="nav-text">O(N)命令关注N的数量</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#合理使用select"><span class="nav-number">2.3.</span> <span class="nav-text">合理使用select</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#合理利用批操作命令"><span class="nav-number">2.4.</span> <span class="nav-text">合理利用批操作命令</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Redis事务功能较弱，不建议过多使用"><span class="nav-number">2.5.</span> <span class="nav-text">Redis事务功能较弱，不建议过多使用</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#客户端使用"><span class="nav-number">3.</span> <span class="nav-text">客户端使用</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#避免多个应用使用一个Redis实例"><span class="nav-number">3.1.</span> <span class="nav-text">避免多个应用使用一个Redis实例</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#连接池使用"><span class="nav-number">3.2.</span> <span class="nav-text">连接池使用</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#设置密码"><span class="nav-number">3.3.</span> <span class="nav-text">设置密码</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#使用场景分析"><span class="nav-number">4.</span> <span class="nav-text">使用场景分析</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#冷热数据分离，不要将所有数据全部都放到Redis中"><span class="nav-number">4.1.</span> <span class="nav-text">冷热数据分离，不要将所有数据全部都放到Redis中</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#使用多个键存储同一对象"><span class="nav-number">4.2.</span> <span class="nav-text">使用多个键存储同一对象</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#内存使用分析"><span class="nav-number">4.3.</span> <span class="nav-text">内存使用分析</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#常见使用场景"><span class="nav-number">4.4.</span> <span class="nav-text">常见使用场景</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#计数器"><span class="nav-number">4.4.1.</span> <span class="nav-text">计数器</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#排行榜"><span class="nav-number">4.4.2.</span> <span class="nav-text">排行榜</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#记录用户判定信息"><span class="nav-number">4.4.3.</span> <span class="nav-text">记录用户判定信息</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#社交列表"><span class="nav-number">4.4.4.</span> <span class="nav-text">社交列表</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#缓存"><span class="nav-number">4.4.5.</span> <span class="nav-text">缓存</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#会话缓存"><span class="nav-number">4.4.6.</span> <span class="nav-text">会话缓存</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#队列"><span class="nav-number">4.4.7.</span> <span class="nav-text">队列</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#资料"><span class="nav-number">5.</span> <span class="nav-text">资料</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2017 &mdash; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Ryoma</span>
+
+  
+
+  
+</div>
+
+
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动 v3.7.1</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://theme-next.org">NexT.Gemini</a> v6.3.0</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+	
+    
+
+    
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=6.3.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=6.3.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=6.3.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=6.3.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=6.3.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=6.3.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=6.3.0"></script>
+
+
+
+  
+
+  
+    <script id="dsq-count-scr" src="https://ryoma-blog.disqus.com/count.js" async></script>
+  
+
+  
+    <script type="text/javascript">
+      var disqus_config = function () {
+        this.page.url = 'https://blog.ryoma.top/posts/redis_standard/';
+        this.page.identifier = 'posts/redis_standard/';
+        this.page.title = 'Redis 规范';
+        };
+      function loadComments () {
+        var d = document, s = d.createElement('script');
+        s.src = 'https://ryoma-blog.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', '' + +new Date());
+        (d.head || d.body).appendChild(s);
+      }
+      
+        $(function () {
+          var offsetTop = $('#comments').offset().top - $(window).height();
+          if (offsetTop <= 0) {
+            // load directly when there's no a scrollbar
+            loadComments();
+          } else {
+            $(window).on('scroll.disqus_scroll', function () {
+              var scrollTop = document.documentElement.scrollTop;
+              if (scrollTop >= offsetTop) {
+                $(window).off('.disqus_scroll');
+                loadComments();
+              }
+            });
+          }
+        });
+      
+    </script>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
