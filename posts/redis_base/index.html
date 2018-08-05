@@ -1,0 +1,1313 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=6.3.0" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=6.3.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=6.3.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=6.3.0">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=6.3.0" color="#222">
+
+
+
+
+
+
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '6.3.0',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="说明从上周开始着手与Redis方面的工作，在之前的工作经历中，简单的使用过Memcache，用于缓存常用且固定的数据。而这次，使用Redis的主要原因是之前的项目深受进程内缓存的约束（之前使用C++开发项目），导致没有解决方法来处理业务拓展的问题。所以，目前进行业务改造首先是在去进程内缓存，然后再启用Redis服务。Memcache与Redis的比较不用多说，选用Redis还有以下原因：  腾讯云">
+<meta name="keywords" content="Redis,基础,阅读笔记">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Redis 基础">
+<meta property="og:url" content="https://blog.ryoma.top/posts/redis_base/index.html">
+<meta property="og:site_name" content="Ryoma&#39;s Blog">
+<meta property="og:description" content="说明从上周开始着手与Redis方面的工作，在之前的工作经历中，简单的使用过Memcache，用于缓存常用且固定的数据。而这次，使用Redis的主要原因是之前的项目深受进程内缓存的约束（之前使用C++开发项目），导致没有解决方法来处理业务拓展的问题。所以，目前进行业务改造首先是在去进程内缓存，然后再启用Redis服务。Memcache与Redis的比较不用多说，选用Redis还有以下原因：  腾讯云">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2018-08-05T13:26:44.661Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Redis 基础">
+<meta name="twitter:description" content="说明从上周开始着手与Redis方面的工作，在之前的工作经历中，简单的使用过Memcache，用于缓存常用且固定的数据。而这次，使用Redis的主要原因是之前的项目深受进程内缓存的约束（之前使用C++开发项目），导致没有解决方法来处理业务拓展的问题。所以，目前进行业务改造首先是在去进程内缓存，然后再启用Redis服务。Memcache与Redis的比较不用多说，选用Redis还有以下原因：  腾讯云">
+
+
+
+
+
+
+  <link rel="canonical" href="https://blog.ryoma.top/posts/redis_base/"/>
+
+
+
+<script type="text/javascript" id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>Redis 基础 | Ryoma's Blog</title>
+  
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style type="text/css">
+    .use-motion .motion-element,
+    .use-motion .brand,
+    .use-motion .menu-item,
+    .sidebar-inner,
+    .use-motion .post-block,
+    .use-motion .pagination,
+    .use-motion .comments,
+    .use-motion .post-header,
+    .use-motion .post-body,
+    .use-motion .collection-title { opacity: initial; }
+
+    .use-motion .logo,
+    .use-motion .site-title,
+    .use-motion .site-subtitle {
+      opacity: initial;
+      top: initial;
+    }
+
+    .use-motion {
+      .logo-line-before i { left: initial; }
+      .logo-line-after i { right: initial; }
+    }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Ryoma's Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+      
+        <p class="site-subtitle">纸上得来终觉浅</p>
+      
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+    <a href="/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-home"></i> <br />首页</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+    <a href="/tags/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />标签</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+    <a href="/categories/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-th"></i> <br />分类</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+    <a href="/archives/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />归档</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+    <a href="/about/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-user"></i> <br />关于我</a>
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.ryoma.top/posts/redis_base/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Ryoma">
+      <meta itemprop="description" content="Ryoma's Blog">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Ryoma's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Redis 基础
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2018-08-05 21:00:00" itemprop="dateCreated datePublished" datetime="2018-08-05T21:00:00+08:00">2018-08-05</time>
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/Redis/" itemprop="url" rel="index"><span itemprop="name">Redis</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/posts/redis_base/#comments" itemprop="discussionUrl">
+                
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="posts/redis_base/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="说明"><a href="#说明" class="headerlink" title="说明"></a>说明</h2><p>从上周开始着手与Redis方面的工作，在之前的工作经历中，简单的使用过Memcache，用于缓存常用且固定的数据。<br>而这次，使用Redis的主要原因是之前的项目深受进程内缓存的约束（之前使用C++开发项目），导致没有解决方法来处理业务拓展的问题。所以，目前进行业务改造首先是在去进程内缓存，然后再启用Redis服务。Memcache与Redis的比较不用多说，选用Redis还有以下原因：</p>
+<ul>
+<li>腾讯云有成熟的Redis服务——目前身处小团队，没有太多精力放在Redis的可用性上</li>
+<li>Redis服务能够解决我们团队目前的问题，更容易拓展<a id="more"></a>
+</li>
+</ul>
+<p>本文的主要参考是《Redis实战》，就Redis入门而言，目前我个人觉得比较好的路线是（非利益相关，只是就个人学习经历而言）：</p>
+<ul>
+<li>先《Redis实战》：先讲解Redis基础，结合使用场景使用</li>
+<li>再《Redis设计与实现》：从源码的角度来介绍Redis，更有茅舍顿开的感觉</li>
+</ul>
+<h2 id="Redis命令"><a href="#Redis命令" class="headerlink" title="Redis命令"></a>Redis命令</h2><h3 id="字符串（String）"><a href="#字符串（String）" class="headerlink" title="字符串（String）"></a>字符串（String）</h3><p>可以存储的数据类型：</p>
+<ul>
+<li>字节串（byte string）</li>
+<li>整数</li>
+<li>浮点数</li>
+</ul>
+<p>Redis中的自增和自减命令：</p>
+<ul>
+<li><strong>INCR key</strong>——加1</li>
+<li><strong>DECR key</strong>——减1</li>
+<li><strong>INCRBY key increment</strong>——加指定值</li>
+<li><strong>DECRBY key decrement</strong>——减指定值</li>
+<li><strong>INCRBYFLOAT key increment</strong>——加指定值（浮点数）</li>
+</ul>
+<p>当用户将值存储到Redis字符串中时，如果这个值可以被解释为十进制整数或浮点数，那我们可以对这个字符串进行INCR*和DECR*操作：</p>
+<ul>
+<li>如果不存在的键/或是空数据——会当作0处理</li>
+<li>如果无法被解释为十进制整数或浮点数——会返回错误</li>
+</ul>
+<p>处理子串和二进制位的命令：</p>
+<ul>
+<li><strong>APPEND key value</strong>——追加子串至尾部（如果key不存在，等同于set）</li>
+<li><strong>GETRANGE key start end</strong>——获取偏移量start-end的数据，包括start和end</li>
+<li><strong>SETRANGE key offset value</strong> </li>
+<li><strong>GETBIT key offset</strong> </li>
+<li><strong>SETBIT key offset value</strong> </li>
+<li><strong>BITCOUNT key [start][end]</strong> </li>
+<li><strong>BITOP operation destkey key [key …]</strong> </li>
+</ul>
+<h3 id="列表（List）"><a href="#列表（List）" class="headerlink" title="列表（List）"></a>列表（List）</h3><p>Redis的列表允许用户从序列的两端推入或弹出元素、获取列表元素及常见的列表操作。</p>
+<p>用处：</p>
+<ul>
+<li>存储任务信息</li>
+<li>最近浏览过的文章</li>
+<li>常用联系人信息</li>
+</ul>
+<p>常用的列表命令：</p>
+<ul>
+<li><strong>RPUSH key value [value …]</strong> —— 将元素插入到右端（表尾）</li>
+<li><strong>LPUSH key value [value …]</strong> —— 将元素插入到左端（表头）</li>
+<li><strong>RPOP key</strong> ——移除并返回表尾元素</li>
+<li><strong>LPOP key</strong> ——移除并返回表头元素</li>
+<li><strong>LINDEX key index</strong> ——返回列表中下标为index的元素</li>
+<li><strong>LRANGE key start stop</strong> ——返回指定区间内的元素（包括start 和 stop）,可以使用负数下标，-1表示最后一个元素，如此类推</li>
+<li><strong>LTRIM key start stop</strong> ——修剪列表，只保留指定区间内的元素</li>
+</ul>
+<p>阻塞弹出和元素移动命令：</p>
+<ul>
+<li><strong>BLPOP key [key …] timeout</strong> ——从第一个非空列表中弹出左端元素，或在timeout秒内阻塞等待可弹出的元素出现</li>
+<li><strong>BRPOP key [key …] timeout</strong> ——与BLPOP相对应</li>
+<li><strong>RPOPLPUSH source destination</strong> ——在一个原子时间内：将列表source的尾元素弹出，返回客户端，并将该元素插入到destination头部（如果source、destination相同，可视为自旋操作）</li>
+<li><strong>BRPOPLPUSH source destination timeout</strong> ——是RPOPLPUSH 命令的阻塞版本</li>
+</ul>
+<p>对于阻塞弹出和弹出并推入命令，最常见的用例是——消息队列、任务队列。</p>
+<h3 id="集合（Set）"><a href="#集合（Set）" class="headerlink" title="集合（Set）"></a>集合（Set）</h3><p>常用集合命令：</p>
+<ul>
+<li><strong>SADD key member [member …]</strong> ——将一个或多个元素添加到集合中，并返回新加入的元素数量</li>
+<li><strong>SREM key member [member …]</strong> ——从集合中移除一个或多个元素，并返回移除的元素数量</li>
+<li><strong>SISMEMBER key member</strong> ——判断member是否是集合key的元素</li>
+<li><strong>SCARD key</strong> ——返回集合key中的基数——即元素数量（card是集合中cardinality的简写）</li>
+<li><strong>SMEMBERS key</strong> ——返回集合key中的所有元素</li>
+<li><strong>SRANDMEMBER key [count]</strong> ——从集合key中返回一个或多个元素。当count为负数时，会出现重复情况</li>
+<li><strong>SPOP key</strong> ——从集合key中随机移除一个元素并返回</li>
+<li><strong>SMOVE source destination member</strong> ——将member元素由source集合移至destination集合。如果member被成功移除，返回1；否则返回0</li>
+</ul>
+<p>集合真正的强大之处在于组合和关联多个结合，相关命令：</p>
+<ul>
+<li><strong>SDIFF key [key …]</strong> ——返回存在于第一个集合、但不存在于其他集合中的元素（查集）</li>
+<li><strong>SDIFFSTORE destination key [key …]</strong> ——基于SDIFF——将结果存储于destination集合，返回结果集的元素数量。如果destination已存在，则覆盖数据。</li>
+<li><strong>SINTER key [key …]</strong> ——返回同时存在于所有集合的元素（交集）</li>
+<li><strong>SINTERSTORE destination key [key …]</strong> ——基于SINTER——将结果存储于destination集合，返回结果集的元素数量。</li>
+<li><strong>SUNION key [key …]</strong> ——返回至少存在于一个集合中的元素（并集）</li>
+<li><strong>SUNIONSTORE destination key [key …]</strong> ——基于SUNION——将结果存储于destination集合，返回结果集的元素数量。</li>
+</ul>
+<h3 id="散列（Hash）"><a href="#散列（Hash）" class="headerlink" title="散列（Hash）"></a>散列（Hash）</h3><p>常用的散列命令：</p>
+<ul>
+<li><strong>HMGET key field [field …]</strong> ——返回散列中的一个或多个键的值</li>
+<li><strong>HMSET key field value [field value …]</strong> ——为散列中的一个或多个键设置值</li>
+<li><strong>HDEL key field [field …]</strong> ——删除散列中的一个或多个键值对，返回成功删除的键值对数量</li>
+<li><strong>HLEN key</strong> ——返回散列中键值对数量</li>
+</ul>
+<p>HGET和HSET分别是HMGET和HMSET命令的单参数版本。</p>
+<p>更高级的特性：</p>
+<ul>
+<li><strong>HEXISTS key field</strong> ——检查field是否存在于散列中</li>
+<li><strong>HKEYS key</strong> ——返回散列中所有键</li>
+<li><strong>HVALS key</strong> ——返回散列中所有值</li>
+<li><strong>HGETALL key</strong> ——以列表形式返回散列中所有键值对</li>
+<li><strong>HINCRBY key field increment</strong> ——对散列key中的域field的值加上增量increment</li>
+<li><strong>HINCRBYFLOAT key field increment</strong> ——与HINCRBY相似</li>
+</ul>
+<p>尽管有HGETALL存在，但HKEYS和HVALS也是非常有用的：如果散列包含的值非常大，用户可以先使用HKEYS取出键，再使用HGET去取值，避免一次性获取多个大体积的值而导致服务器阻塞。</p>
+<h3 id="有序集合（SortedSet）"><a href="#有序集合（SortedSet）" class="headerlink" title="有序集合（SortedSet）"></a>有序集合（SortedSet）</h3><p>与散列存储着键与值之间的映射类似，有序集合也存储着成员与分值之间的映射。</p>
+<p>常用的命令如下：</p>
+<ul>
+<li><strong>ZADD key score member [[score member][score member] …]</strong> ——将带有指定分值的成员添加到有序集合中。如果成员已在有序集合中，可视为更新分值操作</li>
+<li><strong>ZREM key member [member …]</strong> ——从有序集合中移除指定的成员，返回移除的成员数量</li>
+<li><strong>ZCARD key</strong> ——返回有序集合的基数</li>
+<li><strong>ZINCRBY key increment member</strong> ——将member成员的分值加上increment</li>
+<li><strong>ZCOUNT key min max</strong> ——返回分值介于min-max之间的成员数量，包括min及max</li>
+<li><strong>ZRANK key member</strong> ——返回成员member在有序集合中的排名</li>
+<li><strong>ZSCORE key member</strong> ——返回成员member的分值</li>
+<li><strong>ZRANGE key start stop [WITHSCORES]</strong> ——返回有序集合中排名介于start-stop之间的成员，如果有WITHSCORES选项，会将分值一起返回</li>
+</ul>
+<p>更高级的特性：</p>
+<ul>
+<li><strong>ZREVRANK key member</strong> ——与ZRANK相对应，规则改为从大到小</li>
+<li><strong>ZREVRANGE key start stop [WITHSCORES]</strong> ——与ZRANGE相对应</li>
+<li><strong>ZRANGEBYSCORE key min max [WITHSCORES][LIMIT offset count]</strong> ——返回有序集合中，分值在min-max之间的所有成员</li>
+<li><strong>ZREVRANGEBYSCORE key max min [WITHSCORES][LIMIT offset count]</strong> ——与ZRANGEBYSCORE相对应</li>
+<li><strong>ZREMRANGEBYRANK key start stop</strong> ——移除有序集合中排名在start-stop之间的所有成员，包括start和stop</li>
+<li><strong>ZREMRANGEBYSCORE key min max</strong> ——移除有序集合中分值在min-max之间的所有成员，包括min和max</li>
+<li><strong>ZINTERSTORE destination numkeys key [key …][WEIGHTS weight [weight …]][AGGREGATE SUM|MIN|MAX]</strong> ——对给定的有序集合执行类似集合的交集运算。<ul>
+<li><strong>WEIGHTS</strong>：乘法因子，每个有序集合所有成员的score都需要乘以乘法因子</li>
+<li><strong>AGGREGATE</strong>：指定聚合方式，默认是SUM</li>
+</ul>
+</li>
+<li><strong>ZUNIONSTORE destination numkeys key [key …][WEIGHTS weight [weight …]] [AGGREGATE SUM|MIN|MAX]</strong> ——对给定的有序集合执行类似集合的并集运算</li>
+</ul>
+<h3 id="发布与订阅（pub-sub）"><a href="#发布与订阅（pub-sub）" class="headerlink" title="发布与订阅（pub/sub）"></a>发布与订阅（pub/sub）</h3><p>发布与订阅的特点是订阅者（listener）负责订阅频道（channel），发送者（publisher）负责向频道发送二进制字符串消息。</p>
+<p>发布与订阅命令：</p>
+<ul>
+<li><strong>SUBSCRIBE channel [channel …]</strong> ——订阅一个或多个频道</li>
+<li><strong>UNSUBSCRIBE [channel [channel …]]</strong> ——退订一个或多个频道；如果没有传频道，那么退订所有频道</li>
+<li><strong>PUBLISH channel message</strong> ——向指定频道发布消息</li>
+<li><strong>PSUBSCRIBE pattern [pattern …]</strong> ——订阅与给定模式相匹配的所有频道</li>
+<li><strong>PUNSUBSCRIBE [pattern [pattern …]]</strong> ——退订与给定模式相匹配的频道；如果没有模式，那么退订所有频道</li>
+</ul>
+<p>缺点：</p>
+<ul>
+<li>Redis的稳定性：对于旧版的Redis来说，客户端读取消息的速度会是一个瓶颈，不断积压的消息使得Redis输出缓冲区越来越大，可能会导致Redis的速度变慢，甚至崩溃。新版可以通过设置client-output-buffer-limit来避免这个问题。</li>
+<li>数据传输的可靠性：断线时发送的消息会丢失</li>
+</ul>
+<h3 id="其他命令"><a href="#其他命令" class="headerlink" title="其他命令"></a>其他命令</h3><h4 id="排序"><a href="#排序" class="headerlink" title="排序"></a>排序</h4><ul>
+<li><strong>SORT key [BY pattern][LIMIT offset count] [GET pattern [GET pattern …]][ASC | DESC][ALPHA][STORE destination]</strong> ——可以做的功能有很多，<a href="http://doc.redisfans.com/key/sort.html" target="_blank" rel="noopener">查看文档</a></li>
+</ul>
+<h4 id="基本的Redis事务"><a href="#基本的Redis事务" class="headerlink" title="基本的Redis事务"></a>基本的Redis事务</h4><p>Redis的基本事务：可以让一个客户端在不被其他客户端打断的情况下执行多个命令。和关系型数据库那种可以在执行的过程中进行回滚的事务不同，在Redis里面，被MULTI命令和EXEC命令包围的所有命令会一个接一个地执行，直至所有命令都执行完。</p>
+<h4 id="键的过期时间"><a href="#键的过期时间" class="headerlink" title="键的过期时间"></a>键的过期时间</h4><p>处理过期时间的命令：</p>
+<ul>
+<li><strong>PERSIST key</strong> ——移除键的过期时间，即持久</li>
+<li><strong>TTL key</strong> ——返回给定Key距离过期的时间（秒）；当key不存在时，返回-2；如果key没有设置过期时间，返回-1</li>
+<li><strong>EXPIRE key seconds</strong> ——设置过期时间（秒）</li>
+<li><strong>EXPIREAT key timestamp</strong> ——设置过期时间为时间戳</li>
+<li><strong>PTTL key</strong> ——与TTL类似，单位为毫秒</li>
+<li><strong>PEXPIRE key milliseconds</strong> ——与EXPIRE类似，单位为毫秒</li>
+<li><strong>PEXPIREAT key milliseconds-timestamp</strong> ——与EXPIREAT类似，单位为毫秒</li>
+</ul>
+<h3 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h3><p>了解Redis最常用的一些命令：</p>
+<ul>
+<li>不同数据类型的命令</li>
+<li>发布与订阅</li>
+<li>Sort命令</li>
+<li>Redis事务</li>
+<li>过期相关的命令</li>
+</ul>
+<h2 id="数据安全与性能保障"><a href="#数据安全与性能保障" class="headerlink" title="数据安全与性能保障"></a>数据安全与性能保障</h2><h3 id="持久化选项"><a href="#持久化选项" class="headerlink" title="持久化选项"></a>持久化选项</h3><ul>
+<li>快照：可以将存在于某一时刻的所有数据都写入硬盘</li>
+<li>只追加文件（append-only file, AOF）：会在执行写命令时，将被执行的写命令复制到硬盘中</li>
+</ul>
+<h4 id="快照持久化"><a href="#快照持久化" class="headerlink" title="快照持久化"></a>快照持久化</h4><p>创建快照的方法：</p>
+<ul>
+<li>BGSAVE：Redis会调用fork来创建一个子进程，由子进程负责将快照写入硬盘，父进程可以继续处理请求</li>
+<li>SAVE：在创建快照完毕之前不再响应其他命令</li>
+<li>SAVE配置选项：当条件被满足时，会触发BGSAVE命令</li>
+<li>SHUTDOWN：执行SAVE命令，并阻塞所有客户端，SAVE完毕后关闭服务器</li>
+<li>当Redis服务器连接另一个Redis服务器，并发送SYNC命令</li>
+</ul>
+<p>如果系统发生崩溃，将会丢失最近一次生成快照之后更改的所有数据——快照持久化只适用于对数据要求没那么高的场景。</p>
+<p>快照持久化场景分析：</p>
+<ul>
+<li>个人开发：只设置了save 900 1；主要考虑是尽可能降低快照持久化带来的资源消耗</li>
+<li>对日志进行聚合计算：如果Redis因为崩溃而未能成功创建快照，我们能承受丢失多长时间以内产生的新数据。同时记录处理进度，使用事务流水线保证日志的处理结果和处理进度会同时被记录。</li>
+<li>大数据：Redis缓存的数据越大，快照持久化花费的时间就越长</li>
+</ul>
+<h4 id="AOF持久化"><a href="#AOF持久化" class="headerlink" title="AOF持久化"></a>AOF持久化</h4><p>简单来说，AOF持久化会将被执行的写命令写到AOF文件的末尾，以此来记录数据发生的变化。 </p>
+<p>appendfsync配置选项：</p>
+<table>
+<thead>
+<tr>
+<th>选项</th>
+<th>同步频率</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>always</td>
+<td>每个Redis写命令都要同步写入硬盘——这会严重降低Redis的速度</td>
+</tr>
+<tr>
+<td>everysec</td>
+<td>每秒执行一次同步，显式地将多个写命令同步到硬盘</td>
+</tr>
+<tr>
+<td>no</td>
+<td>让操作系统来决定应该何时进行同步</td>
+</tr>
+</tbody>
+</table>
+<p>Redis每秒同步一次AOF文件时的性能和不使用任何持久化特性时的性能相差无几。</p>
+<p>缺点：AOF文件的体积大小</p>
+<h4 id="重写-压缩-AOF文件"><a href="#重写-压缩-AOF文件" class="headerlink" title="重写/压缩 AOF文件"></a>重写/压缩 AOF文件</h4><p>用户可以向Redis发送BGREWRITEAOF命令——通过移除AOF文件中的冗余命令来重写AOF文件，使得AOF文件尽可能地小。</p>
+<p>BGREWRITEAOF和BGSAVE很相似：Redis会创建一个子进程，然后由子进程负责对AOF文件进行重写。</p>
+<p>自动重写配置：</p>
+<ul>
+<li>auto-aof-rewrite-percentage 100</li>
+<li>auto-aof-rewrite-min-size 64mb</li>
+</ul>
+<h3 id="复制"><a href="#复制" class="headerlink" title="复制"></a>复制</h3><h4 id="对Redis的复制相关选项进行配置"><a href="#对Redis的复制相关选项进行配置" class="headerlink" title="对Redis的复制相关选项进行配置"></a>对Redis的复制相关选项进行配置</h4><ul>
+<li>启动配置：slaveof host port</li>
+<li>正在运行的Redis服务器：<ul>
+<li>SLAVEOF no one：让服务器终止复制操作</li>
+<li>SLAVEOF host port：让服务器开始复制</li>
+</ul>
+</li>
+</ul>
+<h4 id="Redis复制的启动过程"><a href="#Redis复制的启动过程" class="headerlink" title="Redis复制的启动过程"></a>Redis复制的启动过程</h4><p>从服务器连接主服务器时的操作：</p>
+<table>
+<thead>
+<tr>
+<th>步骤</th>
+<th>主服务器操作</th>
+<th>从服务器操作</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>（等待命令进入）</td>
+<td>连接（或重连）主服务器，发送SYNC命令</td>
+</tr>
+<tr>
+<td>2</td>
+<td>开始执行BGSAVE，并使用缓冲区记录BGSAVE之后执行的所有写命令</td>
+<td>根据配置选项来决定是继续使用现有的数据，还是返回错误</td>
+</tr>
+<tr>
+<td>3</td>
+<td>BGSAVE执行完毕，向从服务器发送快照文件，并在发送期间继续使用缓冲区记录被执行的写命令</td>
+<td>丢弃所有旧数据，开始载入主服务器发送的快照文件</td>
+</tr>
+<tr>
+<td>4</td>
+<td>快照文件发送完毕，开始向从服务器发送存储在缓冲区里的写命令</td>
+<td>完成对快照文件的解释操作，继续接受命令请求</td>
+</tr>
+<tr>
+<td>5</td>
+<td>缓冲区存储的写命令发送完毕：从现在开始，每执行一个写命令，就向从服务器发送相同的写命令</td>
+<td>执行主服务器发来的所有存储在缓冲区里的写命令；并从现在开始，接受并执行主服务器传来的每个写命令</td>
+</tr>
+</tbody>
+</table>
+<p>需要注意的是：</p>
+<ul>
+<li>从服务器在进行同步时，会清空自己的所有数据</li>
+<li>不支持主主复制</li>
+</ul>
+<p>当多个从服务器尝试连接同一个主服务器时：</p>
+<table>
+<thead>
+<tr>
+<th>当有新的从服务器连接主服务器时</th>
+<th>主服务器的操作</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>当上述的步骤3尚未执行时</td>
+<td>所有从服务器都会接受到相同的快照文件和相同的缓冲区写命令</td>
+</tr>
+<tr>
+<td>当上述的步骤3正在执行或已经执行完毕</td>
+<td>主服务器与较早进行连接的从服务器执行完复制所需步骤之后；再与新连接的从服务器进行以上步骤</td>
+</tr>
+</tbody>
+</table>
+<h4 id="主从链"><a href="#主从链" class="headerlink" title="主从链"></a>主从链</h4><p>直接扩展多个从服务器会受到主服务器负载能力的限制，这是我们可以通过使用Redis主从节点组成的中间层来解决这个问题。</p>
+<h4 id="检查硬盘写入"><a href="#检查硬盘写入" class="headerlink" title="检查硬盘写入"></a>检查硬盘写入</h4><p>通过判断aof_pending_bio_fsync属性的值是否为0，知悉服务器是否将已知数据都保存到硬盘中。</p>
+<blockquote>
+<p>INFO命令提供了大量的与Redis服务器当前状态相关的信息，如内存占用量、客户端连接数、每个数据库包含的键的数量、上一次创建快照文件之后执行的命令数量等等。</p>
+</blockquote>
+<h3 id="处理系统故障"><a href="#处理系统故障" class="headerlink" title="处理系统故障"></a>处理系统故障</h3><h4 id="验证快照文件和AOF文件"><a href="#验证快照文件和AOF文件" class="headerlink" title="验证快照文件和AOF文件"></a>验证快照文件和AOF文件</h4><ul>
+<li>redis-check-aof</li>
+<li>redis-check-dump</li>
+</ul>
+<p>可以在系统故障发生之后，检查AOF文件和快照文件的状态</p>
+<h4 id="更换故障主服务器"><a href="#更换故障主服务器" class="headerlink" title="更换故障主服务器"></a>更换故障主服务器</h4><p>假设AB分别为主从服务器，机器A出现故障</p>
+<ul>
+<li>方案1：<ul>
+<li>向机器B发送SAVE命令，创建快照文件</li>
+<li>将快照文件发送至C，在机器C上启动Redis</li>
+<li>将机器B设为C的从服务器</li>
+</ul>
+</li>
+<li>方案2：<ul>
+<li>将机器B升级为主服务器</li>
+<li>为机器B设置从服务器</li>
+</ul>
+</li>
+</ul>
+<blockquote>
+<p> Redis Sentinel可以监视指定的Redis主服务器及从服务器，并在主服务器下线时自动进行故障转移。</p>
+</blockquote>
+<h3 id="事务"><a href="#事务" class="headerlink" title="事务"></a>事务</h3><p>结合一个场景来分析，如何使用事务。</p>
+<h4 id="定义用户信息与用户包裹"><a href="#定义用户信息与用户包裹" class="headerlink" title="定义用户信息与用户包裹"></a>定义用户信息与用户包裹</h4><h4 id="将商品放到市场上销售"><a href="#将商品放到市场上销售" class="headerlink" title="将商品放到市场上销售"></a>将商品放到市场上销售</h4><h4 id="购买商品"><a href="#购买商品" class="headerlink" title="购买商品"></a>购买商品</h4><p>通过组合WATCH、MULTI和EXEC命令，正确地使用事务防止数据错误发生。</p>
+<h3 id="非事务型流水线（non-transactional-pipeline）"><a href="#非事务型流水线（non-transactional-pipeline）" class="headerlink" title="非事务型流水线（non-transactional pipeline）"></a>非事务型流水线（non-transactional pipeline）</h3><p>在命令互不影响的情况下，通过使用流水线提升Redis性能。</p>
+<h3 id="关于性能方面的注意事项"><a href="#关于性能方面的注意事项" class="headerlink" title="关于性能方面的注意事项"></a>关于性能方面的注意事项</h3><p>可以根据redis-benchmark来了解性能，但实际客户端的性能达不到这么高——redis-benchmark不会处理执行命令所获得的命令回复，节约了对命令回复进行语法分析的时间。</p>
+<p>一般来说，在不使用流水线的情况下(python客户端)，性能只有redis-benchmark的50%-60%。（这个可以具体场景具体分析）</p>
+<h3 id="小结-1"><a href="#小结-1" class="headerlink" title="小结"></a>小结</h3><p>主要讲述了数据安全与性能保障这部分：</p>
+<ul>
+<li><p>数据安全<br>通过使用持久化和复制来预防并应对系统故障</p>
+</li>
+<li><p>性能保障<br>如何使用事务来防止出错、如何使用流水线提升性能</p>
+</li>
+</ul>
+<h2 id="资料"><a href="#资料" class="headerlink" title="资料"></a>资料</h2><ul>
+<li><a href="http://redisinaction.com/" target="_blank" rel="noopener">http://redisinaction.com/</a></li>
+</ul>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Redis/" rel="tag"># Redis</a>
+          
+            <a href="/tags/基础/" rel="tag"># 基础</a>
+          
+            <a href="/tags/阅读笔记/" rel="tag"># 阅读笔记</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/posts/redis_bug/" rel="next" title="Redis 漏洞">
+                <i class="fa fa-chevron-left"></i> Redis 漏洞
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+    <div class="comments" id="comments">
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/avatar.jpg"
+                alt="Ryoma" />
+            
+              <p class="site-author-name" itemprop="name">Ryoma</p>
+              <p class="site-description motion-element" itemprop="description">Ryoma's Blog</p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">39</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  <a href="/categories/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">11</span>
+                    <span class="site-state-item-name">分类</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  <a href="/tags/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">53</span>
+                    <span class="site-state-item-name">标签</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+            <div class="links-of-author motion-element">
+              
+                <span class="links-of-author-item">
+                  <a href="https://github.com/JianmingXia" target="_blank" title="GitHub"><i class="fa fa-fw fa-github"></i>GitHub</a>
+                  
+                </span>
+              
+                <span class="links-of-author-item">
+                  <a href="mailto:xiajianming_xjm@163.com" target="_blank" title="E-Mail"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                  
+                </span>
+              
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#说明"><span class="nav-number">1.</span> <span class="nav-text">说明</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Redis命令"><span class="nav-number">2.</span> <span class="nav-text">Redis命令</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#字符串（String）"><span class="nav-number">2.1.</span> <span class="nav-text">字符串（String）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#列表（List）"><span class="nav-number">2.2.</span> <span class="nav-text">列表（List）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#集合（Set）"><span class="nav-number">2.3.</span> <span class="nav-text">集合（Set）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#散列（Hash）"><span class="nav-number">2.4.</span> <span class="nav-text">散列（Hash）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#有序集合（SortedSet）"><span class="nav-number">2.5.</span> <span class="nav-text">有序集合（SortedSet）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#发布与订阅（pub-sub）"><span class="nav-number">2.6.</span> <span class="nav-text">发布与订阅（pub/sub）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#其他命令"><span class="nav-number">2.7.</span> <span class="nav-text">其他命令</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#排序"><span class="nav-number">2.7.1.</span> <span class="nav-text">排序</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#基本的Redis事务"><span class="nav-number">2.7.2.</span> <span class="nav-text">基本的Redis事务</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#键的过期时间"><span class="nav-number">2.7.3.</span> <span class="nav-text">键的过期时间</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#小结"><span class="nav-number">2.8.</span> <span class="nav-text">小结</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#数据安全与性能保障"><span class="nav-number">3.</span> <span class="nav-text">数据安全与性能保障</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#持久化选项"><span class="nav-number">3.1.</span> <span class="nav-text">持久化选项</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#快照持久化"><span class="nav-number">3.1.1.</span> <span class="nav-text">快照持久化</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#AOF持久化"><span class="nav-number">3.1.2.</span> <span class="nav-text">AOF持久化</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#重写-压缩-AOF文件"><span class="nav-number">3.1.3.</span> <span class="nav-text">重写/压缩 AOF文件</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#复制"><span class="nav-number">3.2.</span> <span class="nav-text">复制</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#对Redis的复制相关选项进行配置"><span class="nav-number">3.2.1.</span> <span class="nav-text">对Redis的复制相关选项进行配置</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Redis复制的启动过程"><span class="nav-number">3.2.2.</span> <span class="nav-text">Redis复制的启动过程</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#主从链"><span class="nav-number">3.2.3.</span> <span class="nav-text">主从链</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#检查硬盘写入"><span class="nav-number">3.2.4.</span> <span class="nav-text">检查硬盘写入</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#处理系统故障"><span class="nav-number">3.3.</span> <span class="nav-text">处理系统故障</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#验证快照文件和AOF文件"><span class="nav-number">3.3.1.</span> <span class="nav-text">验证快照文件和AOF文件</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#更换故障主服务器"><span class="nav-number">3.3.2.</span> <span class="nav-text">更换故障主服务器</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#事务"><span class="nav-number">3.4.</span> <span class="nav-text">事务</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#定义用户信息与用户包裹"><span class="nav-number">3.4.1.</span> <span class="nav-text">定义用户信息与用户包裹</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#将商品放到市场上销售"><span class="nav-number">3.4.2.</span> <span class="nav-text">将商品放到市场上销售</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#购买商品"><span class="nav-number">3.4.3.</span> <span class="nav-text">购买商品</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#非事务型流水线（non-transactional-pipeline）"><span class="nav-number">3.5.</span> <span class="nav-text">非事务型流水线（non-transactional pipeline）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#关于性能方面的注意事项"><span class="nav-number">3.6.</span> <span class="nav-text">关于性能方面的注意事项</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#小结-1"><span class="nav-number">3.7.</span> <span class="nav-text">小结</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#资料"><span class="nav-number">4.</span> <span class="nav-text">资料</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2017 &mdash; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Ryoma</span>
+
+  
+
+  
+</div>
+
+
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动 v3.7.1</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://theme-next.org">NexT.Gemini</a> v6.3.0</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+	
+    
+
+    
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=6.3.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=6.3.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=6.3.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=6.3.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=6.3.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=6.3.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=6.3.0"></script>
+
+
+
+  
+
+  
+    <script id="dsq-count-scr" src="https://ryoma-blog.disqus.com/count.js" async></script>
+  
+
+  
+    <script type="text/javascript">
+      var disqus_config = function () {
+        this.page.url = 'https://blog.ryoma.top/posts/redis_base/';
+        this.page.identifier = 'posts/redis_base/';
+        this.page.title = 'Redis 基础';
+        };
+      function loadComments () {
+        var d = document, s = d.createElement('script');
+        s.src = 'https://ryoma-blog.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', '' + +new Date());
+        (d.head || d.body).appendChild(s);
+      }
+      
+        $(function () {
+          var offsetTop = $('#comments').offset().top - $(window).height();
+          if (offsetTop <= 0) {
+            // load directly when there's no a scrollbar
+            loadComments();
+          } else {
+            $(window).on('scroll.disqus_scroll', function () {
+              var scrollTop = document.documentElement.scrollTop;
+              if (scrollTop >= offsetTop) {
+                $(window).off('.disqus_scroll');
+                loadComments();
+              }
+            });
+          }
+        });
+      
+    </script>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
