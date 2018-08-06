@@ -1040,7 +1040,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://blog.ryoma.top/posts/blog_comment&statistics/">
+    <link itemprop="mainEntityOfPage" href="https://blog.ryoma.top/posts/nginx_log/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Ryoma">
@@ -1059,8 +1059,8 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/posts/blog_comment&statistics/" itemprop="url">
-                  博客优化
+                <a class="post-title-link" href="/posts/nginx_log/" itemprop="url">
+                  nginx log分片
                 </a>
               
             
@@ -1104,7 +1104,7 @@
                 <span class="post-meta-item-text">分类于</span>
               
               
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/基础/" itemprop="url" rel="index"><span itemprop="name">基础</span></a></span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/nginx/" itemprop="url" rel="index"><span itemprop="name">nginx</span></a></span>
 
                 
                 
@@ -1119,10 +1119,10 @@
                 <span class="post-meta-item-icon">
                   <i class="fa fa-comment-o"></i>
                 </span>
-                <a href="/posts/blog_comment&statistics/#comments" itemprop="discussionUrl">
+                <a href="/posts/nginx_log/#comments" itemprop="discussionUrl">
                 
                   <span class="post-comments-count disqus-comment-count"
-                        data-disqus-identifier="posts/blog_comment&statistics/" itemprop="commentCount"></span>
+                        data-disqus-identifier="posts/nginx_log/" itemprop="commentCount"></span>
                 </a>
               </span>
             
@@ -1151,11 +1151,10 @@
 
       
         
-          <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>想做就做，说那么多干嘛？</p>
-<h2 id="评论——畅言"><a href="#评论——畅言" class="headerlink" title="评论——畅言"></a>评论——<a href="https://changyan.kuaizhan.com/" target="_blank" rel="noopener">畅言</a></h2><p><code>多说</code>很久之前就停了，<code>disqus</code>经常被墙，<code>网易云跟帖</code>好像也挂了，最近看到我使用的主题——jacman可支持的评论中加入了<code>畅言</code>，于是来试试。<br>从文档中没有搜索到<code>畅言</code>的使用方式，对主题部分的代码搜索了一番，配置好appid及appkey即可。<br><img src="https://img.ryoma.top/blog/1.png" alt=""><br>
+          <h2 id="Nginx-log分片"><a href="#Nginx-log分片" class="headerlink" title="Nginx log分片"></a>Nginx log分片</h2><h3 id="创建cut-log-sh脚本文件"><a href="#创建cut-log-sh脚本文件" class="headerlink" title="创建cut_log.sh脚本文件"></a>创建cut_log.sh脚本文件</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">#!/bin/bash</span><br><span class="line"></span><br><span class="line">LOG_PATH=$(cd `dirname $0`; pwd)</span><br><span class="line"></span><br><span class="line">YESTERDAY=$(date -d yesterday &quot;+%Y-%m-%d&quot;)</span><br><span class="line"></span><br><span class="line">PID=/usr/local/nginx/logs/nginx.pid</span><br><span class="line"></span><br><span class="line">mv $&#123;LOG_PATH&#125;/access.log $&#123;LOG_PATH&#125;/access-$&#123;YESTERDAY&#125;.log</span><br><span class="line">mv $&#123;LOG_PATH&#125;/error.log $&#123;LOG_PATH&#125;/error-$&#123;YESTERDAY&#125;.log</span><br><span class="line"></span><br><span class="line">kill -USR1 `cat $&#123;PID&#125;`</span><br></pre></td></tr></table></figure>
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/posts/blog_comment&statistics/#more" rel="contents">
+            <a class="btn" href="/posts/nginx_log/#more" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -1247,7 +1246,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">39</span>
+                    <span class="site-state-item-count">40</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
@@ -1401,7 +1400,9 @@
                     
                       
                     
-                    <span class="site-state-item-count">53</span>
+                      
+                    
+                    <span class="site-state-item-count">54</span>
                     <span class="site-state-item-name">标签</span>
                   </a>
                 </div>
