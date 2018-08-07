@@ -9,7 +9,7 @@ categories: Redis
 
 ## 说明
 本周一上班后，有同事反馈说某台云主机无法连接。通过在腾讯云控制台操作，将机器启动后，发现机器的异常情况比较多，并且之前在机器上装的mysql也不见了，但是系统日志等也没有发现异常，咨询了腾讯云的客服，也没有得到结论。最后，发现了可能是上周安装的redis导致的问题，并且留下了这个文件：
-![](https://img.ryoma.top/Redis/redis_bug_file.jpg)
+![](https://img.ryoma.top/Redis/redis_read_this.png)
 <!-- more -->
 
 查看了文中的链接：
