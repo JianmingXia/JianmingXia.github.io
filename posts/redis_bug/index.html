@@ -116,13 +116,13 @@
 <meta property="og:site_name" content="Ryoma&#39;s Blog">
 <meta property="og:description" content="说明本周一上班后，有同事反馈说某台云主机无法连接。通过在腾讯云控制台操作，将机器启动后，发现机器的异常情况比较多，并且之前在机器上装的mysql也不见了，但是系统日志等也没有发现异常，咨询了腾讯云的客服，也没有得到结论。最后，发现了可能是上周安装的redis导致的问题，并且留下了这个文件：">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:image" content="https://img.ryoma.top/Redis/redis_bug_file.jpg">
+<meta property="og:image" content="https://img.ryoma.top/Redis/redis_read_this.png">
 <meta property="og:image" content="https://img.ryoma.top/Redis/redis_btc.png">
-<meta property="og:updated_time" content="2018-08-06T13:55:30.899Z">
+<meta property="og:updated_time" content="2018-08-07T03:58:06.643Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Redis 漏洞">
 <meta name="twitter:description" content="说明本周一上班后，有同事反馈说某台云主机无法连接。通过在腾讯云控制台操作，将机器启动后，发现机器的异常情况比较多，并且之前在机器上装的mysql也不见了，但是系统日志等也没有发现异常，咨询了腾讯云的客服，也没有得到结论。最后，发现了可能是上周安装的redis导致的问题，并且留下了这个文件：">
-<meta name="twitter:image" content="https://img.ryoma.top/Redis/redis_bug_file.jpg">
+<meta name="twitter:image" content="https://img.ryoma.top/Redis/redis_read_this.png">
 
 
 
@@ -418,7 +418,7 @@
       
 
       
-        <h2 id="说明"><a href="#说明" class="headerlink" title="说明"></a>说明</h2><p>本周一上班后，有同事反馈说某台云主机无法连接。通过在腾讯云控制台操作，将机器启动后，发现机器的异常情况比较多，并且之前在机器上装的mysql也不见了，但是系统日志等也没有发现异常，咨询了腾讯云的客服，也没有得到结论。最后，发现了可能是上周安装的redis导致的问题，并且留下了这个文件：<br><img src="https://img.ryoma.top/Redis/redis_bug_file.jpg" alt=""><br><a id="more"></a></p>
+        <h2 id="说明"><a href="#说明" class="headerlink" title="说明"></a>说明</h2><p>本周一上班后，有同事反馈说某台云主机无法连接。通过在腾讯云控制台操作，将机器启动后，发现机器的异常情况比较多，并且之前在机器上装的mysql也不见了，但是系统日志等也没有发现异常，咨询了腾讯云的客服，也没有得到结论。最后，发现了可能是上周安装的redis导致的问题，并且留下了这个文件：<br><img src="https://img.ryoma.top/Redis/redis_read_this.png" alt=""><br><a id="more"></a></p>
 <p>查看了文中的链接：<br><img src="https://img.ryoma.top/Redis/redis_btc.png" alt=""></p>
 <h2 id="缘由"><a href="#缘由" class="headerlink" title="缘由"></a>缘由</h2><p>其实在网上能发现很多关于此漏洞的说明，主要的原因是由于Redis的配置不当，导致被攻击者利用，从而实现攻击。我个人其实之前在安装时，注意过redis的配置，我在windows机器上装的是3.2.100，默认配置是只允许127.0.0.1访问；在我个人的机器上，我安装的是4.0.10，访问依然是有配置。由于即将使用的腾讯云Redis云服务是兼容Redis2.8的，所以我在测试机就安装了最稳妥的2.8.7版本，然后忽略了配置。实际上，这个版本默认是没有访问限制的，也导致了此次问题的发生。</p>
 <h2 id="预防措施"><a href="#预防措施" class="headerlink" title="预防措施"></a>预防措施</h2><p>在发生了此次问题之后，我也查看相关的预防资料：</p>

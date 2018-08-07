@@ -108,18 +108,18 @@
 
 
 
-  <meta name="description" content="说明在之前的C++项目中，当需要修改某些内容的时候，考虑到并发读的场景，一般都会加上一个“写锁”，此时读的场景中“读锁”会等待“写锁”释放（阻塞操作），当“写锁”释放后，“读锁”占位，进行读的操作。 从之前看的redis基础内容来看，Redis是没有办法直接加锁的，但是我们又不得不考虑这件事。否则，在高并发的场景下，数据会成什么样子，鬼知道呢？">
+  <meta name="description" content="说明在之前的C++项目中，当需要修改某些内容的时候，考虑到并发读写的场景，一般都会加上一个“写锁”，此时读写场景中“读写锁”都会等待“写锁”释放（阻塞操作），当“写锁”释放后，“读锁”占位，进行读的操作。 从之前看的redis基础内容来看，Redis是没有办法直接加锁的，但是我们又不得不考虑这件事。否则，在高并发的场景下，数据会成什么样子，鬼知道呢？">
 <meta name="keywords" content="Redis,分布式锁">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Redis 分布式锁">
 <meta property="og:url" content="https://blog.ryoma.top/posts/redis_distlock/index.html">
 <meta property="og:site_name" content="Ryoma&#39;s Blog">
-<meta property="og:description" content="说明在之前的C++项目中，当需要修改某些内容的时候，考虑到并发读的场景，一般都会加上一个“写锁”，此时读的场景中“读锁”会等待“写锁”释放（阻塞操作），当“写锁”释放后，“读锁”占位，进行读的操作。 从之前看的redis基础内容来看，Redis是没有办法直接加锁的，但是我们又不得不考虑这件事。否则，在高并发的场景下，数据会成什么样子，鬼知道呢？">
+<meta property="og:description" content="说明在之前的C++项目中，当需要修改某些内容的时候，考虑到并发读写的场景，一般都会加上一个“写锁”，此时读写场景中“读写锁”都会等待“写锁”释放（阻塞操作），当“写锁”释放后，“读锁”占位，进行读的操作。 从之前看的redis基础内容来看，Redis是没有办法直接加锁的，但是我们又不得不考虑这件事。否则，在高并发的场景下，数据会成什么样子，鬼知道呢？">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2018-08-06T13:55:30.899Z">
+<meta property="og:updated_time" content="2018-08-07T03:58:06.647Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Redis 分布式锁">
-<meta name="twitter:description" content="说明在之前的C++项目中，当需要修改某些内容的时候，考虑到并发读的场景，一般都会加上一个“写锁”，此时读的场景中“读锁”会等待“写锁”释放（阻塞操作），当“写锁”释放后，“读锁”占位，进行读的操作。 从之前看的redis基础内容来看，Redis是没有办法直接加锁的，但是我们又不得不考虑这件事。否则，在高并发的场景下，数据会成什么样子，鬼知道呢？">
+<meta name="twitter:description" content="说明在之前的C++项目中，当需要修改某些内容的时候，考虑到并发读写的场景，一般都会加上一个“写锁”，此时读写场景中“读写锁”都会等待“写锁”释放（阻塞操作），当“写锁”释放后，“读锁”占位，进行读的操作。 从之前看的redis基础内容来看，Redis是没有办法直接加锁的，但是我们又不得不考虑这件事。否则，在高并发的场景下，数据会成什么样子，鬼知道呢？">
 
 
 
@@ -415,18 +415,23 @@
       
 
       
-        <h2 id="说明"><a href="#说明" class="headerlink" title="说明"></a>说明</h2><p>在之前的C++项目中，当需要修改某些内容的时候，考虑到并发读的场景，一般都会加上一个“写锁”，此时读的场景中“读锁”会等待“写锁”释放（阻塞操作），当“写锁”释放后，“读锁”占位，进行读的操作。</p>
-<p>从之前看的redis基础内容来看，Redis是没有办法直接加锁的，但是我们又不得不考虑这件事。否则，在高并发的场景下，数据会成什么样子，鬼知道呢？</p>
-<a id="more"></a>
-<h2 id="分布式锁"><a href="#分布式锁" class="headerlink" title="分布式锁"></a>分布式锁</h2><h3 id="锁的重要性"><a href="#锁的重要性" class="headerlink" title="锁的重要性"></a>锁的重要性</h3><p>之前看到Redis中有事务的概念，在开启事务时，如果其它客户端修改了目标值，事务就会失败。一般来说，我们会在事务失败后，不断重试。但是，这样有个问题：在负载不断增加的情况下，事务由于执行失败而反复重试。</p>
-<p>事务失败然后重试其实是乐观锁的实现，但是在某些键经常被触发的场景下，乐观锁的效率会很低。</p>
-<h3 id="锁的实现"><a href="#锁的实现" class="headerlink" title="锁的实现"></a>锁的实现</h3><p>分布式锁本质上要实现的是先“占坑”，当坑被占后，当别的进程也要来占时，就只能重试或放弃。 </p>
-<p>在Redis中，使用SETNX实现“占坑”——set if not exists，只允许被一个客户端占坑。先来先占，当坑被占的时候，所有的客户端都无法再占坑，只能等待坑被释放。 </p>
-<p>但是，上面这种方式是有漏洞的：</p>
+        <h2 id="说明"><a href="#说明" class="headerlink" title="说明"></a>说明</h2><p>在之前的C++项目中，当需要修改某些内容的时候，考虑到并发读写的场景，一般都会加上一个“写锁”，此时读写场景中“读写锁”都会等待“写锁”释放（阻塞操作），当“写锁”释放后，“读锁”占位，进行读的操作。</p>
+<p>从之前看的redis基础内容来看，Redis是没有办法直接加锁的，但是我们又不得不考虑这件事。否则，在高并发的场景下，数据会成什么样子，鬼知道呢？<br><a id="more"></a></p>
+<h2 id="分布式锁"><a href="#分布式锁" class="headerlink" title="分布式锁"></a>分布式锁</h2><h3 id="锁的重要性"><a href="#锁的重要性" class="headerlink" title="锁的重要性"></a>锁的重要性</h3><p>之前看到Redis中有事务的概念，在开启事务时，如果其它客户端修改了目标值，事务就会失败。一般来说，我们会在事务失败后，不断重试。但是，这样有个问题：在负载不断增加的情况下，事务由于执行失败而反复重试，而频繁重试会导致乐观锁的效率会很低。</p>
+<p>事务失败然后重试其实是乐观锁的实现，有兴趣的可以查看乐观锁。</p>
+<h3 id="锁的实现"><a href="#锁的实现" class="headerlink" title="锁的实现"></a>锁的实现</h3><h4 id="占坑"><a href="#占坑" class="headerlink" title="占坑"></a>占坑</h4><p>分布式锁本质上要实现的是先“占坑”，当坑被占后，当别的进程也要来占时，就只能重试或放弃。 </p>
+<p>在Redis中，使用SETNX实现“占坑”——set if not exists，只允许被一个客户端占坑。先来先占，当坑被占的时候，所有的客户端都无法再占坑，只能等待坑被释放。</p>
+<h4 id="漏洞"><a href="#漏洞" class="headerlink" title="漏洞"></a>漏洞</h4><p>但是，上面这种方式是有漏洞的：</p>
 <ul>
 <li>如果占坑的客户端挂了，这个坑就再也不会被释放了</li>
 <li>有了上一个问题，我们可能会想到使用expire设置过期时间——但是SETNX和EXPIRE不是原子操作，假如两个命令之间挂掉了怎么办</li>
 <li>假如第一个客户端占了坑，并且操作超时；此时第二个客户端也占了坑，开始进行操作；第一个客户端完成了操作，然后将坑释放了。。。此时，第二个客户端占了一个假坑</li>
+</ul>
+<h3 id="锁冲突处理"><a href="#锁冲突处理" class="headerlink" title="锁冲突处理"></a>锁冲突处理</h3><p>当客户端请求加锁没成功：</p>
+<ul>
+<li>直接抛出异常，通知用户稍后重试——适合处理由用户直接发起的请求，由用户决定是否重试</li>
+<li>sleep 一段时间再重试——考虑出现碰撞频繁的情况，会出现阻塞的情况，即使可以设置重试限制，还是需要慎重使用</li>
+<li>将请求转移至延时队列——适合异步消息处理</li>
 </ul>
 <h2 id="锁的优化"><a href="#锁的优化" class="headerlink" title="锁的优化"></a>锁的优化</h2><p>上面列了3个问题，其中，第二个问题是为了解决第一个问题而产生的，实际上，我们解决第二、三个问题即可：</p>
 <h3 id="EXPIRE问题"><a href="#EXPIRE问题" class="headerlink" title="EXPIRE问题"></a>EXPIRE问题</h3><p>在之前的版本中，需要分别使用SETNX和EXPIRE实现锁，但是由于不是原子操作，还需要保证EXPIRE必定执行成功。实际上从Redis2.6.12开始，通过使用SET命令新添加的可选选项，可以有同时运行SETNX和EXPIRE命令的效果。</p>
@@ -780,7 +785,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#说明"><span class="nav-number">1.</span> <span class="nav-text">说明</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#分布式锁"><span class="nav-number">2.</span> <span class="nav-text">分布式锁</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#锁的重要性"><span class="nav-number">2.1.</span> <span class="nav-text">锁的重要性</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#锁的实现"><span class="nav-number">2.2.</span> <span class="nav-text">锁的实现</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#锁的优化"><span class="nav-number">3.</span> <span class="nav-text">锁的优化</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#EXPIRE问题"><span class="nav-number">3.1.</span> <span class="nav-text">EXPIRE问题</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#超时引发的问题"><span class="nav-number">3.2.</span> <span class="nav-text">超时引发的问题</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#细粒度锁"><span class="nav-number">3.3.</span> <span class="nav-text">细粒度锁</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#更多"><span class="nav-number">4.</span> <span class="nav-text">更多</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#资料"><span class="nav-number">5.</span> <span class="nav-text">资料</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#说明"><span class="nav-number">1.</span> <span class="nav-text">说明</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#分布式锁"><span class="nav-number">2.</span> <span class="nav-text">分布式锁</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#锁的重要性"><span class="nav-number">2.1.</span> <span class="nav-text">锁的重要性</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#锁的实现"><span class="nav-number">2.2.</span> <span class="nav-text">锁的实现</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#占坑"><span class="nav-number">2.2.1.</span> <span class="nav-text">占坑</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#漏洞"><span class="nav-number">2.2.2.</span> <span class="nav-text">漏洞</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#锁冲突处理"><span class="nav-number">2.3.</span> <span class="nav-text">锁冲突处理</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#锁的优化"><span class="nav-number">3.</span> <span class="nav-text">锁的优化</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#EXPIRE问题"><span class="nav-number">3.1.</span> <span class="nav-text">EXPIRE问题</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#超时引发的问题"><span class="nav-number">3.2.</span> <span class="nav-text">超时引发的问题</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#细粒度锁"><span class="nav-number">3.3.</span> <span class="nav-text">细粒度锁</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#更多"><span class="nav-number">4.</span> <span class="nav-text">更多</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#资料"><span class="nav-number">5.</span> <span class="nav-text">资料</span></a></li></ol></div>
             
 
           </div>
