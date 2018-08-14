@@ -1,0 +1,1174 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=6.3.0" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=6.3.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=6.3.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=6.3.0">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=6.3.0" color="#222">
+
+
+
+
+
+
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '6.3.0',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="缓存 分布式锁 持久化  说在前面这个是我个人阅读Redis 深度历险：核心原理与应用实践一文的总结，更多的是阅读笔记，当然在看的过程中也有很多目前还不太明白的，或是目前还没有吃透的，也会放在本文中做一个备忘。 基础Redis可以做什么？ 记录帖子的点赞数、评论数、点击数（hash） 记录用户的帖子列表（排序），便于快速显示（zset） 缓存热门内容（hash） 记录帖子的相关文章ID，根据内容">
+<meta name="keywords" content="Redis,书籍">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Redis 深度历险——总结">
+<meta property="og:url" content="https://blog.ryoma.top/posts/redis_depth_adventure/index.html">
+<meta property="og:site_name" content="Ryoma&#39;s Blog">
+<meta property="og:description" content="缓存 分布式锁 持久化  说在前面这个是我个人阅读Redis 深度历险：核心原理与应用实践一文的总结，更多的是阅读笔记，当然在看的过程中也有很多目前还不太明白的，或是目前还没有吃透的，也会放在本文中做一个备忘。 基础Redis可以做什么？ 记录帖子的点赞数、评论数、点击数（hash） 记录用户的帖子列表（排序），便于快速显示（zset） 缓存热门内容（hash） 记录帖子的相关文章ID，根据内容">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2018-08-14T12:18:48.016Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Redis 深度历险——总结">
+<meta name="twitter:description" content="缓存 分布式锁 持久化  说在前面这个是我个人阅读Redis 深度历险：核心原理与应用实践一文的总结，更多的是阅读笔记，当然在看的过程中也有很多目前还不太明白的，或是目前还没有吃透的，也会放在本文中做一个备忘。 基础Redis可以做什么？ 记录帖子的点赞数、评论数、点击数（hash） 记录用户的帖子列表（排序），便于快速显示（zset） 缓存热门内容（hash） 记录帖子的相关文章ID，根据内容">
+
+
+
+
+
+
+  <link rel="canonical" href="https://blog.ryoma.top/posts/redis_depth_adventure/"/>
+
+
+
+<script type="text/javascript" id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>Redis 深度历险——总结 | Ryoma's Blog</title>
+  
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style type="text/css">
+    .use-motion .motion-element,
+    .use-motion .brand,
+    .use-motion .menu-item,
+    .sidebar-inner,
+    .use-motion .post-block,
+    .use-motion .pagination,
+    .use-motion .comments,
+    .use-motion .post-header,
+    .use-motion .post-body,
+    .use-motion .collection-title { opacity: initial; }
+
+    .use-motion .logo,
+    .use-motion .site-title,
+    .use-motion .site-subtitle {
+      opacity: initial;
+      top: initial;
+    }
+
+    .use-motion {
+      .logo-line-before i { left: initial; }
+      .logo-line-after i { right: initial; }
+    }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Ryoma's Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+      
+        <p class="site-subtitle">纸上得来终觉浅</p>
+      
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+    <a href="/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-home"></i> <br />首页</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+    <a href="/tags/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />标签</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+    <a href="/categories/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-th"></i> <br />分类</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+    <a href="/archives/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />归档</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+    <a href="/about/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-user"></i> <br />关于我</a>
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.ryoma.top/posts/redis_depth_adventure/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Ryoma">
+      <meta itemprop="description" content="Ryoma's Blog">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Ryoma's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Redis 深度历险——总结
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2018-08-14 19:30:00" itemprop="dateCreated datePublished" datetime="2018-08-14T19:30:00+08:00">2018-08-14</time>
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/Redis/" itemprop="url" rel="index"><span itemprop="name">Redis</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/posts/redis_depth_adventure/#comments" itemprop="discussionUrl">
+                
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="posts/redis_depth_adventure/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <blockquote>
+<p>缓存 分布式锁 持久化</p>
+</blockquote>
+<h2 id="说在前面"><a href="#说在前面" class="headerlink" title="说在前面"></a>说在前面</h2><p>这个是我个人阅读<a href="https://juejin.im/book/5afc2e5f6fb9a07a9b362527" target="_blank" rel="noopener">Redis 深度历险：核心原理与应用实践</a>一文的总结，更多的是阅读笔记，当然在看的过程中也有很多目前还不太明白的，或是目前还没有吃透的，也会放在本文中做一个备忘。</p>
+<h2 id="基础"><a href="#基础" class="headerlink" title="基础"></a>基础</h2><h3 id="Redis可以做什么？"><a href="#Redis可以做什么？" class="headerlink" title="Redis可以做什么？"></a>Redis可以做什么？</h3><ul>
+<li>记录帖子的点赞数、评论数、点击数（hash）</li>
+<li>记录用户的帖子列表（排序），便于快速显示（zset）</li>
+<li>缓存热门内容（hash）</li>
+<li>记录帖子的相关文章ID，根据内容推荐帖子（List）</li>
+<li>…<a id="more"></a>
+</li>
+</ul>
+<h3 id="Redis-基础数据结构"><a href="#Redis-基础数据结构" class="headerlink" title="Redis 基础数据结构"></a>Redis 基础数据结构</h3><p><a href="../redis_base">Redis 基础</a></p>
+<h2 id="应用"><a href="#应用" class="headerlink" title="应用"></a>应用</h2><h3 id="分布式锁"><a href="#分布式锁" class="headerlink" title="分布式锁"></a>分布式锁</h3><p><a href="../redis_distlock">Redis 分布式锁</a></p>
+<h3 id="延时队列"><a href="#延时队列" class="headerlink" title="延时队列"></a>延时队列</h3><p>当我们需要执行一个延时任务时：</p>
+<ul>
+<li>在C++中，直接调用ScheduleService；</li>
+<li>在NodeJS中，无论是使用setTimeout还是引入其它的库实现。</li>
+</ul>
+<p>这些其实都存在一个问题，当我们的服务重启时，这些延时任务就自然丢失了。</p>
+<h4 id="实现"><a href="#实现" class="headerlink" title="实现"></a>实现</h4><p>基于Redis的有序集合实现 </p>
+<h3 id="位图"><a href="#位图" class="headerlink" title="位图"></a>位图</h3><p>当我们需要有标志位的使用场景时（是否签到，是否有某接口权限），可以考虑使用位图，能够节省大量的存储空间。 </p>
+<h4 id="命令"><a href="#命令" class="headerlink" title="命令"></a>命令</h4><ul>
+<li>getbit</li>
+<li>setbit</li>
+<li>bitcount</li>
+<li>bitpos</li>
+<li>bitop</li>
+<li>bitfiel</li>
+</ul>
+<h4 id="注意事项"><a href="#注意事项" class="headerlink" title="注意事项"></a>注意事项</h4><ul>
+<li>使用bitcount及bitpos指令时，参数[start, end]是字节索引，不是byte位</li>
+</ul>
+<h3 id="HyperLogLog"><a href="#HyperLogLog" class="headerlink" title="HyperLogLog"></a>HyperLogLog</h3><p>当我们要统计某个页面的UV时，HyperLogLog会是一个很好的解决方案。</p>
+<h4 id="特点"><a href="#特点" class="headerlink" title="特点"></a>特点</h4><ul>
+<li>HyperLogLog提供的是一个不精确的去重计数方案</li>
+<li>没有判断是否存在的命令</li>
+</ul>
+<p>对比与set，数据不够精确。无法判断数据是否存在，只有pfadd, pfcount, pfmerge。但是当数据量上升的时候，空间仅会占12kb。</p>
+<h3 id="布隆过滤器"><a href="#布隆过滤器" class="headerlink" title="布隆过滤器"></a>布隆过滤器</h3><p>与set更类似，可以判断数据是否准备，同样会有一个问题——数据不够准确，有一定误判率</p>
+<h4 id="特点-1"><a href="#特点-1" class="headerlink" title="特点"></a>特点</h4><ul>
+<li>当布隆过滤器说某个值存在时，可能不存在</li>
+<li>当说某个值不存在时，那就肯定不存在</li>
+</ul>
+<h3 id="简单限流"><a href="#简单限流" class="headerlink" title="简单限流"></a>简单限流</h3><p>通过使用有序集合，定期清理数据，来实现限流。</p>
+<p>如果要做比如 60s内不得超过100W次，这类消耗的存储空间太大了</p>
+<h3 id="漏斗限流"><a href="#漏斗限流" class="headerlink" title="漏斗限流"></a>漏斗限流</h3><ul>
+<li><a href="https://github.com/brandur/redis-cell" target="_blank" rel="noopener">https://github.com/brandur/redis-cell</a></li>
+</ul>
+<h4 id="命令-1"><a href="#命令-1" class="headerlink" title="命令"></a>命令</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">CL.THROTTLE user123 15 30 60 1</span><br></pre></td></tr></table></figure>
+<p>参数说明：</p>
+<ul>
+<li>CL.THROTTLE =&gt; 命令名称</li>
+<li>user123 =&gt; key</li>
+<li>15 =&gt; 容量</li>
+<li>30 / 60 =&gt; 漏斗速率</li>
+<li>1 =&gt; 需要的容量</li>
+</ul>
+<h4 id="返回值"><a href="#返回值" class="headerlink" title="返回值"></a>返回值</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">(integer) 0   # 0 表示允许，1表示拒绝</span><br><span class="line">(integer) 15  # 漏斗容量</span><br><span class="line">(integer) 14  # 漏斗剩余空间</span><br><span class="line">(integer) -1  # 如果拒绝了，需要多长时间后再试(单位秒)</span><br><span class="line">(integer) 2   # 多长时间后，漏斗完全空出来(单位秒)</span><br></pre></td></tr></table></figure>
+<h3 id="GeoHash"><a href="#GeoHash" class="headerlink" title="GeoHash"></a>GeoHash</h3><p>地理位置Geo模块，可以用来实现【附近的xx】</p>
+<p>计算结果实际上是存储在zset中。</p>
+<h4 id="特点-2"><a href="#特点-2" class="headerlink" title="特点"></a>特点</h4><p>在Redis中使用Geo数据结构，可能在集群环境中会造成迁移时的卡顿现象，建议使用单独Redis实例存储Geo，并且拆分数据，按国家、省份、城市等。</p>
+<h3 id="Scan"><a href="#Scan" class="headerlink" title="Scan"></a>Scan</h3><p>与keys对比：</p>
+<ul>
+<li>复杂度虽然也是 O(n)，但是它是通过游标分步进行的，不会阻塞线程;</li>
+<li>提供 limit 参数，可以控制每次返回结果的最大条数，limit 只是一个 hint，返回的结果可多可少;</li>
+<li>同 keys 一样，它也提供模式匹配功能;</li>
+<li>服务器不需要为游标保存状态，游标的唯一状态就是 scan 返回给客户端的游标整数;</li>
+<li>返回的结果可能会有重复，需要客户端去重复，这点非常重要;</li>
+<li>遍历的过程中如果有数据修改，改动后的数据能不能遍历到是不确定的;</li>
+<li>单次返回的结果是空的并不意味着遍历结束，而要看返回的游标值是否为零;</li>
+</ul>
+<h2 id="原理"><a href="#原理" class="headerlink" title="原理"></a>原理</h2><h3 id="线程IO模型"><a href="#线程IO模型" class="headerlink" title="线程IO模型"></a>线程IO模型</h3><ul>
+<li>为什么Redis单线程还这么快？ —— 内存级别的运算</li>
+<li>单线程如何处理那么多并发客户端连接？——事件轮询（多路复用）、非阻塞IO</li>
+</ul>
+<h3 id="通信协议"><a href="#通信协议" class="headerlink" title="通信协议"></a>通信协议</h3><p>RESP——Redis Serialization Protocol</p>
+<h3 id="持久化"><a href="#持久化" class="headerlink" title="持久化"></a>持久化</h3><ul>
+<li>快照：全量备份</li>
+<li>AOF：连续的增量备份，在长期的运行中会越来越大，这样在重启时通过加载AOF日志来进行指令重放恢复时，需要花费极长的时间——定期进行AOF重写，给AOF日志瘦身</li>
+</ul>
+<h4 id="快照原理"><a href="#快照原理" class="headerlink" title="快照原理"></a>快照原理</h4><blockquote>
+<p>为了不影响线上的业务，需要一边持久化一边响应客户端请求。而在进行内存快照的时候，文件IO操作是不能使用多路复用API的。</p>
+</blockquote>
+<p>Redis使用操作系统的多线程COW（copy on write）机制来实现快照持久化</p>
+<h4 id="fork-多进程"><a href="#fork-多进程" class="headerlink" title="fork(多进程)"></a>fork(多进程)</h4><p>持久化时会fork产生一个子进程，快照持久化完全交由子进程来处理，父进程继续处理请求。<br>在子进程刚产生时，与父进程共享内存中的代码段和数据段。<br>随着父进程修改操作的持续运行，会有越来越多的共享页面被分离出来。而子进程还是最初产生时的数据，故而称为快照</p>
+<h4 id="AOF-原理"><a href="#AOF-原理" class="headerlink" title="AOF 原理"></a>AOF 原理</h4><p>AOF日志存储的是Redis服务器的顺序指令序列，只存储对内存进行修改的指令。<br>假如AOF日志记录了自Redis实例创建以来的所有修改指令，我们可以通过对一个空的Redis实例顺序执行所有的指令——即【重放】，恢复Redis当前实例的内存数据。</p>
+<p>AOF步骤：</p>
+<ul>
+<li>收到客户端修改指令后，先进行参数校验</li>
+<li>参数校验通过，立即将指令文本存储到AOF日志中（先存储到磁盘）</li>
+<li>最后再执行指令（即使突发宕机了，【重放】也可以恢复数据）</li>
+</ul>
+<h4 id="AOF-重写"><a href="#AOF-重写" class="headerlink" title="AOF 重写"></a>AOF 重写</h4><p>Redis提供bgrewriteaof指令用于AOF日志瘦身：</p>
+<ul>
+<li>开辟一个子进程对内存进行遍历转换成一系列的Redis操作指令</li>
+<li>将操作指令序列化到新的AOF日志文件中</li>
+<li>序列化完毕后，将操作期间内发生的增量AOF日志追加到新的AOF日志中</li>
+<li>追加完毕后替代旧的AOF日志</li>
+</ul>
+<h4 id="fsync"><a href="#fsync" class="headerlink" title="fsync"></a>fsync</h4><p>当写入AOF文件时，实际上是先将内容写到内核为文件描述符分配的一个内存缓冲中，之后内存会异步将数据刷回到磁盘。</p>
+<p>此时就存在一个问题，如果机器突然宕机，AOF日志可能没来得及刷到磁盘中——linux中的glibc提供了fsync(int fd)函数可以将指定文件的内容强制从内核刷到磁盘，只要Redis进程实时调用fsync就可以保证AOF日志不丢失。</p>
+<p>但fsync是一个磁盘IO操作，很慢！——通常，在生产环境中，redis每隔1s执行一次fsync操作。</p>
+<h4 id="Redis-4-0混合持久化"><a href="#Redis-4-0混合持久化" class="headerlink" title="Redis 4.0混合持久化"></a>Redis 4.0混合持久化</h4><p>快照与AOF都有一定的缺点：快照容易丢失数据、AOF要使用日志重放，花费时间</p>
+<p>在Redis 4.0中，为了解决这些问题，支持混合持久化。</p>
+<h3 id="管道"><a href="#管道" class="headerlink" title="管道"></a>管道</h3><blockquote>
+<p>误解：pipeline是Redis服务器提供的特别技术，用于加速Redis的存取效率。事实上，这个技术的本质是客户端提供的。</p>
+</blockquote>
+<p>对于管道来说，连续的<strong>write</strong>操作基本没有耗时，<strong>read</strong>操作会等待一个网络的来回开销，然后所有的响应消息就都已经回到内核的读缓冲了，后续的read操作可以直接从缓冲中取数据。</p>
+<h3 id="事务"><a href="#事务" class="headerlink" title="事务"></a>事务</h3><p>为了确保连续多个操作的原子性，一个成熟的数据库通常都会有事务支持。</p>
+<p>需要明确一点，Redis中的事务与关系数据库中的事务是不同的。<br>在Redis中，事务相关指令为：</p>
+<ul>
+<li>multi：表示事务的开始</li>
+<li>exec：表示事务的执行</li>
+<li>discard：表示事务的放弃</li>
+</ul>
+<h4 id="原子性"><a href="#原子性" class="headerlink" title="原子性"></a>原子性</h4><p>需要明确Redis的原子性和关系型数据库是不一样的，当事务执行中间发生失败了，后面的命令还可以继续进行。</p>
+<p>语法问题：</p>
+<ul>
+<li>NodeJS：仅使用ioredis测试，如果语法出现问题则全部命令都会执行失败（比如set需要传入key value，只传入了key）</li>
+</ul>
+<h4 id="原理-1"><a href="#原理-1" class="headerlink" title="原理"></a>原理</h4><p>使用multi开启事务后，直到收到exec命令，服务器才开始执行整个事务队列，执行完毕后将所有命令的运行结果返回。<br>由于Redis单线程特性，在这里我们可以理解为它是原子性的——但实际上，它并不是原子性的。</p>
+<blockquote>
+<p>原子性是指事务是一个不可再分割的工作单位，事务中的操作要么都发生，要么都不发生。</p>
+</blockquote>
+<p>Redis的事务在执行的过程中，如果命令执行失败，不会影响后续命令继续执行。</p>
+<h4 id="优化"><a href="#优化" class="headerlink" title="优化"></a>优化</h4><p>Redis的每个命令发到服务端都会经过一次网络IO，所以当我们使用事务时，可以结合pipeline一起使用，可以将多次IO优化为一次。</p>
+<h4 id="Watch"><a href="#Watch" class="headerlink" title="Watch"></a>Watch</h4><p>之前介绍过分布式锁，需要注意的是，分布式锁实际上是悲观锁——先加锁，再修改资源，再释放锁。<br>如果大家之前了解过乐观锁：先修改资源，检查资源释放被修改过，如果未被修改，则本次修改成功；如果已被修改，重试即可。</p>
+<p>大家在使用Watch的时候，需要先根据场景进行评估——到底是选择Watch还是分布式锁</p>
+<h4 id="注意事项-1"><a href="#注意事项-1" class="headerlink" title="注意事项"></a>注意事项</h4><ul>
+<li>Redis禁止在multi和exec之间执行watch命令</li>
+</ul>
+<h3 id="Pub-Sub"><a href="#Pub-Sub" class="headerlink" title="Pub/Sub"></a>Pub/Sub</h3><p>当我们需要实现：一个生产者负责生产消息，多个消费者同时订阅消息时，可以考虑使用Pub/Sub。</p>
+<h4 id="订阅方式"><a href="#订阅方式" class="headerlink" title="订阅方式"></a>订阅方式</h4><ul>
+<li>名称订阅：如subscribe test</li>
+<li>模式订阅：如subscribe test.*</li>
+</ul>
+<h4 id="注意事项-2"><a href="#注意事项-2" class="headerlink" title="注意事项"></a>注意事项</h4><ul>
+<li>Redis不允许在subscribe的同时还进行其他的操作</li>
+<li>在消费者挂掉期间，生产者发送的消息彻底丢失</li>
+</ul>
+<p>Pub/Sub的问题还是比较多，很难找到适合的应用场景。</p>
+<h4 id="补充"><a href="#补充" class="headerlink" title="补充"></a>补充</h4><p>Redis 5.0 新增了Stream，有兴趣的可以看一下。</p>
+<h3 id="小对象压缩"><a href="#小对象压缩" class="headerlink" title="小对象压缩"></a>小对象压缩</h3><h4 id="32bit-vs-64bit"><a href="#32bit-vs-64bit" class="headerlink" title="32bit vs 64bit"></a>32bit vs 64bit</h4><p>如果使用32bit进行编译，内部所有指针所占用的空间会减少一半。</p>
+<h4 id="小对象压缩存储-ziplist"><a href="#小对象压缩存储-ziplist" class="headerlink" title="小对象压缩存储 (ziplist)"></a>小对象压缩存储 (ziplist)</h4><p>压缩列表部分</p>
+<h4 id="内存回收机制"><a href="#内存回收机制" class="headerlink" title="内存回收机制"></a>内存回收机制</h4><p>Redis并不总是可以将空闲内存立即归还操作系统。</p>
+<p>原因是操作系统回收内存是以页为单位，即使你删除了1GB的key，但只有页上有一个key在使用，就不能被回收——虽然无法被回收，但是这部分的空闲内存可以重用。</p>
+<h3 id="主从同步"><a href="#主从同步" class="headerlink" title="主从同步"></a>主从同步</h3><p>CAP：</p>
+<ul>
+<li>一致性</li>
+<li>可用性</li>
+<li>分区容忍性</li>
+</ul>
+<p>网络分区发生时，一致性和可用性两难全</p>
+<h4 id="最终一致"><a href="#最终一致" class="headerlink" title="最终一致"></a>最终一致</h4><p>因为Redis的主从数据是异步同步的，故而不满足【一致性】。当客户端在Redis主节点修改数据后，即使主从断开，但主节点依然能提供服务，故而满足【可用性】。</p>
+<p>Redis会保证【最终一致性】，从节点会努力追赶主节点。</p>
+<h4 id="主从同步-1"><a href="#主从同步-1" class="headerlink" title="主从同步"></a>主从同步</h4><p>Redis支持主从同步和从从同步。</p>
+<h4 id="增量同步"><a href="#增量同步" class="headerlink" title="增量同步"></a>增量同步</h4><p>主节点会将修改指令记录在本地的内存buffer中，然后异步将buffer中的指令同步到从节点，从节点一遍执行同步的指令流，一边向主节点同步偏移量。</p>
+<p>但是内存的buffer是有限的，旧有的修改指令未同步被覆盖后，从节点就无法直接通过指令流来同步——快照同步</p>
+<h4 id="快照同步"><a href="#快照同步" class="headerlink" title="快照同步"></a>快照同步</h4><p>快照同步是非常耗费资源的</p>
+<p>快照同步和增量同步结合使用，注意buffer大小，避免每次都是快照同步。</p>
+<h4 id="增加从节点"><a href="#增加从节点" class="headerlink" title="增加从节点"></a>增加从节点</h4><p>先进行快照同步，再进行增量同步</p>
+<h4 id="无盘复制"><a href="#无盘复制" class="headerlink" title="无盘复制"></a>无盘复制</h4><p>进行快照同步时，文件IO操作会消耗较长时间——无盘复制是指主节点通过套接字将快照内容发送到从节点。</p>
+<h4 id="Wait指令"><a href="#Wait指令" class="headerlink" title="Wait指令"></a>Wait指令</h4><p>Redis 的复制是异步进行的，Wait指令可以让异步复制变为同步，确保系统的强一致性（不严格）</p>
+<p>假设出现网络分区，wait可能会被阻塞，失去可用性。</p>
+<h4 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h4><p>如果Redis只做缓存，没有复制功能没有太大关系，挂了直接重启即可。</p>
+<p>如果使用Redis的持久化功能，在做主从复制时，就得好好考虑一下。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>还有一些是目前从文中获取的知识，但是还没有验证过的：</p>
+<ul>
+<li>Geo</li>
+<li>持久化部分——glibc </li>
+</ul>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><ul>
+<li><a href="https://juejin.im/book/5afc2e5f6fb9a07a9b362527" target="_blank" rel="noopener">https://juejin.im/book/5afc2e5f6fb9a07a9b362527</a></li>
+</ul>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Redis/" rel="tag"># Redis</a>
+          
+            <a href="/tags/书籍/" rel="tag"># 书籍</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/posts/redis_distlock/" rel="next" title="Redis 分布式锁">
+                <i class="fa fa-chevron-left"></i> Redis 分布式锁
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+    <div class="comments" id="comments">
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/avatar.jpg"
+                alt="Ryoma" />
+            
+              <p class="site-author-name" itemprop="name">Ryoma</p>
+              <p class="site-description motion-element" itemprop="description">Ryoma's Blog</p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">41</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  <a href="/categories/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">11</span>
+                    <span class="site-state-item-name">分类</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  <a href="/tags/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">55</span>
+                    <span class="site-state-item-name">标签</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+            <div class="links-of-author motion-element">
+              
+                <span class="links-of-author-item">
+                  <a href="https://github.com/JianmingXia" target="_blank" title="GitHub"><i class="fa fa-fw fa-github"></i>GitHub</a>
+                  
+                </span>
+              
+                <span class="links-of-author-item">
+                  <a href="mailto:xiajianming_xjm@163.com" target="_blank" title="E-Mail"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                  
+                </span>
+              
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#说在前面"><span class="nav-number">1.</span> <span class="nav-text">说在前面</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#基础"><span class="nav-number">2.</span> <span class="nav-text">基础</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Redis可以做什么？"><span class="nav-number">2.1.</span> <span class="nav-text">Redis可以做什么？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Redis-基础数据结构"><span class="nav-number">2.2.</span> <span class="nav-text">Redis 基础数据结构</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#应用"><span class="nav-number">3.</span> <span class="nav-text">应用</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#分布式锁"><span class="nav-number">3.1.</span> <span class="nav-text">分布式锁</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#延时队列"><span class="nav-number">3.2.</span> <span class="nav-text">延时队列</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#实现"><span class="nav-number">3.2.1.</span> <span class="nav-text">实现</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#位图"><span class="nav-number">3.3.</span> <span class="nav-text">位图</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#命令"><span class="nav-number">3.3.1.</span> <span class="nav-text">命令</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#注意事项"><span class="nav-number">3.3.2.</span> <span class="nav-text">注意事项</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#HyperLogLog"><span class="nav-number">3.4.</span> <span class="nav-text">HyperLogLog</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#特点"><span class="nav-number">3.4.1.</span> <span class="nav-text">特点</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#布隆过滤器"><span class="nav-number">3.5.</span> <span class="nav-text">布隆过滤器</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#特点-1"><span class="nav-number">3.5.1.</span> <span class="nav-text">特点</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#简单限流"><span class="nav-number">3.6.</span> <span class="nav-text">简单限流</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#漏斗限流"><span class="nav-number">3.7.</span> <span class="nav-text">漏斗限流</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#命令-1"><span class="nav-number">3.7.1.</span> <span class="nav-text">命令</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#返回值"><span class="nav-number">3.7.2.</span> <span class="nav-text">返回值</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#GeoHash"><span class="nav-number">3.8.</span> <span class="nav-text">GeoHash</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#特点-2"><span class="nav-number">3.8.1.</span> <span class="nav-text">特点</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Scan"><span class="nav-number">3.9.</span> <span class="nav-text">Scan</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#原理"><span class="nav-number">4.</span> <span class="nav-text">原理</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#线程IO模型"><span class="nav-number">4.1.</span> <span class="nav-text">线程IO模型</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#通信协议"><span class="nav-number">4.2.</span> <span class="nav-text">通信协议</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#持久化"><span class="nav-number">4.3.</span> <span class="nav-text">持久化</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#快照原理"><span class="nav-number">4.3.1.</span> <span class="nav-text">快照原理</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#fork-多进程"><span class="nav-number">4.3.2.</span> <span class="nav-text">fork(多进程)</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#AOF-原理"><span class="nav-number">4.3.3.</span> <span class="nav-text">AOF 原理</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#AOF-重写"><span class="nav-number">4.3.4.</span> <span class="nav-text">AOF 重写</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#fsync"><span class="nav-number">4.3.5.</span> <span class="nav-text">fsync</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Redis-4-0混合持久化"><span class="nav-number">4.3.6.</span> <span class="nav-text">Redis 4.0混合持久化</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#管道"><span class="nav-number">4.4.</span> <span class="nav-text">管道</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#事务"><span class="nav-number">4.5.</span> <span class="nav-text">事务</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#原子性"><span class="nav-number">4.5.1.</span> <span class="nav-text">原子性</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#原理-1"><span class="nav-number">4.5.2.</span> <span class="nav-text">原理</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#优化"><span class="nav-number">4.5.3.</span> <span class="nav-text">优化</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Watch"><span class="nav-number">4.5.4.</span> <span class="nav-text">Watch</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#注意事项-1"><span class="nav-number">4.5.5.</span> <span class="nav-text">注意事项</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Pub-Sub"><span class="nav-number">4.6.</span> <span class="nav-text">Pub/Sub</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#订阅方式"><span class="nav-number">4.6.1.</span> <span class="nav-text">订阅方式</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#注意事项-2"><span class="nav-number">4.6.2.</span> <span class="nav-text">注意事项</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#补充"><span class="nav-number">4.6.3.</span> <span class="nav-text">补充</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#小对象压缩"><span class="nav-number">4.7.</span> <span class="nav-text">小对象压缩</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#32bit-vs-64bit"><span class="nav-number">4.7.1.</span> <span class="nav-text">32bit vs 64bit</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#小对象压缩存储-ziplist"><span class="nav-number">4.7.2.</span> <span class="nav-text">小对象压缩存储 (ziplist)</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#内存回收机制"><span class="nav-number">4.7.3.</span> <span class="nav-text">内存回收机制</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#主从同步"><span class="nav-number">4.8.</span> <span class="nav-text">主从同步</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#最终一致"><span class="nav-number">4.8.1.</span> <span class="nav-text">最终一致</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#主从同步-1"><span class="nav-number">4.8.2.</span> <span class="nav-text">主从同步</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#增量同步"><span class="nav-number">4.8.3.</span> <span class="nav-text">增量同步</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#快照同步"><span class="nav-number">4.8.4.</span> <span class="nav-text">快照同步</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#增加从节点"><span class="nav-number">4.8.5.</span> <span class="nav-text">增加从节点</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#无盘复制"><span class="nav-number">4.8.6.</span> <span class="nav-text">无盘复制</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Wait指令"><span class="nav-number">4.8.7.</span> <span class="nav-text">Wait指令</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#小结"><span class="nav-number">4.8.8.</span> <span class="nav-text">小结</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#总结"><span class="nav-number">5.</span> <span class="nav-text">总结</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考"><span class="nav-number">6.</span> <span class="nav-text">参考</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2017 &mdash; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Ryoma</span>
+
+  
+
+  
+</div>
+
+
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动 v3.7.1</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://theme-next.org">NexT.Gemini</a> v6.3.0</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+	
+    
+
+    
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/three/three.min.js"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/three/canvas_sphere.min.js"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=6.3.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=6.3.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=6.3.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=6.3.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=6.3.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=6.3.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=6.3.0"></script>
+
+
+
+  
+
+  
+    <script id="dsq-count-scr" src="https://ryoma-blog.disqus.com/count.js" async></script>
+  
+
+  
+    <script type="text/javascript">
+      var disqus_config = function () {
+        this.page.url = 'https://blog.ryoma.top/posts/redis_depth_adventure/';
+        this.page.identifier = 'posts/redis_depth_adventure/';
+        this.page.title = 'Redis 深度历险——总结';
+        };
+      function loadComments () {
+        var d = document, s = d.createElement('script');
+        s.src = 'https://ryoma-blog.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', '' + +new Date());
+        (d.head || d.body).appendChild(s);
+      }
+      
+        $(function () {
+          var offsetTop = $('#comments').offset().top - $(window).height();
+          if (offsetTop <= 0) {
+            // load directly when there's no a scrollbar
+            loadComments();
+          } else {
+            $(window).on('scroll.disqus_scroll', function () {
+              var scrollTop = document.documentElement.scrollTop;
+              if (scrollTop >= offsetTop) {
+                $(window).off('.disqus_scroll');
+                loadComments();
+              }
+            });
+          }
+        });
+      
+    </script>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
