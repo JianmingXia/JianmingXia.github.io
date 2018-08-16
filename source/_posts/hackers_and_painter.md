@@ -3,7 +3,7 @@ title: 黑客与画家——读后感
 date: 2017/12/31 12:00:00
 tags:
   - 黑客与画家
-categories: 读书笔记
+categories: 阅读笔记
 ---
 
 # 背景

@@ -3,7 +3,7 @@ title: Redis 深度历险——总结
 date: 2018/08/14 19:30:00
 tags:
   - Redis
-  - 书籍
+  - 阅读笔记
 categories: Redis
 ---
 
@@ -11,18 +11,26 @@ categories: Redis
 
 ## 说在前面
 
-这个是我个人阅读[Redis 深度历险：核心原理与应用实践](https://juejin.im/book/5afc2e5f6fb9a07a9b362527)一文的总结，更多的是阅读笔记，当然在看的过程中也有很多目前还不太明白的，或是目前还没有吃透的，也会放在本文中做一个备忘。
+这个是我个人阅读[Redis 深度历险：核心原理与应用实践](https://juejin.im/book/5afc2e5f6fb9a07a9b362527)一文的总结，当然更多的是阅读笔记。在看的过程中也有很多目前还不太明白的，或是目前还没有吃透的，也会放在本文中做一个备忘。
 
 ## 基础
 
 ### Redis可以做什么？
 
-- 记录帖子的点赞数、评论数、点击数（hash）
+- 计数器——记录帖子的点赞数、评论数、点击数（hash）
+- 排行榜（zset）
+- 好友关系——共同好友，使用集合的相关命令
 - 记录用户的帖子列表（排序），便于快速显示（zset）
-- 缓存热门内容（hash）
 - 记录帖子的相关文章ID，根据内容推荐帖子（List）
+- Session缓存
 - ...
 <!-- more -->
+
+### 不适合做什么？
+> 千万不要把Redis当银弹
+
+比如拿Redis去存储用户的基本信息，虽然Redis支持持久化，核心数据还是不要过于依赖Redis。
+缓存——存储的热数据，否则放内存中就是浪费资源
 
 ### Redis 基础数据结构
 [Redis 基础](../redis_base)
@@ -42,7 +50,9 @@ categories: Redis
 
 #### 实现
 
-基于Redis的有序集合实现 
+基于Redis的有序集合实现
+- 使用zadd不断添加延时任务
+- 与此同时，使用zrangebyscore筛选出符合条件的任务来执行
 
 ### 位图
 
@@ -81,8 +91,31 @@ categories: Redis
 - 当说某个值不存在时，那就肯定不存在
 
 ### 简单限流
-通过使用有序集合，定期清理数据，来实现限流。
+- 当系统的处理能力有限时，如何阻止计划外的请求？
+- 如何控制用户行为，避免垃圾请求？
 
+#### 实现
+通过使用有序集合，定期清理数据，来实现限流。
+```
+def is_action_allowed(user_id, action_key, period, max_count):
+    key = 'hist:%s:%s' % (user_id, action_key)
+    now_ts = int(time.time() * 1000)  # 毫秒时间戳
+    with client.pipeline() as pipe:  # client 是 StrictRedis 实例
+        # 记录行为
+        pipe.zadd(key, now_ts, now_ts)  # value 和 score 都使用毫秒时间戳
+        # 移除时间窗口之前的行为记录，剩下的都是时间窗口内的
+        pipe.zremrangebyscore(key, 0, now_ts - period * 1000)
+        # 获取窗口内的行为数量
+        pipe.zcard(key)
+        # 设置 zset 过期时间，避免冷用户持续占用内存
+        # 过期时间应该等于时间窗口的长度，再多宽限 1s
+        pipe.expire(key, period + 1)
+        # 批量执行
+        _, _, current_count, _ = pipe.execute()
+    return current_count <= max_count
+```
+
+#### 限制
 如果要做比如 60s内不得超过100W次，这类消耗的存储空间太大了
 
 ### 漏斗限流

@@ -7,7 +7,7 @@ tags:
   - 技术
   - 小说
   - 保持更新
-categories: 读书笔记
+categories: 阅读笔记
 ---
 
 # 技术

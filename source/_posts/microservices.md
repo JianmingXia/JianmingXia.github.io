@@ -3,7 +3,7 @@ title: 微服务的模式语言
 date: 2017/12/31 12:00:00
 tags:
   - 微服务
-categories: 读书笔记
+categories: 阅读笔记
 ---
 
 # 微服务架构
