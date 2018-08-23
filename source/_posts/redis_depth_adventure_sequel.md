@@ -9,7 +9,7 @@ categories: Redis
 
 ## 说在前面
 
-继[Redis 深度历险——总结](/posts/redis_depth_adventure)一文后，这个是第二篇我在阅读[Redis 深度历险：核心原理与应用实践](https://juejin.im/book/5afc2e5f6fb9a07a9b362527)一文的阅读笔记。
+继[Redis 深度历险——总结](/posts/redis_depth_adventure)一文后，这是第二篇我在阅读[Redis 深度历险：核心原理与应用实践](https://juejin.im/book/5afc2e5f6fb9a07a9b362527)一文的阅读笔记。
 主要内容是集群部分及Redis的一些拓展，因为时间及工作内容的关系，集群这部分目前我只做了一些简单的了解（目前团队打算使用的是腾讯云的Redis主从服务）；
 
 <!-- more -->
@@ -19,9 +19,9 @@ categories: Redis
 
 当Redis主从运行中，主节点挂掉后，手动切？
 
-Sentinel负责持续监控主从节点的健康，当主节点挂掉时，自动选择一个最优的从节点切换为主节点。其它的节点与新的主节点建立复制关系。
+Sentinel负责持续监控主从节点的健康，当主节点挂掉时，自动选择一个最优的从节点切换为主节点，然后其它的节点与新的主节点建立复制关系。
 
-Sentinel一般用于读写分离，从库也会提供服务，Cluster的从库一般只是备用库。
+Sentinel一般用于读写分离，从库也会提供服务，Cluster中的从库一般只是备用库。
 
 ### Codis
 
@@ -34,6 +34,8 @@ Redis集群：将众多小内存的Redis实例综合
 
 ###  Cluster
 
+Redis官方的集群化方案，与Codis不同，它是去中心化的。
+
 ## 拓展
 
 ### Stream
@@ -42,6 +44,7 @@ Redis集群：将众多小内存的Redis实例综合
 
 ### Info
 
+#### 主要参数
 - Server 服务器运行的环境参数 
 - Clients 客户端相关信息 
 - Memory 服务器运行内存统计数据 
@@ -51,6 +54,11 @@ Redis集群：将众多小内存的Redis实例综合
 - CPU CPU 使用情况 
 - Cluster 集群信息 
 - KeySpace 键值对统计数量信息
+- Commandstats: Redis命令统计
+
+#### 其它参数
+- all: 返回所有信息
+- default: 值返回默认设置的信息
 
 ### 过期策略
 
