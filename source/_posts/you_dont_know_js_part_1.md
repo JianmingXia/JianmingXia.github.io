@@ -1,6 +1,6 @@
 ---
-title: 你不知道的JavaScript(上卷)
-date: 2017/12/31 12:00:00
+title: 你不知道的JavaScript（上卷）——MIND
+date: 2017/9/21 12:00:00
 tags:
   - JavaScript
 categories: 阅读笔记

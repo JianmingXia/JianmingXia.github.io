@@ -1,6 +1,6 @@
 ---
 title: Mysql(截取数据)
-date: 2017/12/31 12:00:00
+date: 2017/9/30 12:00:00
 tags:
   - Mysql
   - left right concat

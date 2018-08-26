@@ -1,6 +1,6 @@
 ---
 title: 搭建WordPress个人站点
-date: 2017/12/31 12:00:00
+date: 2017/12/10 12:00:00
 tags:
   - WordPress
   - 个人博客

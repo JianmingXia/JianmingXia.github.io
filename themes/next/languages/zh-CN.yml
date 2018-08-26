@@ -44,7 +44,7 @@ page:
   totally: 共有
   tags: 标签
 footer:
-  powered: "由 %s 强力驱动"
+  powered: "%s"
   theme: 主题
   total_views: 总访问量
   total_visitors: 总访客量
@@ -60,7 +60,7 @@ counter:
   archive_posts:
     zero: 暂无日志。
     one: 目前共计 1 篇日志。
-    other: "目前共计 %d 篇日志。"
+    other: "目前共计 %d 篇日志，"
 state:
   posts: 日志
   pages: 页面
@@ -75,7 +75,7 @@ cheers:
   good: 很好
   great: 非常好
   excellent: 太棒了
-keep_on: 继续努力。
+keep_on: 继续努力，GOGOGO！！！
 symbol:
   comma: "，"
   period: "。"
