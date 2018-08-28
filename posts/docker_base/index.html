@@ -1,0 +1,1118 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=6.3.0" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=6.3.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=6.3.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=6.3.0">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=6.3.0" color="#222">
+
+
+
+
+
+
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '6.3.0',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="为什么要使用Docker? 更高效的利用系统资源：容器不需要进行硬件虚拟以及进行完整操作系统等额外开销 更快速的启动时间：由于直接运行于宿主内核，无需启动完整的操作系统，可以做到秒级甚至毫秒级的启动 一致的运行环境：Docker的镜像提供了除内核外完整的运行时环境，确保了应用运行环境一致性 持续交付与部署：使用Dockerfile使镜像构建透明化，结合CI/CD 更轻松的迁移：Docker确保了执">
+<meta name="keywords" content="Docker,阅读笔记">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Docker 基础">
+<meta property="og:url" content="https://blog.ryoma.top/posts/docker_base/index.html">
+<meta property="og:site_name" content="Ryoma&#39;s Blog">
+<meta property="og:description" content="为什么要使用Docker? 更高效的利用系统资源：容器不需要进行硬件虚拟以及进行完整操作系统等额外开销 更快速的启动时间：由于直接运行于宿主内核，无需启动完整的操作系统，可以做到秒级甚至毫秒级的启动 一致的运行环境：Docker的镜像提供了除内核外完整的运行时环境，确保了应用运行环境一致性 持续交付与部署：使用Dockerfile使镜像构建透明化，结合CI/CD 更轻松的迁移：Docker确保了执">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2018-08-28T12:39:17.800Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Docker 基础">
+<meta name="twitter:description" content="为什么要使用Docker? 更高效的利用系统资源：容器不需要进行硬件虚拟以及进行完整操作系统等额外开销 更快速的启动时间：由于直接运行于宿主内核，无需启动完整的操作系统，可以做到秒级甚至毫秒级的启动 一致的运行环境：Docker的镜像提供了除内核外完整的运行时环境，确保了应用运行环境一致性 持续交付与部署：使用Dockerfile使镜像构建透明化，结合CI/CD 更轻松的迁移：Docker确保了执">
+
+
+
+
+
+
+  <link rel="canonical" href="https://blog.ryoma.top/posts/docker_base/"/>
+
+
+
+<script type="text/javascript" id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>Docker 基础 | Ryoma's Blog</title>
+  
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style type="text/css">
+    .use-motion .motion-element,
+    .use-motion .brand,
+    .use-motion .menu-item,
+    .sidebar-inner,
+    .use-motion .post-block,
+    .use-motion .pagination,
+    .use-motion .comments,
+    .use-motion .post-header,
+    .use-motion .post-body,
+    .use-motion .collection-title { opacity: initial; }
+
+    .use-motion .logo,
+    .use-motion .site-title,
+    .use-motion .site-subtitle {
+      opacity: initial;
+      top: initial;
+    }
+
+    .use-motion {
+      .logo-line-before i { left: initial; }
+      .logo-line-after i { right: initial; }
+    }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Ryoma's Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+      
+        <p class="site-subtitle">纸上得来终觉浅</p>
+      
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+    <a href="/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-home"></i> <br />首页</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+    <a href="/tags/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />标签</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+    <a href="/categories/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-th"></i> <br />分类</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+    <a href="/archives/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />归档</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+    <a href="/about/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-user"></i> <br />关于我</a>
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.ryoma.top/posts/docker_base/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Ryoma">
+      <meta itemprop="description" content="Ryoma's Blog">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Ryoma's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Docker 基础
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2018-08-28 20:30:00" itemprop="dateCreated datePublished" datetime="2018-08-28T20:30:00+08:00">2018-08-28</time>
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/Docker/" itemprop="url" rel="index"><span itemprop="name">Docker</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/posts/docker_base/#comments" itemprop="discussionUrl">
+                
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="posts/docker_base/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="为什么要使用Docker"><a href="#为什么要使用Docker" class="headerlink" title="为什么要使用Docker?"></a>为什么要使用Docker?</h2><ul>
+<li>更高效的利用系统资源：容器不需要进行硬件虚拟以及进行完整操作系统等额外开销</li>
+<li>更快速的启动时间：由于直接运行于宿主内核，无需启动完整的操作系统，可以做到秒级甚至毫秒级的启动</li>
+<li>一致的运行环境：Docker的镜像提供了除内核外完整的运行时环境，确保了应用运行环境一致性</li>
+<li>持续交付与部署：使用Dockerfile使镜像构建透明化，结合CI/CD</li>
+<li>更轻松的迁移：Docker确保了执行环境的一致性，随时随地迁移</li>
+<li>更轻松的维护与拓展：Docker使用的分层存储以及镜像的技术，使得应用重复部分的复用更为容易，也使得应用的维护更新更加简单，基于基础镜像进一步扩展镜像也变得非常简单</li>
+</ul>
+<a id="more"></a>
+<h2 id="基本概念"><a href="#基本概念" class="headerlink" title="基本概念"></a>基本概念</h2><h3 id="镜像（Image）"><a href="#镜像（Image）" class="headerlink" title="镜像（Image）"></a>镜像（Image）</h3><blockquote>
+<p>关键字：分层存储</p>
+</blockquote>
+<p>Docker镜像是一个特殊的文件系统，除了提供容器运行时所需的程序、库、资源、配置等文件外，还包含了一些为运行时准备的一些配置参数（如匿名卷、环境变量、用户等）。</p>
+<p>镜像不包含任何动态数据，其内容在构建之后也不会再改变。</p>
+<h3 id="容器（Container）"><a href="#容器（Container）" class="headerlink" title="容器（Container）"></a>容器（Container）</h3><p>镜像和容器的关系，就像是面向对象程序设计中的类和实例的关系。</p>
+<p>镜像是静态的定义，容器是镜像运行时的实体。容器可以被创建、启动、停止、删除、暂停等。</p>
+<p>容器的实质是进程，但与直接在宿主执行的进程不同，容器进程运行于属于自己的独立的命名空间。</p>
+<h3 id="仓库（Repository）"><a href="#仓库（Repository）" class="headerlink" title="仓库（Repository）"></a>仓库（Repository）</h3><p>集中的存储、分发镜像的服务</p>
+<h2 id="使用镜像"><a href="#使用镜像" class="headerlink" title="使用镜像"></a>使用镜像</h2><h3 id="获取镜像"><a href="#获取镜像" class="headerlink" title="获取镜像"></a>获取镜像</h3><figure class="highlight dockerfile"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker pull [OPTIONS] NAME[:TAG|@DIGEST]</span><br></pre></td></tr></table></figure>
+<h4 id="运行镜像"><a href="#运行镜像" class="headerlink" title="运行镜像"></a>运行镜像</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run [OPTIONS] IMAGE [COMMAND] [ARG...]</span><br></pre></td></tr></table></figure>
+<h3 id="列出镜像"><a href="#列出镜像" class="headerlink" title="列出镜像"></a>列出镜像</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker image ls</span><br></pre></td></tr></table></figure>
+<h4 id="镜像体积"><a href="#镜像体积" class="headerlink" title="镜像体积"></a>镜像体积</h4><ul>
+<li><p>Docker Hub上显示的大小是网络传输中更关注的流量大小；</p>
+</li>
+<li><p><strong>docker image ls</strong>展示的是镜像下载后展开的大小</p>
+</li>
+</ul>
+<h4 id="虚悬镜像"><a href="#虚悬镜像" class="headerlink" title="虚悬镜像"></a>虚悬镜像</h4><p>显示：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker image ls -f dangling=true</span><br></pre></td></tr></table></figure>
+<p>删除：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker image prune</span><br></pre></td></tr></table></figure>
+<h4 id="中间层镜像"><a href="#中间层镜像" class="headerlink" title="中间层镜像"></a>中间层镜像</h4><p>为了加速镜像构建、重复利用资源，Docker会利用中间层镜像。</p>
+<p>显示包括中间层镜像在内的所有镜像：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker image ls -a</span><br></pre></td></tr></table></figure>
+<p>以特定格式显示</p>
+<p><strong>docker image ls</strong>支持很多参数</p>
+<h3 id="删除本地镜像"><a href="#删除本地镜像" class="headerlink" title="删除本地镜像"></a>删除本地镜像</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker image rm [OPTIONS] IMAGE [IMAGE...]</span><br></pre></td></tr></table></figure>
+<h4 id="用ID、镜像名、摘要删除镜像"><a href="#用ID、镜像名、摘要删除镜像" class="headerlink" title="用ID、镜像名、摘要删除镜像"></a>用ID、镜像名、摘要删除镜像</h4><h4 id="UnTagged-和-Deleted"><a href="#UnTagged-和-Deleted" class="headerlink" title="UnTagged 和 Deleted"></a>UnTagged 和 Deleted</h4><p>镜像的唯一标识是其ID及摘要，一个镜像可以有多个标签。</p>
+<p>当我们删除镜像时，实际上是在要求删除某个标签的镜像。</p>
+<ul>
+<li>首先将镜像标签取消</li>
+<li>如果没有其它标签指向这个镜像，就会发生Delete行为</li>
+</ul>
+<h4 id="与docker-image-ls配合"><a href="#与docker-image-ls配合" class="headerlink" title="与docker image ls配合"></a>与docker image ls配合</h4><p>使用<strong>docker image ls -q</strong>配合使用<strong>docker image rm</strong>，批量删除镜像。</p>
+<h2 id="操作容器"><a href="#操作容器" class="headerlink" title="操作容器"></a>操作容器</h2><p>容器是独立运行的一个或一组应用，以及它们的运行态环境。</p>
+<h3 id="启动容器"><a href="#启动容器" class="headerlink" title="启动容器"></a>启动容器</h3><p>两种方式：</p>
+<ul>
+<li>基于镜像新建一个容器并启动</li>
+<li>将正在终止状态的容器重新启动</li>
+</ul>
+<h4 id="新建并启动"><a href="#新建并启动" class="headerlink" title="新建并启动"></a>新建并启动</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run [OPTIONS] IMAGE [COMMAND] [ARG...]</span><br></pre></td></tr></table></figure>
+<p>当使用<strong>docker run</strong>来创建容器时，Docker在后台进行的标准操作：</p>
+<ul>
+<li>检查本地是否存在指定的镜像，不存在即从仓库下载</li>
+<li>利用镜像创建并启动一个容器</li>
+<li>分配一个文件系统，并在只读的镜像层外挂载一个可读写层</li>
+<li>从宿主主机配置的网桥接口中桥接一个虚拟接口到容器中</li>
+<li>从地址池配置一个ip地址给容器</li>
+<li>执行用户指定的应用程序</li>
+<li>执行完毕后容器被终止</li>
+</ul>
+<h4 id="启动已终止容器"><a href="#启动已终止容器" class="headerlink" title="启动已终止容器"></a>启动已终止容器</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker container start [OPTIONS] CONTAINER [CONTAINER...]</span><br></pre></td></tr></table></figure>
+<h3 id="后台运行"><a href="#后台运行" class="headerlink" title="后台运行"></a>后台运行</h3><blockquote>
+<p>容器是否会长久运行，和<strong>-d</strong>无关</p>
+</blockquote>
+<p>如果需要Docker在后台运行，而不是将执行命令的结果输出在当前宿主机上，可以使用<strong>-d</strong>参数。</p>
+<p>使用<strong>-d</strong>启动会返回一个唯一的ID，也可以使用<strong>docker container ls</strong>命令来查看容器信息。</p>
+<p>使用<strong>docker container logs</strong>命令可以获取容器的输出信息。</p>
+<h3 id="终止容器"><a href="#终止容器" class="headerlink" title="终止容器"></a>终止容器</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker container stop [OPTIONS] CONTAINER [CONTAINER...]</span><br></pre></td></tr></table></figure>
+<p>当Docker容器中指定的应用终结时，容器也自动停止。</p>
+<p>处于终止状态的容器，可以使用<strong>docker container start</strong>命令来重新启动。</p>
+<p><strong>docker container restart</strong>命令会将一个运行态的容器终止，然后再启动它。</p>
+<h3 id="进入容器"><a href="#进入容器" class="headerlink" title="进入容器"></a>进入容器</h3><blockquote>
+<p>可以使用<strong>docker attach</strong>或<strong>docker exec</strong>命令，推荐使用<strong>docker exec</strong></p>
+</blockquote>
+<h4 id="attach-命令"><a href="#attach-命令" class="headerlink" title="attach 命令"></a>attach 命令</h4><figure class="highlight docker"><figcaption><span>attach [OPTIONS] CONTAINER</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker attach [OPTIONS] CONTAINER</span><br></pre></td></tr></table></figure>
+<p>在attach时使用<strong>exit</strong>，会导致容器的停止</p>
+<h4 id="exec命令"><a href="#exec命令" class="headerlink" title="exec命令"></a>exec命令</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker exec [OPTIONS] CONTAINER COMMAND [ARG...]</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>主要是<strong>-i -t</strong>参数</p>
+</blockquote>
+<p>此时使用<strong>exit</strong>不会导致容器的停止</p>
+<h3 id="导出和导入容器"><a href="#导出和导入容器" class="headerlink" title="导出和导入容器"></a>导出和导入容器</h3><h4 id="导出容器"><a href="#导出容器" class="headerlink" title="导出容器"></a>导出容器</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker export [OPTIONS] CONTAINER</span><br></pre></td></tr></table></figure>
+<h4 id="导入容器快照"><a href="#导入容器快照" class="headerlink" title="导入容器快照"></a>导入容器快照</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker import [OPTIONS] file|URL|- [REPOSITORY[:TAG]]</span><br></pre></td></tr></table></figure>
+<p>既可以使用<strong>docker load</strong>来导入镜像存储文件到本地镜像库，也可以使用<strong>docker import</strong>来导入一个容器快照到本地镜像库——两者的区别在于容器镜像快照文件将丢弃历史记录和元数据信息（仅保存容器当时的快照状态）</p>
+<h3 id="删除容器"><a href="#删除容器" class="headerlink" title="删除容器"></a>删除容器</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker container rm [OPTIONS] CONTAINER [CONTAINER...]</span><br></pre></td></tr></table></figure>
+<p>如果需要删除一个运行中的容器，可以传入<strong>-f</strong>参数，Docker会发送<strong>SIGKILL</strong>信号给容器。</p>
+<h4 id="清理所有处于终止状态的容器"><a href="#清理所有处于终止状态的容器" class="headerlink" title="清理所有处于终止状态的容器"></a>清理所有处于终止状态的容器</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker container prune [OPTIONS]</span><br></pre></td></tr></table></figure>
+<h2 id="访问仓库"><a href="#访问仓库" class="headerlink" title="访问仓库"></a>访问仓库</h2><p>仓库是集中存储镜像的位置。</p>
+<p>一个容易混淆的概念是注册服务器（Registry）——实际上注册服务器是管理仓库的具体服务器，每个服务器上有多个仓库，而每个仓库下面有多个镜像。</p>
+<h3 id="Docker-Hub"><a href="#Docker-Hub" class="headerlink" title="Docker Hub"></a>Docker Hub</h3><h4 id="注册"><a href="#注册" class="headerlink" title="注册"></a>注册</h4><p><a href="https://cloud.docker.com" target="_blank" rel="noopener">官方地址</a></p>
+<h4 id="登录"><a href="#登录" class="headerlink" title="登录"></a>登录</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">docker login [OPTIONS] [SERVER]</span><br><span class="line">docker logout [SERVER]</span><br></pre></td></tr></table></figure>
+<h4 id="拉取镜像"><a href="#拉取镜像" class="headerlink" title="拉取镜像"></a>拉取镜像</h4><p>可以使用<strong>docker search</strong>来查找镜像，<strong>docker pull</strong>下载镜像。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker search [OPTIONS] TERM</span><br></pre></td></tr></table></figure>
+<h4 id="推送镜像"><a href="#推送镜像" class="headerlink" title="推送镜像"></a>推送镜像</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker push [OPTIONS] NAME[:TAG]</span><br></pre></td></tr></table></figure>
+<h4 id="自动创建"><a href="#自动创建" class="headerlink" title="自动创建"></a>自动创建</h4><p>对于需要经常升级镜像内程序来说，十分方便。</p>
+<h2 id="Docker数据管理"><a href="#Docker数据管理" class="headerlink" title="Docker数据管理"></a>Docker数据管理</h2><p>在容器管理数据主要有两种方式：</p>
+<ul>
+<li>数据卷</li>
+<li>挂载主机目录</li>
+</ul>
+<h3 id="数据卷"><a href="#数据卷" class="headerlink" title="数据卷"></a>数据卷</h3><p>数据卷是一个可供一个或多个容器使用的特殊目录，绕过UFS：</p>
+<ul>
+<li>可以在容器之间共享和重用</li>
+<li>对数据卷的修改会马上生效</li>
+<li>对数据卷的更新不会影响镜像</li>
+<li>数据卷默认会一直存在，即使容器被删除</li>
+</ul>
+<p>相关命令：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker volume COMMAND</span><br></pre></td></tr></table></figure>
+<h3 id="挂载主机目录"><a href="#挂载主机目录" class="headerlink" title="挂载主机目录"></a>挂载主机目录</h3><h4 id="挂载一个主机目录作为数据卷"><a href="#挂载一个主机目录作为数据卷" class="headerlink" title="挂载一个主机目录作为数据卷"></a>挂载一个主机目录作为数据卷</h4><h4 id="挂载一个本地主机文件作为数据卷"><a href="#挂载一个本地主机文件作为数据卷" class="headerlink" title="挂载一个本地主机文件作为数据卷"></a>挂载一个本地主机文件作为数据卷</h4><h2 id="资料"><a href="#资料" class="headerlink" title="资料"></a>资料</h2><ul>
+<li><a href="https://legacy.gitbook.com/book/yeasy/docker_practice/details" target="_blank" rel="noopener">https://legacy.gitbook.com/book/yeasy/docker_practice/details</a></li>
+</ul>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Docker/" rel="tag"># Docker</a>
+          
+            <a href="/tags/阅读笔记/" rel="tag"># 阅读笔记</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/posts/redis_depth_adventure_sequel/" rel="next" title="Redis 深度历险——总结(续)">
+                <i class="fa fa-chevron-left"></i> Redis 深度历险——总结(续)
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+    <div class="comments" id="comments">
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/avatar.jpg"
+                alt="Ryoma" />
+            
+              <p class="site-author-name" itemprop="name">Ryoma</p>
+              <p class="site-description motion-element" itemprop="description">Ryoma's Blog</p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">45</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  <a href="/categories/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">13</span>
+                    <span class="site-state-item-name">分类</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  <a href="/tags/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">56</span>
+                    <span class="site-state-item-name">标签</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+            <div class="links-of-author motion-element">
+              
+                <span class="links-of-author-item">
+                  <a href="https://github.com/JianmingXia" target="_blank" title="GitHub"><i class="fa fa-fw fa-github"></i>GitHub</a>
+                  
+                </span>
+              
+                <span class="links-of-author-item">
+                  <a href="mailto:xiajianming_xjm@163.com" target="_blank" title="E-Mail"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                  
+                </span>
+              
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#为什么要使用Docker"><span class="nav-number">1.</span> <span class="nav-text">为什么要使用Docker?</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#基本概念"><span class="nav-number">2.</span> <span class="nav-text">基本概念</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#镜像（Image）"><span class="nav-number">2.1.</span> <span class="nav-text">镜像（Image）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#容器（Container）"><span class="nav-number">2.2.</span> <span class="nav-text">容器（Container）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#仓库（Repository）"><span class="nav-number">2.3.</span> <span class="nav-text">仓库（Repository）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#使用镜像"><span class="nav-number">3.</span> <span class="nav-text">使用镜像</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#获取镜像"><span class="nav-number">3.1.</span> <span class="nav-text">获取镜像</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#运行镜像"><span class="nav-number">3.1.1.</span> <span class="nav-text">运行镜像</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#列出镜像"><span class="nav-number">3.2.</span> <span class="nav-text">列出镜像</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#镜像体积"><span class="nav-number">3.2.1.</span> <span class="nav-text">镜像体积</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#虚悬镜像"><span class="nav-number">3.2.2.</span> <span class="nav-text">虚悬镜像</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#中间层镜像"><span class="nav-number">3.2.3.</span> <span class="nav-text">中间层镜像</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#删除本地镜像"><span class="nav-number">3.3.</span> <span class="nav-text">删除本地镜像</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#用ID、镜像名、摘要删除镜像"><span class="nav-number">3.3.1.</span> <span class="nav-text">用ID、镜像名、摘要删除镜像</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#UnTagged-和-Deleted"><span class="nav-number">3.3.2.</span> <span class="nav-text">UnTagged 和 Deleted</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#与docker-image-ls配合"><span class="nav-number">3.3.3.</span> <span class="nav-text">与docker image ls配合</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#操作容器"><span class="nav-number">4.</span> <span class="nav-text">操作容器</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#启动容器"><span class="nav-number">4.1.</span> <span class="nav-text">启动容器</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#新建并启动"><span class="nav-number">4.1.1.</span> <span class="nav-text">新建并启动</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#启动已终止容器"><span class="nav-number">4.1.2.</span> <span class="nav-text">启动已终止容器</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#后台运行"><span class="nav-number">4.2.</span> <span class="nav-text">后台运行</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#终止容器"><span class="nav-number">4.3.</span> <span class="nav-text">终止容器</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#进入容器"><span class="nav-number">4.4.</span> <span class="nav-text">进入容器</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#attach-命令"><span class="nav-number">4.4.1.</span> <span class="nav-text">attach 命令</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#exec命令"><span class="nav-number">4.4.2.</span> <span class="nav-text">exec命令</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#导出和导入容器"><span class="nav-number">4.5.</span> <span class="nav-text">导出和导入容器</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#导出容器"><span class="nav-number">4.5.1.</span> <span class="nav-text">导出容器</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#导入容器快照"><span class="nav-number">4.5.2.</span> <span class="nav-text">导入容器快照</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#删除容器"><span class="nav-number">4.6.</span> <span class="nav-text">删除容器</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#清理所有处于终止状态的容器"><span class="nav-number">4.6.1.</span> <span class="nav-text">清理所有处于终止状态的容器</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#访问仓库"><span class="nav-number">5.</span> <span class="nav-text">访问仓库</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Docker-Hub"><span class="nav-number">5.1.</span> <span class="nav-text">Docker Hub</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#注册"><span class="nav-number">5.1.1.</span> <span class="nav-text">注册</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#登录"><span class="nav-number">5.1.2.</span> <span class="nav-text">登录</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#拉取镜像"><span class="nav-number">5.1.3.</span> <span class="nav-text">拉取镜像</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#推送镜像"><span class="nav-number">5.1.4.</span> <span class="nav-text">推送镜像</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#自动创建"><span class="nav-number">5.1.5.</span> <span class="nav-text">自动创建</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Docker数据管理"><span class="nav-number">6.</span> <span class="nav-text">Docker数据管理</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#数据卷"><span class="nav-number">6.1.</span> <span class="nav-text">数据卷</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#挂载主机目录"><span class="nav-number">6.2.</span> <span class="nav-text">挂载主机目录</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#挂载一个主机目录作为数据卷"><span class="nav-number">6.2.1.</span> <span class="nav-text">挂载一个主机目录作为数据卷</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#挂载一个本地主机文件作为数据卷"><span class="nav-number">6.2.2.</span> <span class="nav-text">挂载一个本地主机文件作为数据卷</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#资料"><span class="nav-number">7.</span> <span class="nav-text">资料</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2017 &mdash; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Ryoma</span>
+
+  
+
+  
+</div>
+
+
+
+
+  <div class="powered-by"><a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> v3.7.1</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://theme-next.org">NexT.Gemini</a> v6.3.0</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+	
+    
+
+    
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/three/three.min.js"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/three/canvas_sphere.min.js"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=6.3.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=6.3.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=6.3.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=6.3.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=6.3.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=6.3.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=6.3.0"></script>
+
+
+
+  
+
+  
+    <script id="dsq-count-scr" src="https://ryoma-blog.disqus.com/count.js" async></script>
+  
+
+  
+    <script type="text/javascript">
+      var disqus_config = function () {
+        this.page.url = 'https://blog.ryoma.top/posts/docker_base/';
+        this.page.identifier = 'posts/docker_base/';
+        this.page.title = 'Docker 基础';
+        };
+      function loadComments () {
+        var d = document, s = d.createElement('script');
+        s.src = 'https://ryoma-blog.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', '' + +new Date());
+        (d.head || d.body).appendChild(s);
+      }
+      
+        $(function () {
+          var offsetTop = $('#comments').offset().top - $(window).height();
+          if (offsetTop <= 0) {
+            // load directly when there's no a scrollbar
+            loadComments();
+          } else {
+            $(window).on('scroll.disqus_scroll', function () {
+              var scrollTop = document.documentElement.scrollTop;
+              if (scrollTop >= offsetTop) {
+                $(window).off('.disqus_scroll');
+                loadComments();
+              }
+            });
+          }
+        });
+      
+    </script>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
