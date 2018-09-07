@@ -108,24 +108,28 @@
 
 
 
-  <meta name="description" content="Ryoma&apos;s Blog">
-<meta name="keywords" content="博客,技术积累,Ryoma,JianmingXia">
-<meta property="og:type" content="website">
-<meta property="og:title" content="Ryoma&#39;s Blog">
-<meta property="og:url" content="https://blog.ryoma.top/page/6/index.html">
+  <meta name="description" content="类型类型全面掌握JS的类型之后，会改变我们对强制类型转换的成见，看到它的好处并意识到它的缺点被过分夸大了。 内置类型内置类型，除object外，其它统称为“基本类型”  null undefined boolean number string symbol object  可以使用typeof运算符来查看值的类型，返回类型的字符串值。 null其中null类型比较特殊： 1typeof null">
+<meta name="keywords" content="JavaScript">
+<meta property="og:type" content="article">
+<meta property="og:title" content="你不知道的JavaScript（中卷）——类型和语法">
+<meta property="og:url" content="https://blog.ryoma.top/posts/you_dont_know_js_mid_types&grammer/index.html">
 <meta property="og:site_name" content="Ryoma&#39;s Blog">
-<meta property="og:description" content="Ryoma&apos;s Blog">
+<meta property="og:description" content="类型类型全面掌握JS的类型之后，会改变我们对强制类型转换的成见，看到它的好处并意识到它的缺点被过分夸大了。 内置类型内置类型，除object外，其它统称为“基本类型”  null undefined boolean number string symbol object  可以使用typeof运算符来查看值的类型，返回类型的字符串值。 null其中null类型比较特殊： 1typeof null">
 <meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https://img.ryoma.top/YouDontKnowJS/mid_1-1.png">
+<meta property="og:image" content="https://img.ryoma.top/YouDontKnowJS/mid_1-2.png">
+<meta property="og:updated_time" content="2018-09-07T02:27:26.127Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Ryoma&#39;s Blog">
-<meta name="twitter:description" content="Ryoma&apos;s Blog">
+<meta name="twitter:title" content="你不知道的JavaScript（中卷）——类型和语法">
+<meta name="twitter:description" content="类型类型全面掌握JS的类型之后，会改变我们对强制类型转换的成见，看到它的好处并意识到它的缺点被过分夸大了。 内置类型内置类型，除object外，其它统称为“基本类型”  null undefined boolean number string symbol object  可以使用typeof运算符来查看值的类型，返回类型的字符串值。 null其中null类型比较特殊： 1typeof null">
+<meta name="twitter:image" content="https://img.ryoma.top/YouDontKnowJS/mid_1-1.png">
 
 
 
 
 
 
-  <link rel="canonical" href="https://blog.ryoma.top/page/6/"/>
+  <link rel="canonical" href="https://blog.ryoma.top/posts/you_dont_know_js_mid_types&grammer/"/>
 
 
 
@@ -135,7 +139,7 @@
   };
 </script>
 
-  <title>Ryoma's Blog</title>
+  <title>你不知道的JavaScript（中卷）——类型和语法 | Ryoma's Blog</title>
   
 
 
@@ -182,8 +186,7 @@
     
   
 
-  <div class="container sidebar-position-left 
-  page-home">
+  <div class="container sidebar-position-left page-post-detail">
     <div class="headband"></div>
 
     <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
@@ -292,699 +295,9 @@
           
           <div id="content" class="content">
             
-  <section id="posts" class="posts-expand">
+
+  <div id="posts" class="posts-expand">
     
-      
-
-  
-
-  
-  
-  
-
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://blog.ryoma.top/posts/booklist/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Ryoma">
-      <meta itemprop="description" content="Ryoma's Blog">
-      <meta itemprop="image" content="/images/avatar.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Ryoma's Blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/posts/booklist/" itemprop="url">
-                  个人书单
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-
-            
-            
-            
-
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-
-              
-                
-              
-
-              <time title="创建时间：2017-10-31 12:00:00" itemprop="dateCreated datePublished" datetime="2017-10-31T12:00:00+08:00">2017-10-31</time>
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/阅读笔记/" itemprop="url" rel="index"><span itemprop="name">阅读笔记</span></a></span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/posts/booklist/#comments" itemprop="discussionUrl">
-                
-                  <span class="post-comments-count disqus-comment-count"
-                        data-disqus-identifier="posts/booklist/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <h1 id="技术"><a href="#技术" class="headerlink" title="技术"></a>技术</h1><ul>
-<li>深入浅出react和redux √</li>
-<li>黑客与画家 √</li>
-<li>大型网站技术架构 √</li>
-<li>你不知道的javascript（上） √</li>
-<li>你不知道的javascript（中、下） ing</li>
-<li>JS 函数式编程指南 ing</li>
-</ul>
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/posts/booklist/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://blog.ryoma.top/posts/hackers_and_painter/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Ryoma">
-      <meta itemprop="description" content="Ryoma's Blog">
-      <meta itemprop="image" content="/images/avatar.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Ryoma's Blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/posts/hackers_and_painter/" itemprop="url">
-                  黑客与画家——读后感
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-
-            
-            
-            
-
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-
-              
-                
-              
-
-              <time title="创建时间：2017-10-31 12:00:00" itemprop="dateCreated datePublished" datetime="2017-10-31T12:00:00+08:00">2017-10-31</time>
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/阅读笔记/" itemprop="url" rel="index"><span itemprop="name">阅读笔记</span></a></span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/posts/hackers_and_painter/#comments" itemprop="discussionUrl">
-                
-                  <span class="post-comments-count disqus-comment-count"
-                        data-disqus-identifier="posts/hackers_and_painter/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <h1 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h1><p>在前两周，觉得使用微信读书看书会容易分心（经常会看手机上的通知、微博什么的），所以选择买了一个kindle，平时看看书什么。除了东野圭吾先生的小说外，看完的第一本书就是《黑客与画家》，本来上周准备写的，但是由于个人原因，给耽误了，希望这周还能记得这本书讲了什么。</p>
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/posts/hackers_and_painter/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://blog.ryoma.top/posts/toollist/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Ryoma">
-      <meta itemprop="description" content="Ryoma's Blog">
-      <meta itemprop="image" content="/images/avatar.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Ryoma's Blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/posts/toollist/" itemprop="url">
-                  个人工具
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-
-            
-            
-            
-
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-
-              
-                
-              
-
-              <time title="创建时间：2017-10-31 12:00:00" itemprop="dateCreated datePublished" datetime="2017-10-31T12:00:00+08:00">2017-10-31</time>
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/工具/" itemprop="url" rel="index"><span itemprop="name">工具</span></a></span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/posts/toollist/#comments" itemprop="discussionUrl">
-                
-                  <span class="post-comments-count disqus-comment-count"
-                        data-disqus-identifier="posts/toollist/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <h1 id="开发专用"><a href="#开发专用" class="headerlink" title="开发专用"></a>开发专用</h1><h2 id="VSCode"><a href="#VSCode" class="headerlink" title="VSCode"></a>VSCode</h2><p>从sublime-&gt;atom，最终选择了vscode</p>
-<h2 id="VS2017"><a href="#VS2017" class="headerlink" title="VS2017"></a>VS2017</h2><h1 id="制图类"><a href="#制图类" class="headerlink" title="制图类"></a>制图类</h1><h2 id="XMind"><a href="#XMind" class="headerlink" title="XMind"></a>XMind</h2><p>用来记录读书笔记，真是好用的工具</p>
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/posts/toollist/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://blog.ryoma.top/posts/未来世界的幸存者/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Ryoma">
-      <meta itemprop="description" content="Ryoma's Blog">
-      <meta itemprop="image" content="/images/avatar.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Ryoma's Blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/posts/未来世界的幸存者/" itemprop="url">
-                  未来世界的幸存者
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-
-            
-            
-            
-
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-
-              
-                
-              
-
-              <time title="创建时间：2017-10-31 12:00:00" itemprop="dateCreated datePublished" datetime="2017-10-31T12:00:00+08:00">2017-10-31</time>
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/阅读笔记/" itemprop="url" rel="index"><span itemprop="name">阅读笔记</span></a></span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/posts/未来世界的幸存者/#comments" itemprop="discussionUrl">
-                
-                  <span class="post-comments-count disqus-comment-count"
-                        data-disqus-identifier="posts/未来世界的幸存者/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>本周在查看《人类简史》是否可看的时候，发现一个很惊喜的<a href="https://www.zhihu.com/question/27767448" target="_blank" rel="noopener">回答</a>，用思维导图做了一份笔记，觉得很棒。</p>
-<ul>
-<li>简洁：一张图表示自己看的书籍</li>
-<li>结构很好：总结了整本书的脉络</li>
-<li>易回忆：很久之后，再来回想这本书，简直是神器</li>
-</ul>
-<p><img src="https://img.ryoma.top/XMind/%E6%9C%AA%E6%9D%A5%E4%B8%96%E7%95%8C%E7%9A%84%E5%B9%B8%E5%AD%98%E8%80%85.png" alt=""></p>
-
-          
-        
-      
-    </div>
-
-    
-
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
 
   
 
@@ -1016,11 +329,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/posts/you_dont_know_js_mid_types&grammer/" itemprop="url">
-                  你不知道的JavaScript（中卷）——类型和语法
-                </a>
+          <h1 class="post-title" itemprop="name headline">你不知道的JavaScript（中卷）——类型和语法
               
             
           </h1>
@@ -1109,9 +418,7 @@
       
 
       
-        
-          
-            <h2 id="类型"><a href="#类型" class="headerlink" title="类型"></a>类型</h2><h3 id="类型-1"><a href="#类型-1" class="headerlink" title="类型"></a>类型</h3><p>全面掌握JS的类型之后，会改变我们对强制类型转换的成见，看到它的好处并意识到它的缺点被过分夸大了。</p>
+        <h2 id="类型"><a href="#类型" class="headerlink" title="类型"></a>类型</h2><h3 id="类型-1"><a href="#类型-1" class="headerlink" title="类型"></a>类型</h3><p>全面掌握JS的类型之后，会改变我们对强制类型转换的成见，看到它的好处并意识到它的缺点被过分夸大了。</p>
 <h3 id="内置类型"><a href="#内置类型" class="headerlink" title="内置类型"></a>内置类型</h3><p>内置类型，除object外，其它统称为“基本类型”</p>
 <ul>
 <li>null</li>
@@ -1485,8 +792,6 @@
 <h3 id="Array-from"><a href="#Array-from" class="headerlink" title="Array.from()"></a>Array.from()</h3><p>从一个类似数组或可迭代对象中创建一个新的数组实例</p>
 <h3 id="稀疏数组"><a href="#稀疏数组" class="headerlink" title="稀疏数组"></a>稀疏数组</h3><p>将包含至少一个”空单元“的数组称为稀疏数组</p>
 
-          
-        
       
     </div>
 
@@ -1504,14 +809,40 @@
 
     <footer class="post-footer">
       
-
+        <div class="post-tags">
+          
+            <a href="/tags/JavaScript/" rel="tag"># JavaScript</a>
+          
+        </div>
       
 
       
+      
+      
 
       
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/posts/you_dont_know_js_top_this&object_prototypes/" rel="next" title="你不知道的JavaScript（上卷）——this和对象原型">
+                <i class="fa fa-chevron-left"></i> 你不知道的JavaScript（上卷）——this和对象原型
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/posts/未来世界的幸存者/" rel="prev" title="未来世界的幸存者">
+                未来世界的幸存者 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
       
-        <div class="post-eof"></div>
+
+      
       
     </footer>
   </div>
@@ -1521,18 +852,25 @@
   </article>
 
 
-    
-  </section>
-
-  
-  <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/page/5/"><i class="fa fa-angle-left" aria-label="上一页"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/5/">5</a><span class="page-number current">6</span><a class="page-number" href="/page/7/">7</a><span class="space">&hellip;</span><a class="page-number" href="/page/10/">10</a><a class="extend next" rel="next" href="/page/7/"><i class="fa fa-angle-right" aria-label="下一页"></i></a>
-  </nav>
-
+  </div>
 
 
           </div>
           
+
+  
+    <div class="comments" id="comments">
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    </div>
+
+  
+
+
 
         </div>
         
@@ -1553,8 +891,17 @@
       
 
       
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
 
-      <section class="site-overview-wrap sidebar-panel sidebar-panel-active">
+      <section class="site-overview-wrap sidebar-panel">
         <div class="site-overview">
           <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
             
@@ -1786,6 +1133,22 @@
       </section>
 
       
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#类型"><span class="nav-number">1.</span> <span class="nav-text">类型</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#类型-1"><span class="nav-number">1.1.</span> <span class="nav-text">类型</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#内置类型"><span class="nav-number">1.2.</span> <span class="nav-text">内置类型</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#null"><span class="nav-number">1.2.1.</span> <span class="nav-text">null</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#function"><span class="nav-number">1.2.2.</span> <span class="nav-text">function</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#数组"><span class="nav-number">1.2.3.</span> <span class="nav-text">数组</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#值和类型"><span class="nav-number">1.3.</span> <span class="nav-text">值和类型</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#undefined-和-undeclared"><span class="nav-number">1.3.1.</span> <span class="nav-text">undefined 和 undeclared</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#typeof-Undeclared"><span class="nav-number">1.3.2.</span> <span class="nav-text">typeof Undeclared</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#值"><span class="nav-number">2.</span> <span class="nav-text">值</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#数组-1"><span class="nav-number">2.1.</span> <span class="nav-text">数组</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#类数组"><span class="nav-number">2.1.1.</span> <span class="nav-text">类数组</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#字符串"><span class="nav-number">2.2.</span> <span class="nav-text">字符串</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#数字"><span class="nav-number">2.3.</span> <span class="nav-text">数字</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#数字的语法"><span class="nav-number">2.3.1.</span> <span class="nav-text">数字的语法</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#较小的数值"><span class="nav-number">2.3.2.</span> <span class="nav-text">较小的数值</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#整数的安全范围"><span class="nav-number">2.3.3.</span> <span class="nav-text">整数的安全范围</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#整数检测"><span class="nav-number">2.3.4.</span> <span class="nav-text">整数检测</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#32位有符号整数"><span class="nav-number">2.3.5.</span> <span class="nav-text">32位有符号整数</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#特殊数值"><span class="nav-number">2.4.</span> <span class="nav-text">特殊数值</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#不是值的值"><span class="nav-number">2.4.1.</span> <span class="nav-text">不是值的值</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#undefined"><span class="nav-number">2.4.2.</span> <span class="nav-text">undefined</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#void-运算符"><span class="nav-number">2.4.2.1.</span> <span class="nav-text">void 运算符</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#特殊的数字"><span class="nav-number">2.4.3.</span> <span class="nav-text">特殊的数字</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#不是数字的数字"><span class="nav-number">2.4.3.1.</span> <span class="nav-text">不是数字的数字</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#无穷数"><span class="nav-number">2.4.3.2.</span> <span class="nav-text">无穷数</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#零值"><span class="nav-number">2.4.3.3.</span> <span class="nav-text">零值</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#特殊等式"><span class="nav-number">2.4.4.</span> <span class="nav-text">特殊等式</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#值和引用"><span class="nav-number">2.5.</span> <span class="nav-text">值和引用</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#原生函数"><span class="nav-number">3.</span> <span class="nav-text">原生函数</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#内部属性-Class"><span class="nav-number">3.1.</span> <span class="nav-text">内部属性[[Class]]</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#封装对象包装"><span class="nav-number">3.2.</span> <span class="nav-text">封装对象包装</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#封装对象释疑"><span class="nav-number">3.2.1.</span> <span class="nav-text">封装对象释疑</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#拆封"><span class="nav-number">3.3.</span> <span class="nav-text">拆封</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#原生函数作为构造函数"><span class="nav-number">3.4.</span> <span class="nav-text">原生函数作为构造函数</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Array"><span class="nav-number">3.4.1.</span> <span class="nav-text">Array(..)</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Object-、Function-和RegExp"><span class="nav-number">3.4.2.</span> <span class="nav-text">Object(..)、Function(..)和RegExp(..)</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Date-和Error"><span class="nav-number">3.4.3.</span> <span class="nav-text">Date(..)和Error(..)</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Symbol"><span class="nav-number">3.4.4.</span> <span class="nav-text">Symbol(..)</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#基本类型"><span class="nav-number">3.4.5.</span> <span class="nav-text">基本类型</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#将原型作为默认值"><span class="nav-number">3.4.5.1.</span> <span class="nav-text">将原型作为默认值</span></a></li></ol></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#强制类型转换"><span class="nav-number">4.</span> <span class="nav-text">强制类型转换</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#值类型转换"><span class="nav-number">4.1.</span> <span class="nav-text">值类型转换</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#抽象值操作"><span class="nav-number">4.2.</span> <span class="nav-text">抽象值操作</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#ToString"><span class="nav-number">4.2.1.</span> <span class="nav-text">ToString</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#JSON字符串化"><span class="nav-number">4.2.1.1.</span> <span class="nav-text">JSON字符串化</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#ToNumber"><span class="nav-number">4.2.2.</span> <span class="nav-text">ToNumber</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#ToBoolean"><span class="nav-number">4.2.3.</span> <span class="nav-text">ToBoolean</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#假值"><span class="nav-number">4.2.3.1.</span> <span class="nav-text">假值</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#假值对象"><span class="nav-number">4.2.3.2.</span> <span class="nav-text">假值对象</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#真值"><span class="nav-number">4.2.3.3.</span> <span class="nav-text">真值</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#显示强制类型转换"><span class="nav-number">4.3.</span> <span class="nav-text">显示强制类型转换</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#字符串和数字之间的显示转换"><span class="nav-number">4.3.1.</span> <span class="nav-text">字符串和数字之间的显示转换</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#日期显示转换为数字"><span class="nav-number">4.3.1.1.</span> <span class="nav-text">日期显示转换为数字</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#奇特的-运算符"><span class="nav-number">4.3.1.2.</span> <span class="nav-text">奇特的~运算符</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#字位截除"><span class="nav-number">4.3.1.3.</span> <span class="nav-text">字位截除</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#显示解析数字字符串"><span class="nav-number">4.3.2.</span> <span class="nav-text">显示解析数字字符串</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#显示转换为布尔值"><span class="nav-number">4.3.3.</span> <span class="nav-text">显示转换为布尔值</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#隐式强制类型转换"><span class="nav-number">4.4.</span> <span class="nav-text">隐式强制类型转换</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#隐式地简化"><span class="nav-number">4.4.1.</span> <span class="nav-text">隐式地简化</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#字符串和数字之间的隐式强制类型转换"><span class="nav-number">4.4.2.</span> <span class="nav-text">字符串和数字之间的隐式强制类型转换</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#布尔值到数字的隐式强制类型转换"><span class="nav-number">4.4.3.</span> <span class="nav-text">布尔值到数字的隐式强制类型转换</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#隐式强制类型转换为布尔值"><span class="nav-number">4.4.4.</span> <span class="nav-text">隐式强制类型转换为布尔值</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#和-amp-amp"><span class="nav-number">4.4.5.</span> <span class="nav-text">|| 和 &amp;&amp;</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#符号的强制类型转换"><span class="nav-number">4.4.6.</span> <span class="nav-text">符号的强制类型转换</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#宽松相等和严格相等"><span class="nav-number">4.5.</span> <span class="nav-text">宽松相等和严格相等</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#相等比较操作的性能"><span class="nav-number">4.5.1.</span> <span class="nav-text">相等比较操作的性能</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#抽象相等"><span class="nav-number">4.5.2.</span> <span class="nav-text">抽象相等</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#字符串和数字之间的比较"><span class="nav-number">4.5.2.1.</span> <span class="nav-text">字符串和数字之间的比较</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#其它类型和布尔类型之间的相等比较"><span class="nav-number">4.5.2.2.</span> <span class="nav-text">其它类型和布尔类型之间的相等比较</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#null-和-undefined之间的相等比较"><span class="nav-number">4.5.2.3.</span> <span class="nav-text">null 和 undefined之间的相等比较</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#对象与非对象之间的相等比较"><span class="nav-number">4.5.2.4.</span> <span class="nav-text">对象与非对象之间的相等比较</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#比较少见的情况"><span class="nav-number">4.5.3.</span> <span class="nav-text">比较少见的情况</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#返回其他数字"><span class="nav-number">4.5.3.1.</span> <span class="nav-text">返回其他数字</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#假值的相等比较"><span class="nav-number">4.5.3.2.</span> <span class="nav-text">假值的相等比较</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#极端情况"><span class="nav-number">4.5.3.3.</span> <span class="nav-text">极端情况</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#完整性检查"><span class="nav-number">4.5.3.4.</span> <span class="nav-text">完整性检查</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#安全运用隐式强制类型转换"><span class="nav-number">4.5.3.5.</span> <span class="nav-text">安全运用隐式强制类型转换</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#抽象关系比较"><span class="nav-number">4.6.</span> <span class="nav-text">抽象关系比较</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#语法"><span class="nav-number">5.</span> <span class="nav-text">语法</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#语句和表达式"><span class="nav-number">5.1.</span> <span class="nav-text">语句和表达式</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#语句的结果值"><span class="nav-number">5.1.1.</span> <span class="nav-text">语句的结果值</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#表达式的副作用"><span class="nav-number">5.1.2.</span> <span class="nav-text">表达式的副作用</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#上下文规则"><span class="nav-number">5.1.3.</span> <span class="nav-text">上下文规则</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#大括号"><span class="nav-number">5.1.3.1.</span> <span class="nav-text">大括号</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#代码块"><span class="nav-number">5.1.3.2.</span> <span class="nav-text">代码块</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#对象解构"><span class="nav-number">5.1.3.3.</span> <span class="nav-text">对象解构</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#else-if和可选代码块"><span class="nav-number">5.1.3.4.</span> <span class="nav-text">else if和可选代码块</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#运算符优先级"><span class="nav-number">5.2.</span> <span class="nav-text">运算符优先级</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#短路"><span class="nav-number">5.2.1.</span> <span class="nav-text">短路</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#更强的绑定"><span class="nav-number">5.2.2.</span> <span class="nav-text">更强的绑定</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#关联"><span class="nav-number">5.2.3.</span> <span class="nav-text">关联</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#释疑"><span class="nav-number">5.2.4.</span> <span class="nav-text">释疑</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#自动分号"><span class="nav-number">5.3.</span> <span class="nav-text">自动分号</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#纠错机制"><span class="nav-number">5.3.1.</span> <span class="nav-text">纠错机制</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#错误"><span class="nav-number">5.4.</span> <span class="nav-text">错误</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#提前使用变量"><span class="nav-number">5.4.1.</span> <span class="nav-text">提前使用变量</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#函数参数"><span class="nav-number">5.5.</span> <span class="nav-text">函数参数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#try-finally"><span class="nav-number">5.6.</span> <span class="nav-text">try..finally</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#switch"><span class="nav-number">5.7.</span> <span class="nav-text">switch</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#其它"><span class="nav-number">6.</span> <span class="nav-text">其它</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Array-slice"><span class="nav-number">6.1.</span> <span class="nav-text">Array.slice()</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Array-from"><span class="nav-number">6.2.</span> <span class="nav-text">Array.from()</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#稀疏数组"><span class="nav-number">6.3.</span> <span class="nav-text">稀疏数组</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
 
       
 
@@ -1935,6 +1298,10 @@
 
 
   
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=6.3.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=6.3.0"></script>
+
+
 
   
 
@@ -1949,6 +1316,37 @@
     <script id="dsq-count-scr" src="https://ryoma-blog.disqus.com/count.js" async></script>
   
 
+  
+    <script type="text/javascript">
+      var disqus_config = function () {
+        this.page.url = 'https://blog.ryoma.top/posts/you_dont_know_js_mid_types&grammer/';
+        this.page.identifier = 'posts/you_dont_know_js_mid_types&grammer/';
+        this.page.title = '你不知道的JavaScript（中卷）——类型和语法';
+        };
+      function loadComments () {
+        var d = document, s = d.createElement('script');
+        s.src = 'https://ryoma-blog.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', '' + +new Date());
+        (d.head || d.body).appendChild(s);
+      }
+      
+        $(function () {
+          var offsetTop = $('#comments').offset().top - $(window).height();
+          if (offsetTop <= 0) {
+            // load directly when there's no a scrollbar
+            loadComments();
+          } else {
+            $(window).on('scroll.disqus_scroll', function () {
+              var scrollTop = document.documentElement.scrollTop;
+              if (scrollTop >= offsetTop) {
+                $(window).off('.disqus_scroll');
+                loadComments();
+              }
+            });
+          }
+        });
+      
+    </script>
   
 
 
