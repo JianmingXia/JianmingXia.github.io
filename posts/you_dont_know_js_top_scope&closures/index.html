@@ -108,19 +108,19 @@
 
 
 
-  <meta name="description" content="前言JS不愧是入门最简单的语言之一，自从工作之后，基本没进行学习就可以编写JS代码了。写出来的代码能工作，就再也不管其细节了，最近发现一个写了一年多的前端代码，由于各开发人员水平参差不齐，没有标准，导致现在的前端代码已经很难维护了，赶紧自己先充一波电再说。">
+  <meta name="description" content="前言 英文版：https://github.com/getify/You-Dont-Know-JS  JS不愧是入门最简单的语言之一，自从工作之后，基本没进行学习就可以编写JS代码了。写出来的代码能工作，就再也不管其细节了，最近发现一个写了一年多的前端代码，由于各开发人员水平参差不齐，没有标准，导致现在的前端代码已经很难维护了，赶紧自己先充一波电再说。">
 <meta name="keywords" content="JavaScript">
 <meta property="og:type" content="article">
 <meta property="og:title" content="你不知道的JavaScript（上卷）——作用域与闭包">
 <meta property="og:url" content="https://blog.ryoma.top/posts/you_dont_know_js_top_scope&closures/index.html">
 <meta property="og:site_name" content="Ryoma&#39;s Blog">
-<meta property="og:description" content="前言JS不愧是入门最简单的语言之一，自从工作之后，基本没进行学习就可以编写JS代码了。写出来的代码能工作，就再也不管其细节了，最近发现一个写了一年多的前端代码，由于各开发人员水平参差不齐，没有标准，导致现在的前端代码已经很难维护了，赶紧自己先充一波电再说。">
+<meta property="og:description" content="前言 英文版：https://github.com/getify/You-Dont-Know-JS  JS不愧是入门最简单的语言之一，自从工作之后，基本没进行学习就可以编写JS代码了。写出来的代码能工作，就再也不管其细节了，最近发现一个写了一年多的前端代码，由于各开发人员水平参差不齐，没有标准，导致现在的前端代码已经很难维护了，赶紧自己先充一波电再说。">
 <meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="https://img.ryoma.top/YouDontKnowJS/top_1-1.png">
-<meta property="og:updated_time" content="2018-09-07T02:27:26.127Z">
+<meta property="og:updated_time" content="2018-09-07T08:18:25.557Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="你不知道的JavaScript（上卷）——作用域与闭包">
-<meta name="twitter:description" content="前言JS不愧是入门最简单的语言之一，自从工作之后，基本没进行学习就可以编写JS代码了。写出来的代码能工作，就再也不管其细节了，最近发现一个写了一年多的前端代码，由于各开发人员水平参差不齐，没有标准，导致现在的前端代码已经很难维护了，赶紧自己先充一波电再说。">
+<meta name="twitter:description" content="前言 英文版：https://github.com/getify/You-Dont-Know-JS  JS不愧是入门最简单的语言之一，自从工作之后，基本没进行学习就可以编写JS代码了。写出来的代码能工作，就再也不管其细节了，最近发现一个写了一年多的前端代码，由于各开发人员水平参差不齐，没有标准，导致现在的前端代码已经很难维护了，赶紧自己先充一波电再说。">
 <meta name="twitter:image" content="https://img.ryoma.top/YouDontKnowJS/top_1-1.png">
 
 
@@ -417,7 +417,10 @@
       
 
       
-        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>JS不愧是入门最简单的语言之一，自从工作之后，基本没进行学习就可以编写JS代码了。写出来的代码能工作，就再也不管其细节了，最近发现一个写了一年多的前端代码，由于各开发人员水平参差不齐，没有标准，导致现在的前端代码已经很难维护了，赶紧自己先充一波电再说。<br><a id="more"></a></p>
+        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><blockquote>
+<p>英文版：<a href="https://github.com/getify/You-Dont-Know-JS" target="_blank" rel="noopener">https://github.com/getify/You-Dont-Know-JS</a></p>
+</blockquote>
+<p>JS不愧是入门最简单的语言之一，自从工作之后，基本没进行学习就可以编写JS代码了。写出来的代码能工作，就再也不管其细节了，最近发现一个写了一年多的前端代码，由于各开发人员水平参差不齐，没有标准，导致现在的前端代码已经很难维护了，赶紧自己先充一波电再说。<br><a id="more"></a></p>
 <h2 id="作用域是什么"><a href="#作用域是什么" class="headerlink" title="作用域是什么"></a>作用域是什么</h2><h3 id="编译原理"><a href="#编译原理" class="headerlink" title="编译原理"></a>编译原理</h3><blockquote>
 <p>作者的看法：尽管通常将JavaScript归类为“解释执行”或“动态”语言，但事实上它是一门编译语言——但与传统的编译语言不同，它并非提前编译，编译结果也无法移植。</p>
 </blockquote>
