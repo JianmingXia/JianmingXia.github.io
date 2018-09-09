@@ -1,0 +1,1219 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=6.3.0" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=6.3.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=6.3.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=6.3.0">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=6.3.0" color="#222">
+
+
+
+
+
+
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '6.3.0',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="异步：现在与将来分块的程序新手JS程序员的问题：程序中将来执行的部分并不一定在现在运行的部分执行完后就立即执行 异步控制台由于IO可能会阻塞，故而浏览器中的console.*输出并不一定是同步阻塞的，遇见这种情况可以打断点解决">
+<meta name="keywords" content="JavaScript">
+<meta property="og:type" content="article">
+<meta property="og:title" content="你不知道的JavaScript（中卷）——异步和性能">
+<meta property="og:url" content="https://blog.ryoma.top/posts/you_dont_know_js_mid_async&performance/index.html">
+<meta property="og:site_name" content="Ryoma&#39;s Blog">
+<meta property="og:description" content="异步：现在与将来分块的程序新手JS程序员的问题：程序中将来执行的部分并不一定在现在运行的部分执行完后就立即执行 异步控制台由于IO可能会阻塞，故而浏览器中的console.*输出并不一定是同步阻塞的，遇见这种情况可以打断点解决">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2018-09-09T08:33:20.446Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="你不知道的JavaScript（中卷）——异步和性能">
+<meta name="twitter:description" content="异步：现在与将来分块的程序新手JS程序员的问题：程序中将来执行的部分并不一定在现在运行的部分执行完后就立即执行 异步控制台由于IO可能会阻塞，故而浏览器中的console.*输出并不一定是同步阻塞的，遇见这种情况可以打断点解决">
+
+
+
+
+
+
+  <link rel="canonical" href="https://blog.ryoma.top/posts/you_dont_know_js_mid_async&performance/"/>
+
+
+
+<script type="text/javascript" id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>你不知道的JavaScript（中卷）——异步和性能 | Ryoma's Blog</title>
+  
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style type="text/css">
+    .use-motion .motion-element,
+    .use-motion .brand,
+    .use-motion .menu-item,
+    .sidebar-inner,
+    .use-motion .post-block,
+    .use-motion .pagination,
+    .use-motion .comments,
+    .use-motion .post-header,
+    .use-motion .post-body,
+    .use-motion .collection-title { opacity: initial; }
+
+    .use-motion .logo,
+    .use-motion .site-title,
+    .use-motion .site-subtitle {
+      opacity: initial;
+      top: initial;
+    }
+
+    .use-motion {
+      .logo-line-before i { left: initial; }
+      .logo-line-after i { right: initial; }
+    }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Ryoma's Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+      
+        <p class="site-subtitle">纸上得来终觉浅</p>
+      
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+    <a href="/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-home"></i> <br />首页</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+    <a href="/tags/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />标签</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+    <a href="/categories/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-th"></i> <br />分类</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+    <a href="/archives/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />归档</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+    <a href="/about/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-user"></i> <br />关于我</a>
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.ryoma.top/posts/you_dont_know_js_mid_async&performance/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Ryoma">
+      <meta itemprop="description" content="Ryoma's Blog">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Ryoma's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">你不知道的JavaScript（中卷）——异步和性能
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2017-11-28 12:00:00" itemprop="dateCreated datePublished" datetime="2017-11-28T12:00:00+08:00">2017-11-28</time>
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/阅读笔记/" itemprop="url" rel="index"><span itemprop="name">阅读笔记</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/posts/you_dont_know_js_mid_async&performance/#comments" itemprop="discussionUrl">
+                
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="posts/you_dont_know_js_mid_async&performance/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="异步：现在与将来"><a href="#异步：现在与将来" class="headerlink" title="异步：现在与将来"></a>异步：现在与将来</h2><h3 id="分块的程序"><a href="#分块的程序" class="headerlink" title="分块的程序"></a>分块的程序</h3><p>新手JS程序员的问题：程序中将来执行的部分并不一定在现在运行的部分执行完后就立即执行</p>
+<h4 id="异步控制台"><a href="#异步控制台" class="headerlink" title="异步控制台"></a>异步控制台</h4><p>由于IO可能会阻塞，故而浏览器中的console.*输出并不一定是同步阻塞的，遇见这种情况可以打断点解决</p>
+<a id="more"></a>
+<h3 id="事件循环"><a href="#事件循环" class="headerlink" title="事件循环"></a>事件循环</h3><h3 id="并行线程"><a href="#并行线程" class="headerlink" title="并行线程"></a>并行线程</h3><p>术语“异步”和“并行”常常被混为一谈，但实际上它们的意义完全不同。记住：异步是现在和将来的时间间隙，而并行是关于能够同时发生的事情</p>
+<p>并行计算最常见的工具就是进程和线程。进程和线程独立运行，并可能同时运行：在不同的处理器，甚至不同的计算器上，但多个线程能够共享单个进程的内存。</p>
+<p>JS从不跨线程共享数据，这意味着不需要考虑这一层次的不确定性——多线程的场景，如果没有锁机制，并行操作共享内存是非常可怕的一件事情</p>
+<h4 id="完整运行"><a href="#完整运行" class="headerlink" title="完整运行"></a>完整运行</h4><p>在JS中，这种函数（两个Ajax请求的回调）顺序的不确定性就是通常所说的竞态条件。</p>
+<blockquote>
+<p>如果JS中的某个函数由于某种原因不具有完整运行特性。。。</p>
+</blockquote>
+<h3 id="并发"><a href="#并发" class="headerlink" title="并发"></a>并发</h3><h4 id="非交互"><a href="#非交互" class="headerlink" title="非交互"></a>非交互</h4><p>如果进程间没有相互影响的话，不确定性是完全可以接受的</p>
+<h4 id="交互"><a href="#交互" class="headerlink" title="交互"></a>交互</h4><p>不确定性导致竞态条件bug</p>
+<h4 id="协作"><a href="#协作" class="headerlink" title="协作"></a>协作</h4><p>取到一个长期运行的“进程”，将其分割成多个步骤或多批任务</p>
+<h3 id="任务"><a href="#任务" class="headerlink" title="任务"></a>任务</h3><p>总是挂在事件循环队列的每个tick之后的一个队列</p>
+<h3 id="语句顺序"><a href="#语句顺序" class="headerlink" title="语句顺序"></a>语句顺序</h3><p>编译器语句重排序几乎就是并发和交互的微型隐喻</p>
+<h2 id="回调"><a href="#回调" class="headerlink" title="回调"></a>回调</h2><p>为什么更高级的异步模式是必需和备受期待的？？？</p>
+<h3 id="continuation"><a href="#continuation" class="headerlink" title="continuation"></a>continuation</h3><p>代码变得更加难以理解、追踪、调试和维护</p>
+<h3 id="顺序的大脑"><a href="#顺序的大脑" class="headerlink" title="顺序的大脑"></a>顺序的大脑</h3><h4 id="执行与计划"><a href="#执行与计划" class="headerlink" title="执行与计划"></a>执行与计划</h4><blockquote>
+<p>可以把我们的大脑看成是类似于单线程运行的事件循环队列，就像JS引擎那样。</p>
+</blockquote>
+<p>通过回调表达异步的方式可能并不能很好地映射到同步的大脑计划行为</p>
+<h4 id="嵌套回调与链式回调"><a href="#嵌套回调与链式回调" class="headerlink" title="嵌套回调与链式回调"></a>嵌套回调与链式回调</h4><p>复杂的回调会导致：回调地狱（callback hell），也可被称为毁灭金字塔（pyramid of doom)</p>
+<p>回调方式最主要的缺陷：对于它们在代码中表达异步的方式，我们的大脑需要努力才能同步上</p>
+<h3 id="信任问题"><a href="#信任问题" class="headerlink" title="信任问题"></a>信任问题</h3><h4 id="五个回调的故事"><a href="#五个回调的故事" class="headerlink" title="五个回调的故事"></a>五个回调的故事</h4><p>不要过于相信第三方的回调</p>
+<h4 id="不只是别人的代码"><a href="#不只是别人的代码" class="headerlink" title="不只是别人的代码"></a>不只是别人的代码</h4><p>回调最大的问题是控制反转，它会导致信任链的完全断裂</p>
+<h3 id="省点回调"><a href="#省点回调" class="headerlink" title="省点回调"></a>省点回调</h3><p>回调设计存在几个变体，意欲解决一些信任问题</p>
+<ul>
+<li>分离回调：一个用于成功通知，一个用于出错通知</li>
+<li>error-first风格：又称为Node风格</li>
+</ul>
+<h2 id="Promise"><a href="#Promise" class="headerlink" title="Promise"></a>Promise</h2><p>回调中异步和管理并发的两个主要缺陷：</p>
+<ul>
+<li>顺序性</li>
+<li>可信任性</li>
+</ul>
+<h3 id="什么是Promise"><a href="#什么是Promise" class="headerlink" title="什么是Promise"></a>什么是Promise</h3><blockquote>
+<p>有一类工具：通过某人使用它的方式，很容易分辨出他是真正理解了这门技术，还是仅仅学习和使用API而已（共勉）</p>
+</blockquote>
+<h4 id="未来值"><a href="#未来值" class="headerlink" title="未来值"></a>未来值</h4><h5 id="现在值与将来值"><a href="#现在值与将来值" class="headerlink" title="现在值与将来值"></a>现在值与将来值</h5><h5 id="Promise值"><a href="#Promise值" class="headerlink" title="Promise值"></a>Promise值</h5><p>Promise是一种封装和组合未来值的易于复用的机制</p>
+<h4 id="完成事件"><a href="#完成事件" class="headerlink" title="完成事件"></a>完成事件</h4><h5 id="Promise-“事件”"><a href="#Promise-“事件”" class="headerlink" title="Promise “事件”"></a>Promise “事件”</h5><p>一旦Promise决议，无论是现在还是将来，下一个步骤总是相同的，可以按照需要多次查看</p>
+<h3 id="具有then方法的鸭子模型"><a href="#具有then方法的鸭子模型" class="headerlink" title="具有then方法的鸭子模型"></a>具有then方法的鸭子模型</h3><p>如何判断某个值是否为Promise呢？ <strong>p instanceof Promise?</strong></p>
+<ul>
+<li>Promise值可能从其它浏览器（iframe等）窗口接收到</li>
+<li>库或框架可能会实现自己的Promise，而非使用ES6 Promise</li>
+</ul>
+<h3 id="Promise-信任问题"><a href="#Promise-信任问题" class="headerlink" title="Promise 信任问题"></a>Promise 信任问题</h3><p>回调编码的信任问题，如将一个回到传入工具foo(..)时可能会出现的问题：</p>
+<ul>
+<li>调用回调过早</li>
+<li>调用回调过晚（或不被调用）</li>
+<li>调用回调次数过少或过多</li>
+<li>未能传递所需的环境和参数</li>
+<li>吞掉可能出现的错误和异常</li>
+</ul>
+<h4 id="调用过早"><a href="#调用过早" class="headerlink" title="调用过早"></a>调用过早</h4><p>一个任务有时同步完成，有时异步完成，这可能会导致竞态条件</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> p = <span class="keyword">new</span> <span class="built_in">Promise</span>(<span class="function"><span class="keyword">function</span>(<span class="params">resolve</span>) </span>&#123;</span><br><span class="line">  resolve(<span class="number">42</span>);</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">p.then(<span class="function"><span class="keyword">function</span>(<span class="params">num</span>) </span>&#123;</span><br><span class="line">  <span class="built_in">console</span>.log(num);</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"><span class="built_in">console</span>.log(<span class="number">1</span>);</span><br><span class="line"><span class="comment">// 1 42</span></span><br></pre></td></tr></table></figure>
+<p>而Promise即使是立即完成的Promise，也无法被同步观察到；提供给then的回调总是会被异步调用</p>
+<h4 id="调用过晚"><a href="#调用过晚" class="headerlink" title="调用过晚"></a>调用过晚</h4><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> p = <span class="keyword">new</span> <span class="built_in">Promise</span>(<span class="function"><span class="keyword">function</span>(<span class="params">resolve</span>) </span>&#123;</span><br><span class="line">  resolve();</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">p.then(<span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  p.then(<span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="string">"C"</span>);</span><br><span class="line">  &#125;);</span><br><span class="line">  <span class="built_in">console</span>.log(<span class="string">"A"</span>);</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">p.then(<span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="built_in">console</span>.log(<span class="string">"B"</span>);</span><br><span class="line">&#125;);</span><br><span class="line"><span class="comment">// A B C</span></span><br></pre></td></tr></table></figure>
+<p>一旦Promise决议后，这个Promise上所有通过then(..)注册的回调都会在下一个异步时机点上依次被立即调用。</p>
+<p>此处“C”无法打断或抢占“B”</p>
+<h5 id="Promise-调度技巧"><a href="#Promise-调度技巧" class="headerlink" title="Promise 调度技巧"></a>Promise 调度技巧</h5><p>两个独立Promise上链接的回调的相对顺序无法可靠预测。</p>
+<p>如果两个Promise p1 和 p2都已经决议，那么p1.then 及 p2.then最终会先调用p1的回调，然后是p2。但是还有一些微妙的场景可能并非如此：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> p3 = <span class="keyword">new</span> <span class="built_in">Promise</span>(<span class="function"><span class="keyword">function</span>(<span class="params">resolve</span>) </span>&#123;</span><br><span class="line">  resolve(<span class="string">"B"</span>);</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> p1 = <span class="keyword">new</span> <span class="built_in">Promise</span>(<span class="function"><span class="keyword">function</span>(<span class="params">resolve</span>) </span>&#123;</span><br><span class="line">  resolve(p3);</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> p2 = <span class="keyword">new</span> <span class="built_in">Promise</span>(<span class="function"><span class="keyword">function</span>(<span class="params">resolve</span>) </span>&#123;</span><br><span class="line">  resolve(<span class="string">"A"</span>);</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">p1.then(<span class="function"><span class="keyword">function</span>(<span class="params">v</span>) </span>&#123;</span><br><span class="line">  <span class="built_in">console</span>.log(v);</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">p2.then(<span class="function"><span class="keyword">function</span>(<span class="params">v</span>) </span>&#123;</span><br><span class="line">  <span class="built_in">console</span>.log(v);</span><br><span class="line">&#125;);</span><br><span class="line"><span class="comment">// A B</span></span><br></pre></td></tr></table></figure>
+<p>要避免这样的细微区别带来的问题，永远不应该依赖于不同Promise间回调的顺序和调度</p>
+<h4 id="回调未调用"><a href="#回调未调用" class="headerlink" title="回调未调用"></a>回调未调用</h4><p>没有任何东西能够阻止Promise向你通知它的决议</p>
+<p>使用一种“竞态”的高级抽象机制，来避免Promise本身永远不被决议的问题</p>
+<h4 id="调用次数过少或过多"><a href="#调用次数过少或过多" class="headerlink" title="调用次数过少或过多"></a>调用次数过少或过多</h4><p>如果Promise试图调用resolve和reject多次，或者试图两者都调用，那么这个Promise将只会接收第一次决议，并默默忽略任何后续调用</p>
+<h4 id="未能传递参数-环境值"><a href="#未能传递参数-环境值" class="headerlink" title="未能传递参数/环境值"></a>未能传递参数/环境值</h4><p>Promise至多只能有一个决议值（完成或拒绝）</p>
+<p>如果没有用任何值显示决议，那么这个值就是undefined；希望要传递多个参数，第一个参数后的所有参数都会被忽略</p>
+<h4 id="吞掉错误或异常"><a href="#吞掉错误或异常" class="headerlink" title="吞掉错误或异常"></a>吞掉错误或异常</h4><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> p = <span class="keyword">new</span> <span class="built_in">Promise</span>(<span class="function"><span class="keyword">function</span>(<span class="params">resolve, reject</span>) </span>&#123;</span><br><span class="line">  foo.bar();</span><br><span class="line"></span><br><span class="line">  resolve(<span class="number">42</span>);</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">p.then(</span><br><span class="line">  <span class="function"><span class="keyword">function</span>(<span class="params">v</span>) </span>&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(v);</span><br><span class="line">  &#125;,</span><br><span class="line">  <span class="function"><span class="keyword">function</span>(<span class="params">err</span>) </span>&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(err);</span><br><span class="line">  &#125;</span><br><span class="line">);</span><br></pre></td></tr></table></figure>
+<p>foo.bar()中发生了JS异常导致Promise被拒绝</p>
+<h4 id="是可信任的Promise吗"><a href="#是可信任的Promise吗" class="headerlink" title="是可信任的Promise吗"></a>是可信任的Promise吗</h4><p>Promise并没有完全摆脱回调，它们只是改变了传递回调的位置</p>
+<p>Promise.resolve(..)可以接受任何thenable，将其解封为它的非thenable值；从Promise.resolve()得到的是一个真正的Promise，是一个可以信任的值</p>
+<p>如果传入的已经是一个真正的Promise，那么得到的就是它本身，通过Promise.resolve()过滤来获得可信任性完全没有坏处</p>
+<h4 id="建立信任"><a href="#建立信任" class="headerlink" title="建立信任"></a>建立信任</h4><h3 id="链式流"><a href="#链式流" class="headerlink" title="链式流"></a>链式流</h3><ul>
+<li>每次对Promise调用then，它都会创建并返回一个新的Promise，可以将其链接起来</li>
+<li>不过从then调用的完成回调返回的值是什么，它都会被自动设置为链接Promise的完成？？</li>
+</ul>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> p = <span class="built_in">Promise</span>.resolve(<span class="number">21</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> p2 = p.then(<span class="function"><span class="keyword">function</span>(<span class="params">v</span>) </span>&#123;</span><br><span class="line">  <span class="built_in">console</span>.log(v);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> v * <span class="number">2</span>;</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">p2.then(<span class="function"><span class="keyword">function</span>(<span class="params">v</span>) </span>&#123;</span><br><span class="line">  <span class="built_in">console</span>.log(v);</span><br><span class="line">&#125;);</span><br><span class="line"><span class="comment">// 21 42</span></span><br></pre></td></tr></table></figure>
+<p>如果还有更多呢？</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> p = <span class="built_in">Promise</span>.resolve(<span class="number">21</span>);</span><br><span class="line"></span><br><span class="line">p.then(<span class="function"><span class="keyword">function</span>(<span class="params">v</span>) </span>&#123;</span><br><span class="line">  <span class="built_in">console</span>.log(v);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> v * <span class="number">2</span>;</span><br><span class="line">&#125;).then(<span class="function"><span class="keyword">function</span>(<span class="params">v</span>) </span>&#123;</span><br><span class="line">  <span class="built_in">console</span>.log(v);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<p>使链式流程控制可行的Promise固有特性：</p>
+<ul>
+<li>调用Promise中的then()会自动创建一个新的Promise从调用返回</li>
+<li>在完成或拒绝处理函数内部，如果返回一个值或抛出一个异常，新返回的Promise就相应的决议</li>
+<li>如果完成或拒绝处理函数返回一个Promise，它将会被展开，不管它的决议是什么，都会成为当前then返回的链接Promise的决议</li>
+</ul>
+<h4 id="术语：决议、完成以及拒绝"><a href="#术语：决议、完成以及拒绝" class="headerlink" title="术语：决议、完成以及拒绝"></a>术语：决议、完成以及拒绝</h4><ul>
+<li>resolve</li>
+<li>fulfill</li>
+<li>reject</li>
+</ul>
+<p>reject不会像resolve一样进行展开，如果向reject传入一个Promise/thenable值，它会把这个值原封不动地设置为拒绝理由</p>
+<h3 id="错误处理"><a href="#错误处理" class="headerlink" title="错误处理"></a>错误处理</h3><p>try..catch无法跨异步</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">foo</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  setTimeout(<span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    baz.bar();</span><br><span class="line">  &#125;, <span class="number">100</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">try</span> &#123;</span><br><span class="line">  foo();</span><br><span class="line">&#125; <span class="keyword">catch</span> (err) &#123;</span><br><span class="line">  <span class="built_in">console</span>.log(err); <span class="comment">// 捕捉不到</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>Promise没有采用流行的error-first回调设计风格，而是使用了分离回调风格：一个回调用于完成情况，另一个用于拒绝情况</p>
+<h4 id="绝望的陷阱"><a href="#绝望的陷阱" class="headerlink" title="绝望的陷阱"></a>绝望的陷阱</h4><p>仅在Promise末尾添加catch可行么？</p>
+<h4 id="处理未捕获情况"><a href="#处理未捕获情况" class="headerlink" title="处理未捕获情况"></a>处理未捕获情况</h4><p>Promise中的done？</p>
+<h4 id="成功的坑"><a href="#成功的坑" class="headerlink" title="成功的坑"></a>成功的坑</h4><h3 id="Promise模式"><a href="#Promise模式" class="headerlink" title="Promise模式"></a>Promise模式</h3><h4 id="Promise-all"><a href="#Promise-all" class="headerlink" title="Promise.all([..])"></a>Promise.all([..])</h4><blockquote>
+<p>如果想要同时执行两个或更多，如何实现？</p>
+</blockquote>
+<p>从.all返回的主promise仅在所有的成员promise都完成后才会完成；如果有任意一个被拒绝，主promise会立即被拒绝，并丢弃其他所有promise的全部结果</p>
+<h4 id="Promise-race"><a href="#Promise-race" class="headerlink" title="Promise.race([..])"></a>Promise.race([..])</h4><blockquote>
+<p>如果只响应第一个Promise？</p>
+</blockquote>
+<p>一旦有任何一个Promise决议为完成，.race就会完成；一旦有任何一个Promise决议为拒绝，.race就会拒绝</p>
+<h5 id="超时竞赛"><a href="#超时竞赛" class="headerlink" title="超时竞赛"></a>超时竞赛</h5><p>结合setTimeout使用</p>
+<h5 id="finally"><a href="#finally" class="headerlink" title="finally"></a>finally</h5><p>做一个清理的工作</p>
+<h4 id="all-和-race的变体"><a href="#all-和-race的变体" class="headerlink" title="all 和 race的变体"></a>all 和 race的变体</h4><h5 id="none"><a href="#none" class="headerlink" title="none"></a>none</h5><p>与all类似，不过完成和拒绝的情况互换了：所有的Promise都要被拒绝</p>
+<h5 id="any"><a href="#any" class="headerlink" title="any"></a>any</h5><p>与all类似，但是会忽略拒绝，只需要完成一个而不是全部</p>
+<h5 id="first"><a href="#first" class="headerlink" title="first"></a>first</h5><p>类似于any的竞争，即只要第一个Promise完成，忽略后续的任何拒绝和完成</p>
+<h5 id="last"><a href="#last" class="headerlink" title="last"></a>last</h5><p>类似于first，但却是只有最后一个完成胜出</p>
+<h4 id="并发迭代"><a href="#并发迭代" class="headerlink" title="并发迭代"></a>并发迭代</h4><h3 id="Promise-API-概述"><a href="#Promise-API-概述" class="headerlink" title="Promise API 概述"></a>Promise API 概述</h3><h4 id="new-Promise-构造器"><a href="#new-Promise-构造器" class="headerlink" title="new Promise() 构造器"></a>new Promise() 构造器</h4><p>new Promise中 resolve 和 reject的不同</p>
+<h4 id="Promise-resolve-和-Promise-reject"><a href="#Promise-resolve-和-Promise-reject" class="headerlink" title="Promise.resolve() 和 Promise.reject()"></a>Promise.resolve() 和 Promise.reject()</h4><p>Promise.resolve的特殊性</p>
+<h4 id="then-和-catch"><a href="#then-和-catch" class="headerlink" title="then() 和 catch()"></a>then() 和 catch()</h4><p>每个Promise实例都有then和catch方法（不是Promise API 命名空间）</p>
+<h5 id="then"><a href="#then" class="headerlink" title="then"></a>then</h5><p>then接收一个或两个参数：第一个用于完成回调，第二个用于拒绝回调；</p>
+<p>如果两者中任何一个被省略，就会被替换为相应的默认回调：默认完成回调只是把消息传递下去，而默认拒绝回调则只是重新抛出其接收到的出错原因</p>
+<h5 id="catch"><a href="#catch" class="headerlink" title="catch"></a>catch</h5><p>catch只接受一个拒绝回调作为参数，并自动替换默认完成回调，等价于 then(null, ..)</p>
+<h4 id="Promise-all-和-Promise-race"><a href="#Promise-all-和-Promise-race" class="headerlink" title="Promise.all() 和 Promise.race"></a>Promise.all() 和 Promise.race</h4><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> p1 = <span class="built_in">Promise</span>.resolve(<span class="number">42</span>);</span><br><span class="line"><span class="keyword">var</span> p2 = <span class="built_in">Promise</span>.resolve(<span class="string">"Hello world"</span>);</span><br><span class="line"><span class="keyword">var</span> p3 = <span class="built_in">Promise</span>.reject(<span class="string">"Oops"</span>);</span><br><span class="line"></span><br><span class="line"><span class="built_in">Promise</span>.race([p1, p2, p3]).then(<span class="function"><span class="keyword">function</span>(<span class="params">v</span>) </span>&#123;</span><br><span class="line">  <span class="built_in">console</span>.log(v);</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"><span class="built_in">Promise</span>.all([p1, p2, p3]).catch(<span class="function"><span class="keyword">function</span>(<span class="params">v</span>) </span>&#123;</span><br><span class="line">  <span class="built_in">console</span>.log(v);</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"><span class="built_in">Promise</span>.all([p1, p2]).then(<span class="function"><span class="keyword">function</span>(<span class="params">v</span>) </span>&#123;</span><br><span class="line">  <span class="built_in">console</span>.log(v);</span><br><span class="line">&#125;);</span><br><span class="line"><span class="comment">// 42</span></span><br><span class="line"><span class="comment">// Oops</span></span><br><span class="line"><span class="comment">// [42, "Hello world"]</span></span><br></pre></td></tr></table></figure>
+<p>Note: 如果向Promise.all()传入空数组，它会立即完成；而Promise.race()会挂住，且永远不会决议</p>
+<h3 id="Promise-局限性"><a href="#Promise-局限性" class="headerlink" title="Promise 局限性"></a>Promise 局限性</h3><h4 id="顺序错误处理"><a href="#顺序错误处理" class="headerlink" title="顺序错误处理"></a>顺序错误处理</h4><p>Promise链中的错误很容易被无意中默默忽略掉</p>
+<h4 id="单一值"><a href="#单一值" class="headerlink" title="单一值"></a>单一值</h4><h5 id="分裂值"><a href="#分裂值" class="headerlink" title="分裂值"></a>分裂值</h5><p>有时可以把这一点当作是把问题分解为两个或更多Promise的信号</p>
+<h5 id="展开-传递参数"><a href="#展开-传递参数" class="headerlink" title="展开/传递参数"></a>展开/传递参数</h5><p>ES6提供了更好的解决方案：解构</p>
+<h4 id="单决议"><a href="#单决议" class="headerlink" title="单决议"></a>单决议</h4><p>Promise只能被决议一次</p>
+<p>比如 如何解决事件监听的这类场景</p>
+<h4 id="惯性"><a href="#惯性" class="headerlink" title="惯性"></a>惯性</h4><p>如何在现存项目(大量使用了回调地狱)中使用Promise</p>
+<h4 id="无法取消的Promise"><a href="#无法取消的Promise" class="headerlink" title="无法取消的Promise"></a>无法取消的Promise</h4><p>一旦创建了一个Promise并为其注册了完成或拒绝处理函数，如果出现某种情况使得Promise未决议，没有办法从外部停止它的进程</p>
+<h4 id="Promise-性能"><a href="#Promise-性能" class="headerlink" title="Promise 性能"></a>Promise 性能</h4><p>Promise 性能与其带来的好处</p>
+<h2 id="生成器"><a href="#生成器" class="headerlink" title="生成器"></a>生成器</h2><p>回调的两个关键缺陷：</p>
+<ul>
+<li>基于回调的异步不符合大脑对任务步骤的规划方式</li>
+<li>由于控制反转，回调并不是可信任或可组合的</li>
+</ul>
+<p>通过Promise，我们将控制反转反转回来，恢复了可信任性/可组合性</p>
+<h3 id="打破完整运行"><a href="#打破完整运行" class="headerlink" title="打破完整运行"></a>打破完整运行</h3><blockquote>
+<p>一个函数一旦开始执行，就会运行到结束，期间不会有其他代码能够打算它并插入其间</p>
+</blockquote>
+<p>生成器是一类特殊的函数，可以一次或多次启动和停止，并不一定非得要完成</p>
+<h4 id="输入和输出"><a href="#输入和输出" class="headerlink" title="输入和输出"></a>输入和输出</h4><h5 id="迭代消息传递"><a href="#迭代消息传递" class="headerlink" title="迭代消息传递"></a>迭代消息传递</h5><p>除了能够接受参数并提供返回值外，生成器甚至提供了更强大更引入注目的内建消息输入输出能力，通过yield和next()实现</p>
+<p>一般来说，需要的next会比yield语句多一个——因为第一个next总是启动一个生成器，并运行到第一个yield处</p>
+<h5 id="两个问题的故事"><a href="#两个问题的故事" class="headerlink" title="两个问题的故事"></a>两个问题的故事</h5><p>通过yield和next()的组合，在生成器的执行过程中构成了一个双向消息传递系统</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span>* <span class="title">foo</span>(<span class="params">x</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">var</span> y = x * (<span class="keyword">yield</span> <span class="string">"hello"</span>);</span><br><span class="line">  <span class="keyword">return</span> y;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> it = foo(<span class="number">6</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> res = it.next();</span><br><span class="line"><span class="built_in">console</span>.log(res.value); <span class="comment">// "hello"</span></span><br><span class="line"></span><br><span class="line">res = it.next(<span class="number">7</span>);</span><br><span class="line"><span class="built_in">console</span>.log(res.value); <span class="comment">// 42</span></span><br></pre></td></tr></table></figure>
+<h4 id="多个迭代器"><a href="#多个迭代器" class="headerlink" title="多个迭代器"></a>多个迭代器</h4><blockquote>
+<p>同一个生成器的多个实例并发运行的最常用处并不是交互，而是在生成器没有输入的情况下，可能从某个独立连接的资源产生自己的值</p>
+</blockquote>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span>* <span class="title">foo</span>(<span class="params">x</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">var</span> x = <span class="keyword">yield</span> <span class="number">2</span>;</span><br><span class="line">  z++;</span><br><span class="line">  <span class="keyword">var</span> y = <span class="keyword">yield</span> x * z;</span><br><span class="line"></span><br><span class="line">  <span class="built_in">console</span>.log(x, y, z);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> z = <span class="number">1</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> it1 = foo();</span><br><span class="line"><span class="keyword">var</span> it2 = foo();</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> val1 = it1.next().value;</span><br><span class="line"><span class="keyword">var</span> val2 = it2.next().value;</span><br><span class="line"><span class="built_in">console</span>.log(val1, val2); <span class="comment">// 2 2</span></span><br><span class="line"></span><br><span class="line">val1 = it1.next(val2 * <span class="number">10</span>).value;</span><br><span class="line">val2 = it2.next(val1 * <span class="number">5</span>).value;</span><br><span class="line"><span class="built_in">console</span>.log(val1, val2); <span class="comment">// 40 600</span></span><br><span class="line"></span><br><span class="line">it1.next(val2 / <span class="number">2</span>); <span class="comment">// 20 300 3</span></span><br><span class="line">it2.next(val1 / <span class="number">4</span>); <span class="comment">// 200 10 3</span></span><br></pre></td></tr></table></figure>
+<h5 id="交替执行"><a href="#交替执行" class="headerlink" title="交替执行"></a>交替执行</h5><p>有兴趣的可以试一下，可以更加深入理解多个生成器如何在共享作用域上并发执行</p>
+<h3 id="生成器产生值"><a href="#生成器产生值" class="headerlink" title="生成器产生值"></a>生成器产生值</h3><h4 id="生产者与迭代器"><a href="#生产者与迭代器" class="headerlink" title="生产者与迭代器"></a>生产者与迭代器</h4><p>假定要产生一系列值，其中每个值都与前面一个有特定的关系——需要一个有状态的生产者能够记住其生成的最后一个值</p>
+<h4 id="iterable"><a href="#iterable" class="headerlink" title="iterable"></a>iterable</h4><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> a = [<span class="number">1</span>, <span class="number">3</span>, <span class="number">5</span>, <span class="number">7</span>, <span class="number">9</span>];</span><br><span class="line"><span class="keyword">var</span> it = a[<span class="built_in">Symbol</span>.iterator]();</span><br><span class="line"></span><br><span class="line"><span class="built_in">console</span>.log(it.next().value);</span><br><span class="line"><span class="built_in">console</span>.log(it.next().value);</span><br><span class="line"><span class="built_in">console</span>.log(it.next().value);</span><br><span class="line"><span class="built_in">console</span>.log(it.next().value);</span><br><span class="line"><span class="built_in">console</span>.log(it.next().value);</span><br><span class="line"><span class="comment">// 1 3 5 7 9</span></span><br></pre></td></tr></table></figure>
+<h4 id="生成器迭代器"><a href="#生成器迭代器" class="headerlink" title="生成器迭代器"></a>生成器迭代器</h4><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span>* <span class="title">something</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="keyword">var</span> nextVal;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">while</span> (<span class="literal">true</span>) &#123;</span><br><span class="line">    <span class="keyword">if</span> (nextVal === <span class="literal">undefined</span>) &#123;</span><br><span class="line">      nextVal = <span class="number">1</span>;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      nextVal = <span class="number">3</span> * nextVal + <span class="number">6</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">yield</span> nextVal;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> (<span class="keyword">var</span> v <span class="keyword">of</span> something()) &#123;</span><br><span class="line">  <span class="built_in">console</span>.log(v);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (v &gt; <span class="number">500</span>) &#123;</span><br><span class="line">    <span class="keyword">break</span>;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>为什么使用something()——因为这里的something是生成器，并不是iterable</li>
+<li>something()调用产生一个迭代器，但for..of需要的是iterable——生成器的迭代器也有Symbol.iterable函数</li>
+</ul>
+<h5 id="停止生成器"><a href="#停止生成器" class="headerlink" title="停止生成器"></a>停止生成器</h5><p>在生成器中添加try..finally语句，如果需要清理资源，可以使用——break会触发finally</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span>* <span class="title">something</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="keyword">try</span> &#123;</span><br><span class="line">    <span class="keyword">var</span> nextVal;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span> (<span class="literal">true</span>) &#123;</span><br><span class="line">      <span class="keyword">if</span> (nextVal === <span class="literal">undefined</span>) &#123;</span><br><span class="line">        nextVal = <span class="number">1</span>;</span><br><span class="line">      &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        nextVal = <span class="number">3</span> * nextVal + <span class="number">6</span>;</span><br><span class="line">      &#125;</span><br><span class="line"></span><br><span class="line">      <span class="keyword">yield</span> nextVal;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="string">"cleaning up"</span>);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>也可以通过.return来立即终止生成器</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> it = something();</span><br><span class="line"><span class="keyword">for</span> (<span class="keyword">var</span> v <span class="keyword">of</span> it) &#123;</span><br><span class="line">  <span class="built_in">console</span>.log(v);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (v &gt; <span class="number">500</span>) &#123;</span><br><span class="line">    <span class="built_in">console</span>.log(it.return(<span class="string">"hello world"</span>).value);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="异步迭代生成器"><a href="#异步迭代生成器" class="headerlink" title="异步迭代生成器"></a>异步迭代生成器</h3><p>通过使用生成器，将异步作为实现细节抽象出去，以同步顺序处理。</p>
+<h4 id="同步错误处理"><a href="#同步错误处理" class="headerlink" title="同步错误处理"></a>同步错误处理</h4><p>在异步代码中实现看似同步的错误处理</p>
+<h3 id="生成器-Promise"><a href="#生成器-Promise" class="headerlink" title="生成器 + Promise"></a>生成器 + Promise</h3><p>Promise + 生成器最大效用的最自然的方法就是：yield出来一个Promise，然后通过这个Promise来控制生成器的迭代器</p>
+<h4 id="支持Promise的Ganerator-Runner"><a href="#支持Promise的Ganerator-Runner" class="headerlink" title="支持Promise的Ganerator Runner"></a>支持Promise的Ganerator Runner</h4><h5 id="ES7-async-与-await"><a href="#ES7-async-与-await" class="headerlink" title="ES7: async 与 await?"></a>ES7: async 与 await?</h5><p>从本质上讲，ES7的提案实际上就是上述的实现</p>
+<h4 id="生成器中的Promise并发"><a href="#生成器中的Promise并发" class="headerlink" title="生成器中的Promise并发"></a>生成器中的Promise并发</h4><p>Promise所有的并发能力在 生成器 + Promise 中都可以使用</p>
+<h5 id="隐藏Promise"><a href="#隐藏Promise" class="headerlink" title="隐藏Promise"></a>隐藏Promise</h5><p>如果想要实现一系列高级流程控制，有用的做法是：把Promise逻辑隐藏在一个只从生成器代码中调用的函数内部</p>
+<blockquote>
+<p>创建代码除了要实现功能和保持性能外，尽可能使代码易于立即与维护</p>
+</blockquote>
+<h3 id="生成器委托"><a href="#生成器委托" class="headerlink" title="生成器委托"></a>生成器委托</h3><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span>* <span class="title">foo</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="built_in">console</span>.log(<span class="string">"*foo() starting"</span>);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">yield</span> <span class="number">3</span>;</span><br><span class="line">  <span class="keyword">yield</span> <span class="number">4</span>;</span><br><span class="line">  <span class="built_in">console</span>.log(<span class="string">"*foo() finished"</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span>* <span class="title">bar</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="keyword">yield</span> <span class="number">1</span>;</span><br><span class="line">  <span class="keyword">yield</span> <span class="number">2</span>;</span><br><span class="line">  <span class="keyword">yield</span>* foo();</span><br><span class="line">  <span class="keyword">yield</span> <span class="number">5</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> it = bar();</span><br><span class="line"></span><br><span class="line"><span class="built_in">console</span>.log(it.next().value);</span><br><span class="line"><span class="built_in">console</span>.log(it.next().value);</span><br><span class="line"><span class="built_in">console</span>.log(it.next().value);</span><br><span class="line"><span class="built_in">console</span>.log(it.next().value);</span><br><span class="line"><span class="built_in">console</span>.log(it.next().value);</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>yield *暂停了迭代控制，而不是生成器控制</p>
+</blockquote>
+<h4 id="为什么用委托"><a href="#为什么用委托" class="headerlink" title="为什么用委托"></a>为什么用委托</h4><p>yield委托的主要目的是代码组织，以达到与普通函数调用的对称</p>
+<h4 id="消息委托"><a href="#消息委托" class="headerlink" title="消息委托"></a>消息委托</h4><blockquote>
+<p>need keep learning</p>
+</blockquote>
+<h5 id="异常也被委托"><a href="#异常也被委托" class="headerlink" title="异常也被委托"></a>异常也被委托</h5><h4 id="异步委托"><a href="#异步委托" class="headerlink" title="异步委托"></a>异步委托</h4><h4 id="递归委托"><a href="#递归委托" class="headerlink" title="递归委托"></a>递归委托</h4><h3 id="生成器并发"><a href="#生成器并发" class="headerlink" title="生成器并发"></a>生成器并发</h3><h3 id="形实转换程序"><a href="#形实转换程序" class="headerlink" title="形实转换程序"></a>形实转换程序</h3><p>形实转换程序（thunk)：JS中的thunk是指一个用于调用另外一个函数的函数，而且没有任何参数</p>
+<h4 id="s-promise-thunk"><a href="#s-promise-thunk" class="headerlink" title="s/promise/thunk"></a>s/promise/thunk</h4><h3 id="ES6之前的生成器"><a href="#ES6之前的生成器" class="headerlink" title="ES6之前的生成器"></a>ES6之前的生成器</h3><p>如何在前ES6中使用生成器？</p>
+<h4 id="手工变换"><a href="#手工变换" class="headerlink" title="手工变换"></a>手工变换</h4><p>深入其原理来实现</p>
+<h4 id="自动转换"><a href="#自动转换" class="headerlink" title="自动转换"></a>自动转换</h4><p>使用工具</p>
+<h3 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h3><p>生成器为异步代码保持了顺序、同步、阻塞的代码模式，使得我们可以更自然的追踪代码，解决了基于回调异步的两个关键缺陷之一</p>
+<h2 id="程序性能"><a href="#程序性能" class="headerlink" title="程序性能"></a>程序性能</h2><p>为什么要利用异步？——性能</p>
+<h3 id="Web-Worker"><a href="#Web-Worker" class="headerlink" title="Web Worker"></a>Web Worker</h3><p>如果要处理一些密集型的任务，但不希望它们都在主线程运行（可能会阻塞浏览器），我们会希望JS能够以多线程的方式运行</p>
+<p>Worker之间以及它们与主程序之间，不会共享任何作用域或资源，它们通过一个基本的事件消息机制相互联系</p>
+<p>Note: 专用Worker和创建它的程序之间是一对一的关系——“message”事件没有任何歧义需要消除，确定它只能来自这个一对一的关系：要么来自这个Worker，要么来自主页面</p>
+<blockquote>
+<p>如果需要，Worker也可以实例化自己的子Worker——subworker</p>
+</blockquote>
+<h4 id="Worker环境"><a href="#Worker环境" class="headerlink" title="Worker环境"></a>Worker环境</h4><p>在Worker内部是无法访问主程序的任何资源的：无法访问它的任何全局变量，不能访问页面的DOM和其它资源——这是一个独立的线程</p>
+<p>可以执行网络操作、设定定时器、访问几个重要的全局变量和功能的本地副本，包括navigatar、location、JSON和applicationCache</p>
+<p>还可以通过<strong>importScripts</strong>向Worker加载额外的JS脚本（脚本加载是同步的）</p>
+<p>Web Worker适用场景：</p>
+<ul>
+<li>处理密集型数学计算</li>
+<li>大数据集排序</li>
+<li>数据处理（压缩、音频分析、图像处理等）</li>
+<li>高流量网络通信</li>
+</ul>
+<h4 id="数据传递"><a href="#数据传递" class="headerlink" title="数据传递"></a>数据传递</h4><p>在早期的Worker中，唯一的选择是将所有数据序列化到一个字符串值中：除了双向序列化导致的速度损失之外；数据需要被复制，花费两倍内存</p>
+<p>更好的选择：</p>
+<ul>
+<li>结构化克隆算法</li>
+<li>使用Transferable对象</li>
+</ul>
+<h4 id="共享Worker"><a href="#共享Worker" class="headerlink" title="共享Worker"></a>共享Worker</h4><p><strong>SharedWorker</strong></p>
+<h4 id="模拟Web-Worker"><a href="#模拟Web-Worker" class="headerlink" title="模拟Web Worker"></a>模拟Web Worker</h4><h2 id="其它"><a href="#其它" class="headerlink" title="其它"></a>其它</h2><h3 id="生成器部分可以继续学习"><a href="#生成器部分可以继续学习" class="headerlink" title="生成器部分可以继续学习"></a>生成器部分可以继续学习</h3><p>需要继续深入理解</p>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/JavaScript/" rel="tag"># JavaScript</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/posts/you_dont_know_js_mid_types&grammer/" rel="next" title="你不知道的JavaScript（中卷）——类型和语法">
+                <i class="fa fa-chevron-left"></i> 你不知道的JavaScript（中卷）——类型和语法
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/posts/git_reset/" rel="prev" title="Git技巧">
+                Git技巧 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+    <div class="comments" id="comments">
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/avatar.jpg"
+                alt="Ryoma" />
+            
+              <p class="site-author-name" itemprop="name">Ryoma</p>
+              <p class="site-description motion-element" itemprop="description">Ryoma's Blog</p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">50</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  <a href="/categories/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">13</span>
+                    <span class="site-state-item-name">分类</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  <a href="/tags/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">60</span>
+                    <span class="site-state-item-name">标签</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+            <div class="links-of-author motion-element">
+              
+                <span class="links-of-author-item">
+                  <a href="https://github.com/JianmingXia" target="_blank" title="GitHub"><i class="fa fa-fw fa-github"></i>GitHub</a>
+                  
+                </span>
+              
+                <span class="links-of-author-item">
+                  <a href="mailto:xiajianming_xjm@163.com" target="_blank" title="E-Mail"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                  
+                </span>
+              
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#异步：现在与将来"><span class="nav-number">1.</span> <span class="nav-text">异步：现在与将来</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#分块的程序"><span class="nav-number">1.1.</span> <span class="nav-text">分块的程序</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#异步控制台"><span class="nav-number">1.1.1.</span> <span class="nav-text">异步控制台</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#事件循环"><span class="nav-number">1.2.</span> <span class="nav-text">事件循环</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#并行线程"><span class="nav-number">1.3.</span> <span class="nav-text">并行线程</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#完整运行"><span class="nav-number">1.3.1.</span> <span class="nav-text">完整运行</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#并发"><span class="nav-number">1.4.</span> <span class="nav-text">并发</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#非交互"><span class="nav-number">1.4.1.</span> <span class="nav-text">非交互</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#交互"><span class="nav-number">1.4.2.</span> <span class="nav-text">交互</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#协作"><span class="nav-number">1.4.3.</span> <span class="nav-text">协作</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#任务"><span class="nav-number">1.5.</span> <span class="nav-text">任务</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#语句顺序"><span class="nav-number">1.6.</span> <span class="nav-text">语句顺序</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#回调"><span class="nav-number">2.</span> <span class="nav-text">回调</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#continuation"><span class="nav-number">2.1.</span> <span class="nav-text">continuation</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#顺序的大脑"><span class="nav-number">2.2.</span> <span class="nav-text">顺序的大脑</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#执行与计划"><span class="nav-number">2.2.1.</span> <span class="nav-text">执行与计划</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#嵌套回调与链式回调"><span class="nav-number">2.2.2.</span> <span class="nav-text">嵌套回调与链式回调</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#信任问题"><span class="nav-number">2.3.</span> <span class="nav-text">信任问题</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#五个回调的故事"><span class="nav-number">2.3.1.</span> <span class="nav-text">五个回调的故事</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#不只是别人的代码"><span class="nav-number">2.3.2.</span> <span class="nav-text">不只是别人的代码</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#省点回调"><span class="nav-number">2.4.</span> <span class="nav-text">省点回调</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Promise"><span class="nav-number">3.</span> <span class="nav-text">Promise</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#什么是Promise"><span class="nav-number">3.1.</span> <span class="nav-text">什么是Promise</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#未来值"><span class="nav-number">3.1.1.</span> <span class="nav-text">未来值</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#现在值与将来值"><span class="nav-number">3.1.1.1.</span> <span class="nav-text">现在值与将来值</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#Promise值"><span class="nav-number">3.1.1.2.</span> <span class="nav-text">Promise值</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#完成事件"><span class="nav-number">3.1.2.</span> <span class="nav-text">完成事件</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#Promise-“事件”"><span class="nav-number">3.1.2.1.</span> <span class="nav-text">Promise “事件”</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#具有then方法的鸭子模型"><span class="nav-number">3.2.</span> <span class="nav-text">具有then方法的鸭子模型</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Promise-信任问题"><span class="nav-number">3.3.</span> <span class="nav-text">Promise 信任问题</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#调用过早"><span class="nav-number">3.3.1.</span> <span class="nav-text">调用过早</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#调用过晚"><span class="nav-number">3.3.2.</span> <span class="nav-text">调用过晚</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#Promise-调度技巧"><span class="nav-number">3.3.2.1.</span> <span class="nav-text">Promise 调度技巧</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#回调未调用"><span class="nav-number">3.3.3.</span> <span class="nav-text">回调未调用</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#调用次数过少或过多"><span class="nav-number">3.3.4.</span> <span class="nav-text">调用次数过少或过多</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#未能传递参数-环境值"><span class="nav-number">3.3.5.</span> <span class="nav-text">未能传递参数/环境值</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#吞掉错误或异常"><span class="nav-number">3.3.6.</span> <span class="nav-text">吞掉错误或异常</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#是可信任的Promise吗"><span class="nav-number">3.3.7.</span> <span class="nav-text">是可信任的Promise吗</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#建立信任"><span class="nav-number">3.3.8.</span> <span class="nav-text">建立信任</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#链式流"><span class="nav-number">3.4.</span> <span class="nav-text">链式流</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#术语：决议、完成以及拒绝"><span class="nav-number">3.4.1.</span> <span class="nav-text">术语：决议、完成以及拒绝</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#错误处理"><span class="nav-number">3.5.</span> <span class="nav-text">错误处理</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#绝望的陷阱"><span class="nav-number">3.5.1.</span> <span class="nav-text">绝望的陷阱</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#处理未捕获情况"><span class="nav-number">3.5.2.</span> <span class="nav-text">处理未捕获情况</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#成功的坑"><span class="nav-number">3.5.3.</span> <span class="nav-text">成功的坑</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Promise模式"><span class="nav-number">3.6.</span> <span class="nav-text">Promise模式</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Promise-all"><span class="nav-number">3.6.1.</span> <span class="nav-text">Promise.all([..])</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Promise-race"><span class="nav-number">3.6.2.</span> <span class="nav-text">Promise.race([..])</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#超时竞赛"><span class="nav-number">3.6.2.1.</span> <span class="nav-text">超时竞赛</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#finally"><span class="nav-number">3.6.2.2.</span> <span class="nav-text">finally</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#all-和-race的变体"><span class="nav-number">3.6.3.</span> <span class="nav-text">all 和 race的变体</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#none"><span class="nav-number">3.6.3.1.</span> <span class="nav-text">none</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#any"><span class="nav-number">3.6.3.2.</span> <span class="nav-text">any</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#first"><span class="nav-number">3.6.3.3.</span> <span class="nav-text">first</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#last"><span class="nav-number">3.6.3.4.</span> <span class="nav-text">last</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#并发迭代"><span class="nav-number">3.6.4.</span> <span class="nav-text">并发迭代</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Promise-API-概述"><span class="nav-number">3.7.</span> <span class="nav-text">Promise API 概述</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#new-Promise-构造器"><span class="nav-number">3.7.1.</span> <span class="nav-text">new Promise() 构造器</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Promise-resolve-和-Promise-reject"><span class="nav-number">3.7.2.</span> <span class="nav-text">Promise.resolve() 和 Promise.reject()</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#then-和-catch"><span class="nav-number">3.7.3.</span> <span class="nav-text">then() 和 catch()</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#then"><span class="nav-number">3.7.3.1.</span> <span class="nav-text">then</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#catch"><span class="nav-number">3.7.3.2.</span> <span class="nav-text">catch</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Promise-all-和-Promise-race"><span class="nav-number">3.7.4.</span> <span class="nav-text">Promise.all() 和 Promise.race</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Promise-局限性"><span class="nav-number">3.8.</span> <span class="nav-text">Promise 局限性</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#顺序错误处理"><span class="nav-number">3.8.1.</span> <span class="nav-text">顺序错误处理</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#单一值"><span class="nav-number">3.8.2.</span> <span class="nav-text">单一值</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#分裂值"><span class="nav-number">3.8.2.1.</span> <span class="nav-text">分裂值</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#展开-传递参数"><span class="nav-number">3.8.2.2.</span> <span class="nav-text">展开/传递参数</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#单决议"><span class="nav-number">3.8.3.</span> <span class="nav-text">单决议</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#惯性"><span class="nav-number">3.8.4.</span> <span class="nav-text">惯性</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#无法取消的Promise"><span class="nav-number">3.8.5.</span> <span class="nav-text">无法取消的Promise</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Promise-性能"><span class="nav-number">3.8.6.</span> <span class="nav-text">Promise 性能</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#生成器"><span class="nav-number">4.</span> <span class="nav-text">生成器</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#打破完整运行"><span class="nav-number">4.1.</span> <span class="nav-text">打破完整运行</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#输入和输出"><span class="nav-number">4.1.1.</span> <span class="nav-text">输入和输出</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#迭代消息传递"><span class="nav-number">4.1.1.1.</span> <span class="nav-text">迭代消息传递</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#两个问题的故事"><span class="nav-number">4.1.1.2.</span> <span class="nav-text">两个问题的故事</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#多个迭代器"><span class="nav-number">4.1.2.</span> <span class="nav-text">多个迭代器</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#交替执行"><span class="nav-number">4.1.2.1.</span> <span class="nav-text">交替执行</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#生成器产生值"><span class="nav-number">4.2.</span> <span class="nav-text">生成器产生值</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#生产者与迭代器"><span class="nav-number">4.2.1.</span> <span class="nav-text">生产者与迭代器</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#iterable"><span class="nav-number">4.2.2.</span> <span class="nav-text">iterable</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#生成器迭代器"><span class="nav-number">4.2.3.</span> <span class="nav-text">生成器迭代器</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#停止生成器"><span class="nav-number">4.2.3.1.</span> <span class="nav-text">停止生成器</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#异步迭代生成器"><span class="nav-number">4.3.</span> <span class="nav-text">异步迭代生成器</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#同步错误处理"><span class="nav-number">4.3.1.</span> <span class="nav-text">同步错误处理</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#生成器-Promise"><span class="nav-number">4.4.</span> <span class="nav-text">生成器 + Promise</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#支持Promise的Ganerator-Runner"><span class="nav-number">4.4.1.</span> <span class="nav-text">支持Promise的Ganerator Runner</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#ES7-async-与-await"><span class="nav-number">4.4.1.1.</span> <span class="nav-text">ES7: async 与 await?</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#生成器中的Promise并发"><span class="nav-number">4.4.2.</span> <span class="nav-text">生成器中的Promise并发</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#隐藏Promise"><span class="nav-number">4.4.2.1.</span> <span class="nav-text">隐藏Promise</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#生成器委托"><span class="nav-number">4.5.</span> <span class="nav-text">生成器委托</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#为什么用委托"><span class="nav-number">4.5.1.</span> <span class="nav-text">为什么用委托</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#消息委托"><span class="nav-number">4.5.2.</span> <span class="nav-text">消息委托</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#异常也被委托"><span class="nav-number">4.5.2.1.</span> <span class="nav-text">异常也被委托</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#异步委托"><span class="nav-number">4.5.3.</span> <span class="nav-text">异步委托</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#递归委托"><span class="nav-number">4.5.4.</span> <span class="nav-text">递归委托</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#生成器并发"><span class="nav-number">4.6.</span> <span class="nav-text">生成器并发</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#形实转换程序"><span class="nav-number">4.7.</span> <span class="nav-text">形实转换程序</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#s-promise-thunk"><span class="nav-number">4.7.1.</span> <span class="nav-text">s/promise/thunk</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#ES6之前的生成器"><span class="nav-number">4.8.</span> <span class="nav-text">ES6之前的生成器</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#手工变换"><span class="nav-number">4.8.1.</span> <span class="nav-text">手工变换</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#自动转换"><span class="nav-number">4.8.2.</span> <span class="nav-text">自动转换</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#小结"><span class="nav-number">4.9.</span> <span class="nav-text">小结</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#程序性能"><span class="nav-number">5.</span> <span class="nav-text">程序性能</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Web-Worker"><span class="nav-number">5.1.</span> <span class="nav-text">Web Worker</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Worker环境"><span class="nav-number">5.1.1.</span> <span class="nav-text">Worker环境</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#数据传递"><span class="nav-number">5.1.2.</span> <span class="nav-text">数据传递</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#共享Worker"><span class="nav-number">5.1.3.</span> <span class="nav-text">共享Worker</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#模拟Web-Worker"><span class="nav-number">5.1.4.</span> <span class="nav-text">模拟Web Worker</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#其它"><span class="nav-number">6.</span> <span class="nav-text">其它</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#生成器部分可以继续学习"><span class="nav-number">6.1.</span> <span class="nav-text">生成器部分可以继续学习</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2017 &mdash; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Ryoma</span>
+
+  
+
+  
+</div>
+
+
+
+
+  <div class="powered-by"><a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> v3.7.1</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://theme-next.org">NexT.Gemini</a> v6.3.0</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+	
+    
+
+    
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/three/three.min.js"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/three/canvas_sphere.min.js"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=6.3.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=6.3.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=6.3.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=6.3.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=6.3.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=6.3.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=6.3.0"></script>
+
+
+
+  
+
+  
+    <script id="dsq-count-scr" src="https://ryoma-blog.disqus.com/count.js" async></script>
+  
+
+  
+    <script type="text/javascript">
+      var disqus_config = function () {
+        this.page.url = 'https://blog.ryoma.top/posts/you_dont_know_js_mid_async&performance/';
+        this.page.identifier = 'posts/you_dont_know_js_mid_async&performance/';
+        this.page.title = '你不知道的JavaScript（中卷）——异步和性能';
+        };
+      function loadComments () {
+        var d = document, s = d.createElement('script');
+        s.src = 'https://ryoma-blog.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', '' + +new Date());
+        (d.head || d.body).appendChild(s);
+      }
+      
+        $(function () {
+          var offsetTop = $('#comments').offset().top - $(window).height();
+          if (offsetTop <= 0) {
+            // load directly when there's no a scrollbar
+            loadComments();
+          } else {
+            $(window).on('scroll.disqus_scroll', function () {
+              var scrollTop = document.documentElement.scrollTop;
+              if (scrollTop >= offsetTop) {
+                $(window).off('.disqus_scroll');
+                loadComments();
+              }
+            });
+          }
+        });
+      
+    </script>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
