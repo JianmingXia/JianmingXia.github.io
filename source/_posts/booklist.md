@@ -2,12 +2,10 @@
 title: 个人书单
 date: 2017/10/31 12:00:00
 tags:
-  - 书单
   - 历史
   - 技术
   - 小说
-  - 保持更新
-categories: 阅读笔记
+categories: 书单
 ---
 
 # 技术

@@ -4,8 +4,10 @@ date: 2018/08/26 15:30:00
 tags:
   - hiredis
   - C++
-  - redis
-categories: Redis
+  - Redis
+categories: 
+  - [Redis]
+  - [C++]
 ---
 
 ## 说在前面

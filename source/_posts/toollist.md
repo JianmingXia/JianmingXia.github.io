@@ -1,10 +1,10 @@
 ---
-title: 个人工具
+title: 常用工具
 date: 2017/10/31 12:00:00
 tags:
   - 效率提升
   - 保持更新
-categories: 工具
+categories: 未分类
 ---
 
 # 开发专用

@@ -3,7 +3,7 @@ title: Hexo, Hello World!
 date: 2017/05/05 12:00:00
 tags:
   - Hexo
-categories: 基础
+categories: 博客相关
 ---
 Welcome to [Hexo](https://hexo.io/)! This is your very first post. Check [documentation](https://hexo.io/docs/) for more info. If you get any problems when using Hexo, you can find the answer in [troubleshooting](https://hexo.io/docs/troubleshooting.html) or you can ask me on [GitHub](https://github.com/hexojs/hexo/issues).
 

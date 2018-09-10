@@ -2,9 +2,7 @@
 title: 将一个项目中的提交应用到其它项目-Git
 date: 2017/12/5 12:00:00
 tags:
-  - git
-  - 远程库
-  - 同步更新
+  - Git
   - cherry-pick
 categories: Git
 ---

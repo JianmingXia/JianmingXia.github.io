@@ -2,9 +2,11 @@
 title: 云服务器体验及简单使用Nginx部署
 date: 2017/6/6 12:00:00
 tags:
-- 云服务器
-- nginx
-categories: 基础
+  - 云服务器
+  - Nginx
+categories: 
+  - [Nginx]
+  - [博客相关]
 ---
 
 ## 成果

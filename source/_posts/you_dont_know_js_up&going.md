@@ -3,7 +3,9 @@ title: 你不知道的JavaScript——起步上路
 date: 2017/12/08 12:00:00
 tags:
   - JavaScript
-categories: 阅读笔记
+categories: 
+  - [阅读笔记]
+  - [JavaScript]
 ---
 
 > 个人觉得这部分实在是不能基础再基础了，不知道译本为什么放在下卷

@@ -3,9 +3,9 @@ title: nginx log分片
 date: 2017/8/1 12:00:00
 tags:
   - linux
-  - nginx
-  - nginx log
-categories: nginx
+  - Nginx
+  - Nginx log
+categories: Nginx
 ---
 
 ## Nginx log分片

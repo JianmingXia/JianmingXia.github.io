@@ -2,8 +2,7 @@
 title: 清理本地已经失效的远程库——Git
 date: 2017/12/3 12:00:00
 tags:
-  - git
-  - 远程库
+  - Git
 categories: Git
 ---
 

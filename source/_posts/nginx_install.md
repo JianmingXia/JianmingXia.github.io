@@ -3,9 +3,9 @@ title: nginx 源码安装
 date: 2017/7/1 12:00:00
 tags:
   - linux
-  - nginx
-  - nginx 安装
-categories: nginx
+  - Nginx
+  - Nginx 安装
+categories: Nginx
 ---
 
 ## 前言

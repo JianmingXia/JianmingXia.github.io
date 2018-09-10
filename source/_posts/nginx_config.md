@@ -5,7 +5,7 @@ tags:
   - linux
   - nginx
   - config
-categories: nginx
+categories: Nginx
 ---
 
 ## 题外话

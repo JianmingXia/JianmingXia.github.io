@@ -6,7 +6,9 @@ tags:
   - JavaScript
   - canvas
   - cross domain
-categories: JavaScript
+categories: 
+  - [JavaScript]
+  - [QRCodeJS]
 ---
 
 ## 资源

@@ -3,7 +3,9 @@ title: 你不知道的JavaScript——类型和语法
 date: 2017/11/18 12:00:00
 tags:
   - JavaScript
-categories: 阅读笔记
+categories: 
+  - [阅读笔记]
+  - [JavaScript]
 ---
 
 ## 类型

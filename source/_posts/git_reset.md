@@ -2,8 +2,7 @@
 title: Git技巧
 date: 2017/12/1 12:00:00
 tags:
-  - git
-  - 保持更新
+  - Git
 categories: Git
 ---
 

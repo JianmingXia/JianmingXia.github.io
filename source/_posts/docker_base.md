@@ -3,8 +3,9 @@ title: Docker 基础
 date: 2018/08/28 20:30:00
 tags:
   - Docker
-  - 阅读笔记
-categories: Docker
+categories: 
+  - [Docker]
+  - [阅读笔记]
 ---
 
 ## 为什么要使用Docker?

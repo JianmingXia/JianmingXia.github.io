@@ -4,7 +4,9 @@ date: 2017/7/11 12:00:00
 tags:
   - Webpack
   - TypeScript
-categories: 前端
+categories: 
+  - [Webpack]
+  - [TypeScript]
 ---
 
 ## 前言

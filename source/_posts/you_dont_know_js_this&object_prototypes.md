@@ -3,7 +3,9 @@ title: 你不知道的JavaScript——this和对象原型
 date: 2017/10/09 12:00:00
 tags:
   - JavaScript
-categories: 阅读笔记
+categories: 
+  - [阅读笔记]
+  - [JavaScript]
 ---
 
 ## 关于this

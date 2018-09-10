@@ -5,7 +5,9 @@ tags:
   - QRCodeJS
   - JavaScript
   - canvas
-categories: JavaScript
+categories: 
+  - [JavaScript]
+  - [QRCodeJS]
 ---
 
 ## 成果

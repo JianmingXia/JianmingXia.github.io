@@ -3,7 +3,7 @@ title: 博客起步
 date: 2017/5/31 12:00:00
 tags:
   - jacman
-categories: 基础
+categories: 博客相关
 
 ---
 > 最终选用**Github Page**+**hexo**

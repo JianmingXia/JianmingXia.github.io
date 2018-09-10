@@ -3,7 +3,9 @@ title: 你不知道的JavaScript——作用域与闭包
 date: 2017/9/21 12:00:00
 tags:
   - JavaScript
-categories: 阅读笔记
+categories: 
+  - [阅读笔记]
+  - [JavaScript]
 ---
 
 ## 前言

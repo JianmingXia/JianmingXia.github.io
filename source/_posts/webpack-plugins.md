@@ -4,7 +4,7 @@ date: 2017/7/21 12:00:00
 tags:
   - Webpack
   - Plugins
-categories: 前端
+categories: Webpack
 ---
 
 ## 前言
