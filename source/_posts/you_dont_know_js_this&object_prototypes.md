@@ -1,5 +1,5 @@
 ---
-title: 你不知道的JavaScript（上卷）——this和对象原型
+title: 你不知道的JavaScript——this和对象原型
 date: 2017/10/09 12:00:00
 tags:
   - JavaScript

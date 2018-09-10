@@ -1,5 +1,5 @@
 ---
-title: 你不知道的JavaScript（中卷）——异步和性能
+title: 你不知道的JavaScript——异步和性能
 date: 2017/11/28 12:00:00
 tags:
   - JavaScript

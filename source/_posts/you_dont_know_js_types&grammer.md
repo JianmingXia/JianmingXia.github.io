@@ -1,5 +1,5 @@
 ---
-title: 你不知道的JavaScript（中卷）——类型和语法
+title: 你不知道的JavaScript——类型和语法
 date: 2017/11/18 12:00:00
 tags:
   - JavaScript
