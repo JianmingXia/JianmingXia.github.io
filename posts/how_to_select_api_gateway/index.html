@@ -1,0 +1,1048 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=6.3.0" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=6.3.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=6.3.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=6.3.0">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=6.3.0" color="#222">
+
+
+
+
+
+
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '6.3.0',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="说在前面最近在参与项目的重构工作，由于之前的经验问题，导致目前的项目服务架构极其不合理。既然选择了重构，不仅仅是代码层面，架构上也是需要调整的。但是在选择的API网关上遇到了难题，之前团队也没有这方面的经验，目前也只能算是摸着石头过河。列举了一些在选择API Gateway时需要注意的内容，大家可以根据需要设定考虑API Gateway时的优先级，然后进行比对选择。 部署简单当我们需要创建新实例时">
+<meta name="keywords" content="API Gateway">
+<meta property="og:type" content="article">
+<meta property="og:title" content="如何选择 API Gateway">
+<meta property="og:url" content="https://blog.ryoma.top/posts/how_to_select_api_gateway/index.html">
+<meta property="og:site_name" content="Ryoma&#39;s Blog">
+<meta property="og:description" content="说在前面最近在参与项目的重构工作，由于之前的经验问题，导致目前的项目服务架构极其不合理。既然选择了重构，不仅仅是代码层面，架构上也是需要调整的。但是在选择的API网关上遇到了难题，之前团队也没有这方面的经验，目前也只能算是摸着石头过河。列举了一些在选择API Gateway时需要注意的内容，大家可以根据需要设定考虑API Gateway时的优先级，然后进行比对选择。 部署简单当我们需要创建新实例时">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2018-09-20T12:18:18.776Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="如何选择 API Gateway">
+<meta name="twitter:description" content="说在前面最近在参与项目的重构工作，由于之前的经验问题，导致目前的项目服务架构极其不合理。既然选择了重构，不仅仅是代码层面，架构上也是需要调整的。但是在选择的API网关上遇到了难题，之前团队也没有这方面的经验，目前也只能算是摸着石头过河。列举了一些在选择API Gateway时需要注意的内容，大家可以根据需要设定考虑API Gateway时的优先级，然后进行比对选择。 部署简单当我们需要创建新实例时">
+
+
+
+
+
+
+  <link rel="canonical" href="https://blog.ryoma.top/posts/how_to_select_api_gateway/"/>
+
+
+
+<script type="text/javascript" id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>如何选择 API Gateway | Ryoma's Blog</title>
+  
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style type="text/css">
+    .use-motion .motion-element,
+    .use-motion .brand,
+    .use-motion .menu-item,
+    .sidebar-inner,
+    .use-motion .post-block,
+    .use-motion .pagination,
+    .use-motion .comments,
+    .use-motion .post-header,
+    .use-motion .post-body,
+    .use-motion .collection-title { opacity: initial; }
+
+    .use-motion .logo,
+    .use-motion .site-title,
+    .use-motion .site-subtitle {
+      opacity: initial;
+      top: initial;
+    }
+
+    .use-motion {
+      .logo-line-before i { left: initial; }
+      .logo-line-after i { right: initial; }
+    }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Ryoma's Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+      
+        <p class="site-subtitle">纸上得来终觉浅</p>
+      
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+    <a href="/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-home"></i> <br />首页</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+    <a href="/tags/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />标签</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+    <a href="/categories/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-th"></i> <br />分类</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+    <a href="/archives/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />归档</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+    <a href="/about/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-user"></i> <br />关于我</a>
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.ryoma.top/posts/how_to_select_api_gateway/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Ryoma">
+      <meta itemprop="description" content="Ryoma's Blog">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Ryoma's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">如何选择 API Gateway
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2018-09-20 20:00:00" itemprop="dateCreated datePublished" datetime="2018-09-20T20:00:00+08:00">2018-09-20</time>
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/微服务/" itemprop="url" rel="index"><span itemprop="name">微服务</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/posts/how_to_select_api_gateway/#comments" itemprop="discussionUrl">
+                
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="posts/how_to_select_api_gateway/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="说在前面"><a href="#说在前面" class="headerlink" title="说在前面"></a>说在前面</h2><p>最近在参与项目的重构工作，由于之前的经验问题，导致目前的项目服务架构极其不合理。既然选择了重构，不仅仅是代码层面，架构上也是需要调整的。但是在选择的API网关上遇到了难题，之前团队也没有这方面的经验，目前也只能算是摸着石头过河。列举了一些在选择API Gateway时需要注意的内容，大家可以根据需要设定考虑API Gateway时的优先级，然后进行比对选择。</p>
+<h2 id="部署简单"><a href="#部署简单" class="headerlink" title="部署简单"></a>部署简单</h2><p>当我们需要创建新实例时，需要足够简单</p>
+<h2 id="可扩展性、可维护性"><a href="#可扩展性、可维护性" class="headerlink" title="可扩展性、可维护性"></a>可扩展性、可维护性</h2><ul>
+<li>若出现无法hold住的场景，是否能进行二次开发</li>
+<li>团队其它成员能否有能力维护</li>
+</ul>
+<h2 id="高可用性"><a href="#高可用性" class="headerlink" title="高可用性"></a>高可用性</h2><ul>
+<li>网关必须支持集群部署<a id="more"></a>
+</li>
+</ul>
+<h2 id="功能需求"><a href="#功能需求" class="headerlink" title="功能需求"></a>功能需求</h2><h3 id="Authentication-与-Authorization"><a href="#Authentication-与-Authorization" class="headerlink" title="Authentication 与 Authorization"></a>Authentication 与 Authorization</h3><p>接入认证与授权是否方便</p>
+<h3 id="高性能"><a href="#高性能" class="headerlink" title="高性能"></a>高性能</h3><p>比如系统采用非阻塞的IO</p>
+<h3 id="安全"><a href="#安全" class="headerlink" title="安全"></a>安全</h3><p>比如SQL注入、限流</p>
+<h4 id="Rate-Limiting"><a href="#Rate-Limiting" class="headerlink" title="Rate-Limiting"></a>Rate-Limiting</h4><p>比如可以限制第三方接口调用次数</p>
+<h3 id="日志监控"><a href="#日志监控" class="headerlink" title="日志监控"></a>日志监控</h3><ul>
+<li>是否可以产出报告，或是接入其它日志服务</li>
+<li>注入一个request_id，达到日志更好的效果</li>
+</ul>
+<h3 id="其它"><a href="#其它" class="headerlink" title="其它"></a>其它</h3><ul>
+<li>当后端服务不可用时，能否提供有意义的响应</li>
+</ul>
+<h2 id="定制"><a href="#定制" class="headerlink" title="定制"></a>定制</h2><ul>
+<li>有定制功能优先</li>
+<li>但如果需要安装大量插件才能使用，需要评估</li>
+</ul>
+<h2 id="简易升级"><a href="#简易升级" class="headerlink" title="简易升级"></a>简易升级</h2><p>确保可以用到最新的改进</p>
+<h2 id="生命力"><a href="#生命力" class="headerlink" title="生命力"></a>生命力</h2><p>确保这个API Gateway在一定时间内是能得到支持的，可以关注社区的活跃性</p>
+<h2 id="其它关注点"><a href="#其它关注点" class="headerlink" title="其它关注点"></a>其它关注点</h2><h3 id="网关支持API访问，可以动态更新某些配置"><a href="#网关支持API访问，可以动态更新某些配置" class="headerlink" title="网关支持API访问，可以动态更新某些配置"></a>网关支持API访问，可以动态更新某些配置</h3><h3 id="黑白名单功能"><a href="#黑白名单功能" class="headerlink" title="黑白名单功能"></a>黑白名单功能</h3><h3 id="能不能扩展支持gRPC、Thrift这类序列化框架"><a href="#能不能扩展支持gRPC、Thrift这类序列化框架" class="headerlink" title="能不能扩展支持gRPC、Thrift这类序列化框架"></a>能不能扩展支持gRPC、Thrift这类序列化框架</h3><h3 id="良好的监控体系"><a href="#良好的监控体系" class="headerlink" title="良好的监控体系"></a>良好的监控体系</h3><p>监控网关本身的，比如与Prometheus契合如何</p>
+<h2 id="可选方案"><a href="#可选方案" class="headerlink" title="可选方案"></a>可选方案</h2><ul>
+<li>Kong</li>
+<li>Netflix Zuul</li>
+<li>Express-Gateway</li>
+<li>Ambassador</li>
+<li>tyk</li>
+</ul>
+<h2 id="资料"><a href="#资料" class="headerlink" title="资料"></a>资料</h2><ul>
+<li><a href="https://medium.com/@craig552uk/how-to-choose-an-api-gateway-ac64f04f3683" target="_blank" rel="noopener">https://medium.com/@craig552uk/how-to-choose-an-api-gateway-ac64f04f3683</a></li>
+<li><a href="https://tyk.io/blog/7-critical-factors-selecting-api-management-layer/" target="_blank" rel="noopener">https://tyk.io/blog/7-critical-factors-selecting-api-management-layer/</a></li>
+</ul>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/API-Gateway/" rel="tag"># API Gateway</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/posts/sharding_analysis/" rel="next" title="分库分表分析">
+                <i class="fa fa-chevron-left"></i> 分库分表分析
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+    <div class="comments" id="comments">
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/avatar.jpg"
+                alt="Ryoma" />
+            
+              <p class="site-author-name" itemprop="name">Ryoma</p>
+              <p class="site-description motion-element" itemprop="description">Ryoma's Blog</p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">52</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  <a href="/categories/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">17</span>
+                    <span class="site-state-item-name">分类</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  <a href="/tags/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">55</span>
+                    <span class="site-state-item-name">标签</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+            <div class="links-of-author motion-element">
+              
+                <span class="links-of-author-item">
+                  <a href="https://github.com/JianmingXia" target="_blank" title="GitHub"><i class="fa fa-fw fa-github"></i>GitHub</a>
+                  
+                </span>
+              
+                <span class="links-of-author-item">
+                  <a href="mailto:xiajianming_xjm@163.com" target="_blank" title="E-Mail"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                  
+                </span>
+              
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#说在前面"><span class="nav-number">1.</span> <span class="nav-text">说在前面</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#部署简单"><span class="nav-number">2.</span> <span class="nav-text">部署简单</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#可扩展性、可维护性"><span class="nav-number">3.</span> <span class="nav-text">可扩展性、可维护性</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#高可用性"><span class="nav-number">4.</span> <span class="nav-text">高可用性</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#功能需求"><span class="nav-number">5.</span> <span class="nav-text">功能需求</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Authentication-与-Authorization"><span class="nav-number">5.1.</span> <span class="nav-text">Authentication 与 Authorization</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#高性能"><span class="nav-number">5.2.</span> <span class="nav-text">高性能</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#安全"><span class="nav-number">5.3.</span> <span class="nav-text">安全</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Rate-Limiting"><span class="nav-number">5.3.1.</span> <span class="nav-text">Rate-Limiting</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#日志监控"><span class="nav-number">5.4.</span> <span class="nav-text">日志监控</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#其它"><span class="nav-number">5.5.</span> <span class="nav-text">其它</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#定制"><span class="nav-number">6.</span> <span class="nav-text">定制</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#简易升级"><span class="nav-number">7.</span> <span class="nav-text">简易升级</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#生命力"><span class="nav-number">8.</span> <span class="nav-text">生命力</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#其它关注点"><span class="nav-number">9.</span> <span class="nav-text">其它关注点</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#网关支持API访问，可以动态更新某些配置"><span class="nav-number">9.1.</span> <span class="nav-text">网关支持API访问，可以动态更新某些配置</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#黑白名单功能"><span class="nav-number">9.2.</span> <span class="nav-text">黑白名单功能</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#能不能扩展支持gRPC、Thrift这类序列化框架"><span class="nav-number">9.3.</span> <span class="nav-text">能不能扩展支持gRPC、Thrift这类序列化框架</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#良好的监控体系"><span class="nav-number">9.4.</span> <span class="nav-text">良好的监控体系</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#可选方案"><span class="nav-number">10.</span> <span class="nav-text">可选方案</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#资料"><span class="nav-number">11.</span> <span class="nav-text">资料</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2017 &mdash; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Ryoma</span>
+
+  
+
+  
+</div>
+
+
+
+
+  <div class="powered-by"><a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> v3.7.1</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://theme-next.org">NexT.Gemini</a> v6.3.0</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+	
+    
+
+    
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/three/three.min.js"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/three/canvas_sphere.min.js"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=6.3.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=6.3.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=6.3.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=6.3.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=6.3.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=6.3.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=6.3.0"></script>
+
+
+
+  
+
+  
+    <script id="dsq-count-scr" src="https://ryoma-blog.disqus.com/count.js" async></script>
+  
+
+  
+    <script type="text/javascript">
+      var disqus_config = function () {
+        this.page.url = 'https://blog.ryoma.top/posts/how_to_select_api_gateway/';
+        this.page.identifier = 'posts/how_to_select_api_gateway/';
+        this.page.title = '如何选择 API Gateway';
+        };
+      function loadComments () {
+        var d = document, s = d.createElement('script');
+        s.src = 'https://ryoma-blog.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', '' + +new Date());
+        (d.head || d.body).appendChild(s);
+      }
+      
+        $(function () {
+          var offsetTop = $('#comments').offset().top - $(window).height();
+          if (offsetTop <= 0) {
+            // load directly when there's no a scrollbar
+            loadComments();
+          } else {
+            $(window).on('scroll.disqus_scroll', function () {
+              var scrollTop = document.documentElement.scrollTop;
+              if (scrollTop >= offsetTop) {
+                $(window).off('.disqus_scroll');
+                loadComments();
+              }
+            });
+          }
+        });
+      
+    </script>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
