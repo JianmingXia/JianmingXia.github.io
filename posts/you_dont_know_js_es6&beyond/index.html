@@ -1,0 +1,1156 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=6.3.0" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=6.3.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=6.3.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=6.3.0">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=6.3.0" color="#222">
+
+
+
+
+
+
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '6.3.0',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="ES？现在与未来版本版本标签？ transpilingtransformation + compiling——转换 + 编译：利用专门的工具将ES6代码转换为等价的可以在ES5环境下工作的代码 shim/polyfill并非所有的ES6新特性都需要使用transpiler，还可以使用polyfill。 语法不能polyfill，而API通常可以">
+<meta name="keywords" content="JavaScript">
+<meta property="og:type" content="article">
+<meta property="og:title" content="你不知道的JavaScript——ES6及更新版本">
+<meta property="og:url" content="https://blog.ryoma.top/posts/you_dont_know_js_es6&beyond/index.html">
+<meta property="og:site_name" content="Ryoma&#39;s Blog">
+<meta property="og:description" content="ES？现在与未来版本版本标签？ transpilingtransformation + compiling——转换 + 编译：利用专门的工具将ES6代码转换为等价的可以在ES5环境下工作的代码 shim/polyfill并非所有的ES6新特性都需要使用transpiler，还可以使用polyfill。 语法不能polyfill，而API通常可以">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https://img.ryoma.top/YouDontKnowJS/es6-beyond-0.png">
+<meta property="og:image" content="https://img.ryoma.top/YouDontKnowJS/es6-beyond-1.png">
+<meta property="og:updated_time" content="2018-09-21T10:27:31.264Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="你不知道的JavaScript——ES6及更新版本">
+<meta name="twitter:description" content="ES？现在与未来版本版本标签？ transpilingtransformation + compiling——转换 + 编译：利用专门的工具将ES6代码转换为等价的可以在ES5环境下工作的代码 shim/polyfill并非所有的ES6新特性都需要使用transpiler，还可以使用polyfill。 语法不能polyfill，而API通常可以">
+<meta name="twitter:image" content="https://img.ryoma.top/YouDontKnowJS/es6-beyond-0.png">
+
+
+
+
+
+
+  <link rel="canonical" href="https://blog.ryoma.top/posts/you_dont_know_js_es6&beyond/"/>
+
+
+
+<script type="text/javascript" id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>你不知道的JavaScript——ES6及更新版本 | Ryoma's Blog</title>
+  
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style type="text/css">
+    .use-motion .motion-element,
+    .use-motion .brand,
+    .use-motion .menu-item,
+    .sidebar-inner,
+    .use-motion .post-block,
+    .use-motion .pagination,
+    .use-motion .comments,
+    .use-motion .post-header,
+    .use-motion .post-body,
+    .use-motion .collection-title { opacity: initial; }
+
+    .use-motion .logo,
+    .use-motion .site-title,
+    .use-motion .site-subtitle {
+      opacity: initial;
+      top: initial;
+    }
+
+    .use-motion {
+      .logo-line-before i { left: initial; }
+      .logo-line-after i { right: initial; }
+    }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Ryoma's Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+      
+        <p class="site-subtitle">纸上得来终觉浅</p>
+      
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+    <a href="/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-home"></i> <br />首页</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+    <a href="/tags/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />标签</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+    <a href="/categories/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-th"></i> <br />分类</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+    <a href="/archives/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />归档</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+    <a href="/about/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-user"></i> <br />关于我</a>
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.ryoma.top/posts/you_dont_know_js_es6&beyond/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Ryoma">
+      <meta itemprop="description" content="Ryoma's Blog">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Ryoma's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">你不知道的JavaScript——ES6及更新版本
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2017-12-25 12:00:00" itemprop="dateCreated datePublished" datetime="2017-12-25T12:00:00+08:00">2017-12-25</time>
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/JavaScript/" itemprop="url" rel="index"><span itemprop="name">JavaScript</span></a></span>
+
+                
+                
+                  ，
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/阅读笔记/" itemprop="url" rel="index"><span itemprop="name">阅读笔记</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/posts/you_dont_know_js_es6&beyond/#comments" itemprop="discussionUrl">
+                
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="posts/you_dont_know_js_es6&beyond/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="ES？现在与未来"><a href="#ES？现在与未来" class="headerlink" title="ES？现在与未来"></a>ES？现在与未来</h2><h3 id="版本"><a href="#版本" class="headerlink" title="版本"></a>版本</h3><p>版本标签？</p>
+<h3 id="transpiling"><a href="#transpiling" class="headerlink" title="transpiling"></a>transpiling</h3><p>transformation + compiling——转换 + 编译：利用专门的工具将ES6代码转换为等价的可以在ES5环境下工作的代码</p>
+<h4 id="shim-polyfill"><a href="#shim-polyfill" class="headerlink" title="shim/polyfill"></a>shim/polyfill</h4><p>并非所有的ES6新特性都需要使用transpiler，还可以使用polyfill。</p>
+<p>语法不能polyfill，而API通常可以<br><a id="more"></a></p>
+<h2 id="语法"><a href="#语法" class="headerlink" title="语法"></a>语法</h2><h3 id="块作用域声明"><a href="#块作用域声明" class="headerlink" title="块作用域声明"></a>块作用域声明</h3><h4 id="let-声明"><a href="#let-声明" class="headerlink" title="let 声明"></a>let 声明</h4><h4 id="const-声明"><a href="#const-声明" class="headerlink" title="const 声明"></a>const 声明</h4><h5 id="是否使用const"><a href="#是否使用const" class="headerlink" title="是否使用const"></a>是否使用const</h5><blockquote>
+<p>要避免可能令人迷惑的代码，只对你有意表明不变的变量使用const。</p>
+<p>不要依赖const来规范代码行为，而是在意图清晰的时候，把它作为一个表明意图的工具</p>
+</blockquote>
+<h4 id="块作用域函数"><a href="#块作用域函数" class="headerlink" title="块作用域函数"></a>块作用域函数</h4><h3 id="spread-rest"><a href="#spread-rest" class="headerlink" title="spread/rest"></a>spread/rest</h3><h3 id="默认参数值"><a href="#默认参数值" class="headerlink" title="默认参数值"></a>默认参数值</h3><h4 id="默认值表达式"><a href="#默认值表达式" class="headerlink" title="默认值表达式"></a>默认值表达式</h4><p>默认表达式是惰性求值的，只在需要的时候运行——参数的值省略或为undefined时</p>
+<blockquote>
+<p>Function.prototype是一个没有操作的空函数——可用于作为没有操作的空函数的默认值</p>
+</blockquote>
+<h3 id="解构"><a href="#解构" class="headerlink" title="解构"></a>解构</h3><ul>
+<li>数组解构</li>
+<li>对象解构</li>
+</ul>
+<h4 id="对象属性赋值模式"><a href="#对象属性赋值模式" class="headerlink" title="对象属性赋值模式"></a>对象属性赋值模式</h4><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">bar</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> &#123;</span><br><span class="line">    x: <span class="number">4</span>,</span><br><span class="line">    y: <span class="number">5</span>,</span><br><span class="line">    z: <span class="number">6</span>,</span><br><span class="line">  &#125;;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> &#123; <span class="attr">x</span>: bam, <span class="attr">y</span>: baz, <span class="attr">z</span>: bap &#125; = bar();</span><br><span class="line"></span><br><span class="line"><span class="built_in">console</span>.log(bam, baz, bap); <span class="comment">// 4 5 6</span></span><br><span class="line"><span class="built_in">console</span>.log(x, y, z); <span class="comment">// ReferenceError</span></span><br></pre></td></tr></table></figure>
+<h4 id="不只是声明"><a href="#不只是声明" class="headerlink" title="不只是声明"></a>不只是声明</h4><p>如果变量是已声明的，解构实际上是一个赋值过程</p>
+<blockquote>
+<p>如果是对象解构，并且省略了声明符：let/const等，赋值表达式需要使用()包围，否则会被视为块语句</p>
+</blockquote>
+<p>另外，赋值表达式并不必须是变量标识符，任何合法的赋值表达式都可以：</p>
+<ul>
+<li>对象属性访问</li>
+<li>[]计算的属性的表达式</li>
+</ul>
+<p>甚至可以做到“交换两个变量”</p>
+<h4 id="重复赋值"><a href="#重复赋值" class="headerlink" title="重复赋值"></a>重复赋值</h4><p>对象解构形式允许多次列出同一个源属性</p>
+<blockquote>
+<p>如果运用了很复杂的对象解构，需要主要代码格式——解构的目的不只是为了打字更少，而是为了可读性更强</p>
+</blockquote>
+<h5 id="解构赋值表达式"><a href="#解构赋值表达式" class="headerlink" title="解构赋值表达式"></a>解构赋值表达式</h5><p>对象或者数组解构的赋值表达式的完成值是所有右侧对象/数组的值：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> o = &#123;</span><br><span class="line">  a: <span class="number">1</span>,</span><br><span class="line">  b: <span class="number">2</span>,</span><br><span class="line">  c: <span class="number">3</span></span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> a, b, c, p;</span><br><span class="line"></span><br><span class="line">p = &#123; a, b, c &#125; = o;</span><br><span class="line"></span><br><span class="line"><span class="built_in">console</span>.log(a, b, c); <span class="comment">// 1 2 3</span></span><br><span class="line">p === o; <span class="comment">// true</span></span><br></pre></td></tr></table></figure>
+<p>通过持有对象/数组的值作为完成值，可以把解构赋值表达式组成链~</p>
+<h3 id="太多，太少，刚刚好"><a href="#太多，太少，刚刚好" class="headerlink" title="太多，太少，刚刚好"></a>太多，太少，刚刚好</h3><p>对于数组解构或对象解构赋值来说，我们不一定要把存在的所有值都用来赋值。</p>
+<p>另外 <code>...</code> 也可用于解构赋值中</p>
+<h4 id="默认值赋值"><a href="#默认值赋值" class="headerlink" title="默认值赋值"></a>默认值赋值</h4><p>两种解构都可以提供一个用来赋值的默认值</p>
+<p>另外，请不要写出晦涩难懂的代码：</p>
+<p><img src="https://img.ryoma.top/YouDontKnowJS/es6-beyond-0.png" alt=""></p>
+<h4 id="嵌套解构"><a href="#嵌套解构" class="headerlink" title="嵌套解构"></a>嵌套解构</h4><p>如果解构的值中有嵌套的对象或数组，也可以解构这些嵌套的值</p>
+<h4 id="解构参数"><a href="#解构参数" class="headerlink" title="解构参数"></a>解构参数</h4><p>用于参数解构</p>
+<h5 id="解构默认值-参数默认值"><a href="#解构默认值-参数默认值" class="headerlink" title="解构默认值 + 参数默认值"></a>解构默认值 + 参数默认值</h5><p>解构默认值与函数参数默认值的区别！！！</p>
+<h5 id="嵌套默认：解构并重组"><a href="#嵌套默认：解构并重组" class="headerlink" title="嵌套默认：解构并重组"></a>嵌套默认：解构并重组</h5><p>更复杂对象的数组重组</p>
+<h3 id="对象字面量扩展"><a href="#对象字面量扩展" class="headerlink" title="对象字面量扩展"></a>对象字面量扩展</h3><h4 id="简洁属性"><a href="#简洁属性" class="headerlink" title="简洁属性"></a>简洁属性</h4><h4 id="简洁方法"><a href="#简洁方法" class="headerlink" title="简洁方法"></a>简洁方法</h4><h5 id="简洁未命名"><a href="#简洁未命名" class="headerlink" title="简洁未命名"></a>简洁未命名</h5><p>优点：简洁方便</p>
+<p>缺点：如果方法需要执行递归或事件绑定/解绑定，不要尝试使用此方法</p>
+<h5 id="ES5-Getter-Setter"><a href="#ES5-Getter-Setter" class="headerlink" title="ES5 Getter/Setter"></a>ES5 Getter/Setter</h5><h4 id="计算属性名"><a href="#计算属性名" class="headerlink" title="计算属性名"></a>计算属性名</h4><p>最常见的用法可能是和Symbols使用；当有prefix的场景也可以考虑</p>
+<h4 id="设定-Prototype"><a href="#设定-Prototype" class="headerlink" title="设定[[Prototype]]"></a>设定[[Prototype]]</h4><p>使用setPrototypeOf</p>
+<h4 id="super对象"><a href="#super对象" class="headerlink" title="super对象"></a>super对象</h4><blockquote>
+<p>super只允许在简洁方法中出现</p>
+</blockquote>
+<h3 id="模板字面量"><a href="#模板字面量" class="headerlink" title="模板字面量"></a>模板字面量</h3><p>优点：</p>
+<ul>
+<li>分散多行</li>
+<li>支持嵌入基本的字符串插入表达式，会被自动解析和求值</li>
+</ul>
+<h4 id="插入表达式"><a href="#插入表达式" class="headerlink" title="插入表达式"></a>插入表达式</h4><p><code>${}</code> 内可以出现任何合法的表达式，包括函数调用、在线函数表达式调用，甚至其他插入字符串字面量！</p>
+<h5 id="表达式"><a href="#表达式" class="headerlink" title="表达式"></a>表达式</h5><p>插入字符串字面量在它出现的词法作用域中，没有任何形式的动态作用域</p>
+<h4 id="标签模板字面量"><a href="#标签模板字面量" class="headerlink" title="标签模板字面量"></a>标签模板字面量</h4><p>很高级的用法，比如将数字格式化为美元表示法</p>
+<h3 id="箭头函数"><a href="#箭头函数" class="headerlink" title="箭头函数"></a>箭头函数</h3><p>箭头函数总是函数表达式；并不存在箭头函数声明。</p>
+<p>箭头函数是匿名函数表达式——没有用于递归或者事件绑定/解绑定的命名引用</p>
+<blockquote>
+<p> 作者：箭头函数带来的可读性提升与被转换函数的长度负相关。这个函数越长，带来的好处越小</p>
+</blockquote>
+<h4 id="不只是更短的语法，而是this"><a href="#不只是更短的语法，而是this" class="headerlink" title="不只是更短的语法，而是this"></a>不只是更短的语法，而是this</h4><p>在箭头函数内部，this绑定不是动态的，而是词法的。</p>
+<ul>
+<li>如果有一个简短单句在线函数表达式，其中唯一的语句是return某个计算的值，且这个函数内部没有引用，且没有自身引用（递归、事件绑定与解绑定），且不会要求函数执行这些，可以使用=&gt;</li>
+<li>如果有一个内层函数表达式，依赖于在包含它的函数中调用var self = this hack或者.bind(this)来确保适当的this绑定，可以使用=&gt;</li>
+<li>如果内层函数表达式依赖于封装函数中像var  args = Array.prototype.slice.call(arguments)来保证arguments的词法复制，可以使用=&gt;</li>
+<li>所有其他情况：函数声明、较长的多语句函数表达式、需要词法名称标识符（递归等）的函数，以及不符合上述特征的函数，避免使用</li>
+</ul>
+<p>可视化决策图：</p>
+<p><img src="https://img.ryoma.top/YouDontKnowJS/es6-beyond-1.png" alt=""></p>
+<h3 id="for-of-循环"><a href="#for-of-循环" class="headerlink" title="for..of 循环"></a>for..of 循环</h3><p>JS中默认为iterable的标准内建值包括：</p>
+<ul>
+<li>Arrays</li>
+<li>Strings</li>
+<li>Generators</li>
+<li>Collections/TypedArrays</li>
+</ul>
+<h3 id="正则表达式"><a href="#正则表达式" class="headerlink" title="正则表达式"></a>正则表达式</h3><blockquote>
+<p> 抽个时间看一下，很容易忘记</p>
+</blockquote>
+<h3 id="数字字面量扩展"><a href="#数字字面量扩展" class="headerlink" title="数字字面量扩展"></a>数字字面量扩展</h3><h4 id="反向转换"><a href="#反向转换" class="headerlink" title="反向转换"></a>反向转换</h4><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> a = <span class="number">42</span>;</span><br><span class="line"></span><br><span class="line"><span class="built_in">console</span>.log(a.toString());</span><br><span class="line"><span class="built_in">console</span>.log(a.toString(<span class="number">8</span>));</span><br><span class="line"><span class="built_in">console</span>.log(a.toString(<span class="number">16</span>));</span><br><span class="line"><span class="built_in">console</span>.log(a.toString(<span class="number">2</span>));</span><br><span class="line"><span class="comment">// 42 52 2a 101010</span></span><br></pre></td></tr></table></figure>
+<p>这种方式可以传2-36之间的一个数字</p>
+<h3 id="Unicode"><a href="#Unicode" class="headerlink" title="Unicode"></a>Unicode</h3><p>Uniccode字符范围从0x0000 - 0xFFFF，包含可能看到和接触到的所有标准打印字符</p>
+<h4 id="支持Unicode的字符串运算"><a href="#支持Unicode的字符串运算" class="headerlink" title="支持Unicode的字符串运算"></a>支持Unicode的字符串运算</h4><h3 id="符号"><a href="#符号" class="headerlink" title="符号"></a>符号</h3><p>Symbol没有字面量形式</p>
+<p>注意事项：</p>
+<ul>
+<li>不能也不应该对Symbol使用new，它并不是一个构造器，也不是一个对象</li>
+<li>传给Symbol的参数是可选的，如果传入的话，应该是一个为这个Symbol的用途给出用户友好描述的字符串</li>
+<li>typeof的输出是一个新的值：”symbol”</li>
+</ul>
+<p>存在的意义：</p>
+<ul>
+<li>创建一个类似字符串的，不会与其它任何值冲突的值：比如事件监听</li>
+</ul>
+<h4 id="符号注册"><a href="#符号注册" class="headerlink" title="符号注册"></a>符号注册</h4><p>在事件监听中添加注册事件类型，这个类型可能要公开到全局作用域中，如果要改进这种模式，可以使用<strong>全局符号注册</strong>——global symbol registry：Symbol.for</p>
+<p>Symbol.for会在全局符号注册表中搜索，来查看是否有描述文件系统的符号已经存在，如果有就返回它——全局注册表把符号值本身根据其描述文字作为单例处理</p>
+<p>可以使用Symbol.keyFor()来提取注册符号的描述文本（键值）</p>
+<h4 id="作为对象属性的符号"><a href="#作为对象属性的符号" class="headerlink" title="作为对象属性的符号"></a>作为对象属性的符号</h4><p>如果把符号作为对象的属性/键值，那么它会以一种特殊的方式存储，使得这个属性不出现在对这个对象的一般属性枚举中</p>
+<ul>
+<li>Object.getOwnPropertySymbols()</li>
+</ul>
+<h5 id="内置符号"><a href="#内置符号" class="headerlink" title="内置符号"></a>内置符号</h5><p>如Symbol.iterator</p>
+<h2 id="代码组织"><a href="#代码组织" class="headerlink" title="代码组织"></a>代码组织</h2><p>编写JS代码是一回事，而合理组织代码则是另一回事——利用通用模式来组织和复用代码，显著提高了代码的可读性和可理解性。</p>
+<h3 id="迭代器"><a href="#迭代器" class="headerlink" title="迭代器"></a>迭代器</h3><blockquote>
+<p>迭代器是一个结构化的模式，用于从源以一次一个的方式提取数据。</p>
+</blockquote>
+<h4 id="接口"><a href="#接口" class="headerlink" title="接口"></a>接口</h4><h4 id="next-迭代"><a href="#next-迭代" class="headerlink" title="next()迭代"></a>next()迭代</h4><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> m = <span class="keyword">new</span> <span class="built_in">Map</span>();</span><br><span class="line">m.set(<span class="string">'foo'</span>, <span class="number">42</span>);</span><br><span class="line">m.set(&#123; <span class="attr">cool</span>: <span class="literal">true</span> &#125;, <span class="string">'hello world'</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> it1 = m[<span class="built_in">Symbol</span>.iterator]();</span><br><span class="line"><span class="built_in">console</span>.log(it1.next());</span><br><span class="line"><span class="built_in">console</span>.log(it1.next());</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> it2 = m.entries();</span><br><span class="line"><span class="built_in">console</span>.log(it2.next());</span><br><span class="line"><span class="built_in">console</span>.log(it2.next());</span><br></pre></td></tr></table></figure>
+<h4 id="可选的return-和throw"><a href="#可选的return-和throw" class="headerlink" title="可选的return()和throw()"></a>可选的return()和throw()</h4><h4 id="迭代器循环"><a href="#迭代器循环" class="headerlink" title="迭代器循环"></a>迭代器循环</h4><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> arr = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>];</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> (<span class="keyword">var</span> v <span class="keyword">of</span> arr) &#123;</span><br><span class="line">  <span class="built_in">console</span>.log(v);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> it = arr[<span class="built_in">Symbol</span>.iterator]();</span><br><span class="line"><span class="keyword">for</span> (<span class="keyword">var</span> res; (res = it.next()) &amp;&amp; !res.done; ) &#123;</span><br><span class="line">  <span class="built_in">console</span>.log(res.value);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="自定义迭代器"><a href="#自定义迭代器" class="headerlink" title="自定义迭代器"></a>自定义迭代器</h4><p>只要遵循适当的接口，就可以构造自己的迭代器</p>
+<p>还有一种迭代器，是用来在一系列动作上运行，一次一个条目——这种特定的用法强调了迭代器可以作为一个模式来组织功能，而不仅仅是数据</p>
+<h4 id="迭代器消耗"><a href="#迭代器消耗" class="headerlink" title="迭代器消耗"></a>迭代器消耗</h4><p>除了通过for..of来消耗迭代器，还可以通过数组解构的方式来消耗</p>
+<h3 id="生成器"><a href="#生成器" class="headerlink" title="生成器"></a>生成器</h3><h4 id="语法-1"><a href="#语法-1" class="headerlink" title="语法"></a>语法</h4><h5 id="运行生成器"><a href="#运行生成器" class="headerlink" title="运行生成器"></a>运行生成器</h5><p>要继续运行生成器函数，需要执行xx.next()</p>
+<h5 id="yield"><a href="#yield" class="headerlink" title="yield"></a>yield</h5><p>生成器中还有一个可以在其中使用的新关键字</p>
+<h5 id="yield-1"><a href="#yield-1" class="headerlink" title="yield*"></a>yield*</h5><h4 id="迭代器控制"><a href="#迭代器控制" class="headerlink" title="迭代器控制"></a>迭代器控制</h4><blockquote>
+<p>生成器由迭代器控制</p>
+</blockquote>
+<h4 id="提前完成"><a href="#提前完成" class="headerlink" title="提前完成"></a>提前完成</h4><p>生成器上附着的迭代器支持可选的return()和throw()方法，这两个方法都有立即终止一个暂停的生成器的效果</p>
+<h4 id="错误处理"><a href="#错误处理" class="headerlink" title="错误处理"></a>错误处理</h4><p>？？？</p>
+<h4 id="Transpile-生成器"><a href="#Transpile-生成器" class="headerlink" title="Transpile 生成器"></a>Transpile 生成器</h4><ul>
+<li>创建一个函数，执行返回一个迭代器</li>
+<li>需要内部变量来记录“生成器”逻辑步骤内部的当前位置——state：初始态、等待yield完成、生成器完毕</li>
+</ul>
+<h4 id="生成器使用"><a href="#生成器使用" class="headerlink" title="生成器使用"></a>生成器使用</h4><ul>
+<li><p>产生一系列值</p>
+<p>比如随机字符串或者递增数</p>
+</li>
+<li><p>顺序执行的任务队列</p>
+<p>表示算法中步骤的流控制，其中每个步骤要求从外部源获得数据</p>
+</li>
+</ul>
+<h2 id="其它"><a href="#其它" class="headerlink" title="其它"></a>其它</h2><h3 id="Unicode-1"><a href="#Unicode-1" class="headerlink" title="Unicode"></a>Unicode</h3><h3 id="正则表达式-1"><a href="#正则表达式-1" class="headerlink" title="正则表达式"></a>正则表达式</h3><h3 id="生成器-1"><a href="#生成器-1" class="headerlink" title="生成器"></a>生成器</h3><p>未完待续。。。</p>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/JavaScript/" rel="tag"># JavaScript</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/posts/wordpress/" rel="next" title="搭建WordPress个人站点">
+                <i class="fa fa-chevron-left"></i> 搭建WordPress个人站点
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/posts/2017_summary/" rel="prev" title="2017年终总结">
+                2017年终总结 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+    <div class="comments" id="comments">
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/avatar.jpg"
+                alt="Ryoma" />
+            
+              <p class="site-author-name" itemprop="name">Ryoma</p>
+              <p class="site-description motion-element" itemprop="description">Ryoma's Blog</p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">53</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  <a href="/categories/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">17</span>
+                    <span class="site-state-item-name">分类</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  <a href="/tags/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">55</span>
+                    <span class="site-state-item-name">标签</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+            <div class="links-of-author motion-element">
+              
+                <span class="links-of-author-item">
+                  <a href="https://github.com/JianmingXia" target="_blank" title="GitHub"><i class="fa fa-fw fa-github"></i>GitHub</a>
+                  
+                </span>
+              
+                <span class="links-of-author-item">
+                  <a href="mailto:xiajianming_xjm@163.com" target="_blank" title="E-Mail"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                  
+                </span>
+              
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#ES？现在与未来"><span class="nav-number">1.</span> <span class="nav-text">ES？现在与未来</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#版本"><span class="nav-number">1.1.</span> <span class="nav-text">版本</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#transpiling"><span class="nav-number">1.2.</span> <span class="nav-text">transpiling</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#shim-polyfill"><span class="nav-number">1.2.1.</span> <span class="nav-text">shim/polyfill</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#语法"><span class="nav-number">2.</span> <span class="nav-text">语法</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#块作用域声明"><span class="nav-number">2.1.</span> <span class="nav-text">块作用域声明</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#let-声明"><span class="nav-number">2.1.1.</span> <span class="nav-text">let 声明</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#const-声明"><span class="nav-number">2.1.2.</span> <span class="nav-text">const 声明</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#是否使用const"><span class="nav-number">2.1.2.1.</span> <span class="nav-text">是否使用const</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#块作用域函数"><span class="nav-number">2.1.3.</span> <span class="nav-text">块作用域函数</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#spread-rest"><span class="nav-number">2.2.</span> <span class="nav-text">spread/rest</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#默认参数值"><span class="nav-number">2.3.</span> <span class="nav-text">默认参数值</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#默认值表达式"><span class="nav-number">2.3.1.</span> <span class="nav-text">默认值表达式</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#解构"><span class="nav-number">2.4.</span> <span class="nav-text">解构</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#对象属性赋值模式"><span class="nav-number">2.4.1.</span> <span class="nav-text">对象属性赋值模式</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#不只是声明"><span class="nav-number">2.4.2.</span> <span class="nav-text">不只是声明</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#重复赋值"><span class="nav-number">2.4.3.</span> <span class="nav-text">重复赋值</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#解构赋值表达式"><span class="nav-number">2.4.3.1.</span> <span class="nav-text">解构赋值表达式</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#太多，太少，刚刚好"><span class="nav-number">2.5.</span> <span class="nav-text">太多，太少，刚刚好</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#默认值赋值"><span class="nav-number">2.5.1.</span> <span class="nav-text">默认值赋值</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#嵌套解构"><span class="nav-number">2.5.2.</span> <span class="nav-text">嵌套解构</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#解构参数"><span class="nav-number">2.5.3.</span> <span class="nav-text">解构参数</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#解构默认值-参数默认值"><span class="nav-number">2.5.3.1.</span> <span class="nav-text">解构默认值 + 参数默认值</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#嵌套默认：解构并重组"><span class="nav-number">2.5.3.2.</span> <span class="nav-text">嵌套默认：解构并重组</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#对象字面量扩展"><span class="nav-number">2.6.</span> <span class="nav-text">对象字面量扩展</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#简洁属性"><span class="nav-number">2.6.1.</span> <span class="nav-text">简洁属性</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#简洁方法"><span class="nav-number">2.6.2.</span> <span class="nav-text">简洁方法</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#简洁未命名"><span class="nav-number">2.6.2.1.</span> <span class="nav-text">简洁未命名</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#ES5-Getter-Setter"><span class="nav-number">2.6.2.2.</span> <span class="nav-text">ES5 Getter/Setter</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#计算属性名"><span class="nav-number">2.6.3.</span> <span class="nav-text">计算属性名</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#设定-Prototype"><span class="nav-number">2.6.4.</span> <span class="nav-text">设定[[Prototype]]</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#super对象"><span class="nav-number">2.6.5.</span> <span class="nav-text">super对象</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#模板字面量"><span class="nav-number">2.7.</span> <span class="nav-text">模板字面量</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#插入表达式"><span class="nav-number">2.7.1.</span> <span class="nav-text">插入表达式</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#表达式"><span class="nav-number">2.7.1.1.</span> <span class="nav-text">表达式</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#标签模板字面量"><span class="nav-number">2.7.2.</span> <span class="nav-text">标签模板字面量</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#箭头函数"><span class="nav-number">2.8.</span> <span class="nav-text">箭头函数</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#不只是更短的语法，而是this"><span class="nav-number">2.8.1.</span> <span class="nav-text">不只是更短的语法，而是this</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#for-of-循环"><span class="nav-number">2.9.</span> <span class="nav-text">for..of 循环</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#正则表达式"><span class="nav-number">2.10.</span> <span class="nav-text">正则表达式</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#数字字面量扩展"><span class="nav-number">2.11.</span> <span class="nav-text">数字字面量扩展</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#反向转换"><span class="nav-number">2.11.1.</span> <span class="nav-text">反向转换</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Unicode"><span class="nav-number">2.12.</span> <span class="nav-text">Unicode</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#支持Unicode的字符串运算"><span class="nav-number">2.12.1.</span> <span class="nav-text">支持Unicode的字符串运算</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#符号"><span class="nav-number">2.13.</span> <span class="nav-text">符号</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#符号注册"><span class="nav-number">2.13.1.</span> <span class="nav-text">符号注册</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#作为对象属性的符号"><span class="nav-number">2.13.2.</span> <span class="nav-text">作为对象属性的符号</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#内置符号"><span class="nav-number">2.13.2.1.</span> <span class="nav-text">内置符号</span></a></li></ol></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#代码组织"><span class="nav-number">3.</span> <span class="nav-text">代码组织</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#迭代器"><span class="nav-number">3.1.</span> <span class="nav-text">迭代器</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#接口"><span class="nav-number">3.1.1.</span> <span class="nav-text">接口</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#next-迭代"><span class="nav-number">3.1.2.</span> <span class="nav-text">next()迭代</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#可选的return-和throw"><span class="nav-number">3.1.3.</span> <span class="nav-text">可选的return()和throw()</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#迭代器循环"><span class="nav-number">3.1.4.</span> <span class="nav-text">迭代器循环</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#自定义迭代器"><span class="nav-number">3.1.5.</span> <span class="nav-text">自定义迭代器</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#迭代器消耗"><span class="nav-number">3.1.6.</span> <span class="nav-text">迭代器消耗</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#生成器"><span class="nav-number">3.2.</span> <span class="nav-text">生成器</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#语法-1"><span class="nav-number">3.2.1.</span> <span class="nav-text">语法</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#运行生成器"><span class="nav-number">3.2.1.1.</span> <span class="nav-text">运行生成器</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#yield"><span class="nav-number">3.2.1.2.</span> <span class="nav-text">yield</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#yield-1"><span class="nav-number">3.2.1.3.</span> <span class="nav-text">yield*</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#迭代器控制"><span class="nav-number">3.2.2.</span> <span class="nav-text">迭代器控制</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#提前完成"><span class="nav-number">3.2.3.</span> <span class="nav-text">提前完成</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#错误处理"><span class="nav-number">3.2.4.</span> <span class="nav-text">错误处理</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Transpile-生成器"><span class="nav-number">3.2.5.</span> <span class="nav-text">Transpile 生成器</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#生成器使用"><span class="nav-number">3.2.6.</span> <span class="nav-text">生成器使用</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#其它"><span class="nav-number">4.</span> <span class="nav-text">其它</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Unicode-1"><span class="nav-number">4.1.</span> <span class="nav-text">Unicode</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#正则表达式-1"><span class="nav-number">4.2.</span> <span class="nav-text">正则表达式</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#生成器-1"><span class="nav-number">4.3.</span> <span class="nav-text">生成器</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2017 &mdash; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Ryoma</span>
+
+  
+
+  
+</div>
+
+
+
+
+  <div class="powered-by"><a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> v3.7.1</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://theme-next.org">NexT.Gemini</a> v6.3.0</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+	
+    
+
+    
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/three/three.min.js"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/three/canvas_sphere.min.js"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=6.3.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=6.3.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=6.3.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=6.3.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=6.3.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=6.3.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=6.3.0"></script>
+
+
+
+  
+
+  
+    <script id="dsq-count-scr" src="https://ryoma-blog.disqus.com/count.js" async></script>
+  
+
+  
+    <script type="text/javascript">
+      var disqus_config = function () {
+        this.page.url = 'https://blog.ryoma.top/posts/you_dont_know_js_es6&beyond/';
+        this.page.identifier = 'posts/you_dont_know_js_es6&beyond/';
+        this.page.title = '你不知道的JavaScript——ES6及更新版本';
+        };
+      function loadComments () {
+        var d = document, s = d.createElement('script');
+        s.src = 'https://ryoma-blog.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', '' + +new Date());
+        (d.head || d.body).appendChild(s);
+      }
+      
+        $(function () {
+          var offsetTop = $('#comments').offset().top - $(window).height();
+          if (offsetTop <= 0) {
+            // load directly when there's no a scrollbar
+            loadComments();
+          } else {
+            $(window).on('scroll.disqus_scroll', function () {
+              var scrollTop = document.documentElement.scrollTop;
+              if (scrollTop >= offsetTop) {
+                $(window).off('.disqus_scroll');
+                loadComments();
+              }
+            });
+          }
+        });
+      
+    </script>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
