@@ -9,7 +9,7 @@ categories: 微服务
 ---
 
 > 下文简写：Kong => K；express gateway => E
-## 前言
+## 说在前面
 在[如何选择 API Gateway](/posts/how_to_select_api_gateway)一文中，列举了选择API Gateway的一些标准。基于这个标准，对Kong和express-gateway做了一系列对比。
 
 ## 高优先级

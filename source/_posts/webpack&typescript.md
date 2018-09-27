@@ -9,7 +9,7 @@ categories:
   - [TypeScript]
 ---
 
-## 前言
+## 说在前面
 作为一个走在时尚前沿的人，身被十八般武艺是必须的。这次说的TypeScript及Webpack，关于TypeScript:
 >TypeScript 是微软开发的 JavaScript 的超集，TypeScript兼容JavaScript，可以载入JavaScript代码然后运行。TypeScript与JavaScript相比进步的地方。包括：加入注释，让编译器理解所支持的对象和函数，编译器会移除注释，不会增加开销；增加一个完整的类结构，使之更新是传统的面向对象语言。
 大家完全不用担心浏览器对TypeScript的兼容问题，因为我们在编译期生成JavaScript代码。

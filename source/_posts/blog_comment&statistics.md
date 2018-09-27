@@ -8,7 +8,7 @@ tags:
 categories: 博客相关
 ---
 
-## 前言
+## 说在前面
 想做就做，说那么多干嘛？
 
 ## 评论——[畅言](https://changyan.kuaizhan.com/)

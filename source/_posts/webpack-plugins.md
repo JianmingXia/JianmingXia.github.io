@@ -7,7 +7,7 @@ tags:
 categories: Webpack
 ---
 
-## 前言
+## 说在前面
 最近接触的很多项目都使用了webpack，也在更深入的了解，做些学习的笔记，这篇主讲webpack中的插件，会持续更新中~[Github](https://github.com/JianmingXia/StudyTest/tree/master/TypeScript/demo_2)
 <!-- more -->
 

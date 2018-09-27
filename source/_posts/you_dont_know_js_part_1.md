@@ -8,7 +8,7 @@ categories:
   - [JavaScript]
 ---
 
-## 前言
+## 说在前面
 JavaScript 既是一门充满吸引力、 简单易用的语言， 又是一门具有许多复杂微妙技术的语言， 即使是经验丰富的 JavaScript 开发者， 如果没有认真学习的话也无法真正理解它们。这就是 JavaScript 的矛盾之处，也是这门语言的阿喀琉斯之踵。
 
 ## XMind

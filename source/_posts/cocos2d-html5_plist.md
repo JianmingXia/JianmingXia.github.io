@@ -10,7 +10,7 @@ categories: 未分类
 
 > 目前h5引擎正在处于研究阶段，基于Cocos2d-html5封装一个TS版的引擎库。
 
-## 前言
+## 说在前面
 之前在封装UI及Scene这块的内容，UI部分涉及到加载素材，也了解到cocos可以直接使用TexturePacker合成后的plist文件及png。但是对于H5的项目来说，减少网络请求是很重要的一步，特别是在页面初始化加载的时候。这时候在官网看到如下内容：[cc.spriteFrameCache 改造说明](http://www.cocos.com/docs/html5/v3/cc-spriteframecache/zh.html)
 通俗来说，就是在知道SpriteFrame的数据结构之后，提前将plist文件的解析(这样可以做到将多个plist文件集合到一个文件中，减少加载次数）。官网有一个做法：
 <!-- more -->
