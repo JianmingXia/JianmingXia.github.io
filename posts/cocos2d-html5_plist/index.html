@@ -108,18 +108,18 @@
 
 
 
-  <meta name="description" content="目前h5引擎正在处于研究阶段，基于Cocos2d-html5封装一个TS版的引擎库。  前言之前在封装UI及Scene这块的内容，UI部分涉及到加载素材，也了解到cocos可以直接使用TexturePacker合成后的plist文件及png。但是对于H5的项目来说，减少网络请求是很重要的一步，特别是在页面初始化加载的时候。这时候在官网看到如下内容：cc.spriteFrameCache 改造说明">
+  <meta name="description" content="目前h5引擎正在处于研究阶段，基于Cocos2d-html5封装一个TS版的引擎库。  说在前面之前在封装UI及Scene这块的内容，UI部分涉及到加载素材，也了解到cocos可以直接使用TexturePacker合成后的plist文件及png。但是对于H5的项目来说，减少网络请求是很重要的一步，特别是在页面初始化加载的时候。这时候在官网看到如下内容：cc.spriteFrameCache 改造">
 <meta name="keywords" content="Ant Design,dva,Electron">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Cocos2d-html5 plist优化 &amp; plist文件加载解析">
 <meta property="og:url" content="https://blog.ryoma.top/posts/cocos2d-html5_plist/index.html">
 <meta property="og:site_name" content="Ryoma&#39;s Blog">
-<meta property="og:description" content="目前h5引擎正在处于研究阶段，基于Cocos2d-html5封装一个TS版的引擎库。  前言之前在封装UI及Scene这块的内容，UI部分涉及到加载素材，也了解到cocos可以直接使用TexturePacker合成后的plist文件及png。但是对于H5的项目来说，减少网络请求是很重要的一步，特别是在页面初始化加载的时候。这时候在官网看到如下内容：cc.spriteFrameCache 改造说明">
+<meta property="og:description" content="目前h5引擎正在处于研究阶段，基于Cocos2d-html5封装一个TS版的引擎库。  说在前面之前在封装UI及Scene这块的内容，UI部分涉及到加载素材，也了解到cocos可以直接使用TexturePacker合成后的plist文件及png。但是对于H5的项目来说，减少网络请求是很重要的一步，特别是在页面初始化加载的时候。这时候在官网看到如下内容：cc.spriteFrameCache 改造">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2018-09-26T10:56:33.100Z">
+<meta property="og:updated_time" content="2018-09-27T10:22:29.797Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Cocos2d-html5 plist优化 &amp; plist文件加载解析">
-<meta name="twitter:description" content="目前h5引擎正在处于研究阶段，基于Cocos2d-html5封装一个TS版的引擎库。  前言之前在封装UI及Scene这块的内容，UI部分涉及到加载素材，也了解到cocos可以直接使用TexturePacker合成后的plist文件及png。但是对于H5的项目来说，减少网络请求是很重要的一步，特别是在页面初始化加载的时候。这时候在官网看到如下内容：cc.spriteFrameCache 改造说明">
+<meta name="twitter:description" content="目前h5引擎正在处于研究阶段，基于Cocos2d-html5封装一个TS版的引擎库。  说在前面之前在封装UI及Scene这块的内容，UI部分涉及到加载素材，也了解到cocos可以直接使用TexturePacker合成后的plist文件及png。但是对于H5的项目来说，减少网络请求是很重要的一步，特别是在页面初始化加载的时候。这时候在官网看到如下内容：cc.spriteFrameCache 改造">
 
 
 
@@ -418,7 +418,7 @@
         <blockquote>
 <p>目前h5引擎正在处于研究阶段，基于Cocos2d-html5封装一个TS版的引擎库。</p>
 </blockquote>
-<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>之前在封装UI及Scene这块的内容，UI部分涉及到加载素材，也了解到cocos可以直接使用TexturePacker合成后的plist文件及png。但是对于H5的项目来说，减少网络请求是很重要的一步，特别是在页面初始化加载的时候。这时候在官网看到如下内容：<a href="http://www.cocos.com/docs/html5/v3/cc-spriteframecache/zh.html" target="_blank" rel="noopener">cc.spriteFrameCache 改造说明</a><br>通俗来说，就是在知道SpriteFrame的数据结构之后，提前将plist文件的解析(这样可以做到将多个plist文件集合到一个文件中，减少加载次数）。官网有一个做法：<br><a id="more"></a></p>
+<h2 id="说在前面"><a href="#说在前面" class="headerlink" title="说在前面"></a>说在前面</h2><p>之前在封装UI及Scene这块的内容，UI部分涉及到加载素材，也了解到cocos可以直接使用TexturePacker合成后的plist文件及png。但是对于H5的项目来说，减少网络请求是很重要的一步，特别是在页面初始化加载的时候。这时候在官网看到如下内容：<a href="http://www.cocos.com/docs/html5/v3/cc-spriteframecache/zh.html" target="_blank" rel="noopener">cc.spriteFrameCache 改造说明</a><br>通俗来说，就是在知道SpriteFrame的数据结构之后，提前将plist文件的解析(这样可以做到将多个plist文件集合到一个文件中，减少加载次数）。官网有一个做法：<br><a id="more"></a></p>
 <ul>
 <li>提取n个plist文件至一个xx.pkgJson文件中，文件加载完毕后，使用自定义的_pkgJsonLoader对文件内容再次处理</li>
 </ul>
@@ -586,7 +586,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">54</span>
+                    <span class="site-state-item-count">55</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
@@ -633,7 +633,9 @@
                     
                       
                     
-                    <span class="site-state-item-count">17</span>
+                      
+                    
+                    <span class="site-state-item-count">18</span>
                     <span class="site-state-item-name">分类</span>
                   </a>
                 </div>
@@ -810,7 +812,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#cocos-pkgjson"><span class="nav-number">2.</span> <span class="nav-text">cocos-pkgjson</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#问题解析"><span class="nav-number">3.</span> <span class="nav-text">问题解析</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#可能不了解的人会有疑问，为什么plist经过此处理就可以直接使用了，有什么优点呢？"><span class="nav-number">3.1.</span> <span class="nav-text">可能不了解的人会有疑问，为什么plist经过此处理就可以直接使用了，有什么优点呢？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#cocos加载png-plist时发生了什么"><span class="nav-number">3.2.</span> <span class="nav-text">cocos加载png plist时发生了什么</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#png-其它图片资源也是同样的情况"><span class="nav-number">3.2.1.</span> <span class="nav-text">png(其它图片资源也是同样的情况)</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#plist"><span class="nav-number">3.2.2.</span> <span class="nav-text">plist</span></a></li></ol></li></ol></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#说在前面"><span class="nav-number">1.</span> <span class="nav-text">说在前面</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#cocos-pkgjson"><span class="nav-number">2.</span> <span class="nav-text">cocos-pkgjson</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#问题解析"><span class="nav-number">3.</span> <span class="nav-text">问题解析</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#可能不了解的人会有疑问，为什么plist经过此处理就可以直接使用了，有什么优点呢？"><span class="nav-number">3.1.</span> <span class="nav-text">可能不了解的人会有疑问，为什么plist经过此处理就可以直接使用了，有什么优点呢？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#cocos加载png-plist时发生了什么"><span class="nav-number">3.2.</span> <span class="nav-text">cocos加载png plist时发生了什么</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#png-其它图片资源也是同样的情况"><span class="nav-number">3.2.1.</span> <span class="nav-text">png(其它图片资源也是同样的情况)</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#plist"><span class="nav-number">3.2.2.</span> <span class="nav-text">plist</span></a></li></ol></li></ol></li></ol></div>
             
 
           </div>

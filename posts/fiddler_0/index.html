@@ -108,19 +108,19 @@
 
 
 
-  <meta name="description" content="小程序抓包前言之前更新了一版小程序的后台，用户转发的链接被其他人点击后，一直提示未知错误，这种情况完全不在预料中，并且之后再也没有办法复现。而且，小程序转发的内容没有办法知道链接是什么（如果有人知道请一定要告诉我）。所以现在最重要的就是知道，未知错误到底是如何出现的。 解决办法原先计划是后台加一个log，分析下调用后台接口时发生了什么。受冲顶大会接口暴露的影响，昨天在家突然想到抓包这个方法，于是今">
+  <meta name="description" content="小程序抓包说在前面之前更新了一版小程序的后台，用户转发的链接被其他人点击后，一直提示未知错误，这种情况完全不在预料中，并且之后再也没有办法复现。而且，小程序转发的内容没有办法知道链接是什么（如果有人知道请一定要告诉我）。所以现在最重要的就是知道，未知错误到底是如何出现的。 解决办法原先计划是后台加一个log，分析下调用后台接口时发生了什么。受冲顶大会接口暴露的影响，昨天在家突然想到抓包这个方法，于">
 <meta name="keywords" content="fiddler">
 <meta property="og:type" content="article">
 <meta property="og:title" content="fiddler抓包之旅">
 <meta property="og:url" content="https://blog.ryoma.top/posts/fiddler_0/index.html">
 <meta property="og:site_name" content="Ryoma&#39;s Blog">
-<meta property="og:description" content="小程序抓包前言之前更新了一版小程序的后台，用户转发的链接被其他人点击后，一直提示未知错误，这种情况完全不在预料中，并且之后再也没有办法复现。而且，小程序转发的内容没有办法知道链接是什么（如果有人知道请一定要告诉我）。所以现在最重要的就是知道，未知错误到底是如何出现的。 解决办法原先计划是后台加一个log，分析下调用后台接口时发生了什么。受冲顶大会接口暴露的影响，昨天在家突然想到抓包这个方法，于是今">
+<meta property="og:description" content="小程序抓包说在前面之前更新了一版小程序的后台，用户转发的链接被其他人点击后，一直提示未知错误，这种情况完全不在预料中，并且之后再也没有办法复现。而且，小程序转发的内容没有办法知道链接是什么（如果有人知道请一定要告诉我）。所以现在最重要的就是知道，未知错误到底是如何出现的。 解决办法原先计划是后台加一个log，分析下调用后台接口时发生了什么。受冲顶大会接口暴露的影响，昨天在家突然想到抓包这个方法，于">
 <meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="https://img.ryoma.top/Fiddler/certmarker.png">
-<meta property="og:updated_time" content="2018-09-26T10:56:33.100Z">
+<meta property="og:updated_time" content="2018-09-27T10:22:29.797Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="fiddler抓包之旅">
-<meta name="twitter:description" content="小程序抓包前言之前更新了一版小程序的后台，用户转发的链接被其他人点击后，一直提示未知错误，这种情况完全不在预料中，并且之后再也没有办法复现。而且，小程序转发的内容没有办法知道链接是什么（如果有人知道请一定要告诉我）。所以现在最重要的就是知道，未知错误到底是如何出现的。 解决办法原先计划是后台加一个log，分析下调用后台接口时发生了什么。受冲顶大会接口暴露的影响，昨天在家突然想到抓包这个方法，于是今">
+<meta name="twitter:description" content="小程序抓包说在前面之前更新了一版小程序的后台，用户转发的链接被其他人点击后，一直提示未知错误，这种情况完全不在预料中，并且之后再也没有办法复现。而且，小程序转发的内容没有办法知道链接是什么（如果有人知道请一定要告诉我）。所以现在最重要的就是知道，未知错误到底是如何出现的。 解决办法原先计划是后台加一个log，分析下调用后台接口时发生了什么。受冲顶大会接口暴露的影响，昨天在家突然想到抓包这个方法，于">
 <meta name="twitter:image" content="https://img.ryoma.top/Fiddler/certmarker.png">
 
 
@@ -417,7 +417,7 @@
       
 
       
-        <h2 id="小程序抓包"><a href="#小程序抓包" class="headerlink" title="小程序抓包"></a>小程序抓包</h2><h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>之前更新了一版小程序的后台，用户转发的链接被其他人点击后，一直提示<code>未知错误</code>，这种情况完全不在预料中，并且之后再也没有办法复现。而且，小程序转发的内容没有办法知道链接是什么（如果有人知道请一定要告诉我）。所以现在最重要的就是知道，<code>未知错误</code>到底是如何出现的。</p>
+        <h2 id="小程序抓包"><a href="#小程序抓包" class="headerlink" title="小程序抓包"></a>小程序抓包</h2><h3 id="说在前面"><a href="#说在前面" class="headerlink" title="说在前面"></a>说在前面</h3><p>之前更新了一版小程序的后台，用户转发的链接被其他人点击后，一直提示<code>未知错误</code>，这种情况完全不在预料中，并且之后再也没有办法复现。而且，小程序转发的内容没有办法知道链接是什么（如果有人知道请一定要告诉我）。所以现在最重要的就是知道，<code>未知错误</code>到底是如何出现的。</p>
 <h3 id="解决办法"><a href="#解决办法" class="headerlink" title="解决办法"></a>解决办法</h3><p>原先计划是后台加一个log，分析下调用后台接口时发生了什么。受<code>冲顶大会</code>接口暴露的影响，昨天在家突然想到抓包这个方法，于是今天到公司说做就做。<br>这部分教程很多，在此不再重复，<a href="http://blog.csdn.net/wangjun5159/article/details/52202059" target="_blank" rel="noopener">贴一个链接</a>。<br>前提条件：手机与pc在同一个局域网</p>
 <a id="more"></a>
 <h4 id="fiddler-设置"><a href="#fiddler-设置" class="headerlink" title="fiddler 设置"></a>fiddler 设置</h4><ul>
@@ -562,7 +562,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">54</span>
+                    <span class="site-state-item-count">55</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
@@ -609,7 +609,9 @@
                     
                       
                     
-                    <span class="site-state-item-count">17</span>
+                      
+                    
+                    <span class="site-state-item-count">18</span>
                     <span class="site-state-item-name">分类</span>
                   </a>
                 </div>
@@ -786,7 +788,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#小程序抓包"><span class="nav-number">1.</span> <span class="nav-text">小程序抓包</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#前言"><span class="nav-number">1.1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#解决办法"><span class="nav-number">1.2.</span> <span class="nav-text">解决办法</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#fiddler-设置"><span class="nav-number">1.2.1.</span> <span class="nav-text">fiddler 设置</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#手机设置"><span class="nav-number">1.2.2.</span> <span class="nav-text">手机设置</span></a></li></ol></li></ol></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#小程序抓包"><span class="nav-number">1.</span> <span class="nav-text">小程序抓包</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#说在前面"><span class="nav-number">1.1.</span> <span class="nav-text">说在前面</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#解决办法"><span class="nav-number">1.2.</span> <span class="nav-text">解决办法</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#fiddler-设置"><span class="nav-number">1.2.1.</span> <span class="nav-text">fiddler 设置</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#手机设置"><span class="nav-number">1.2.2.</span> <span class="nav-text">手机设置</span></a></li></ol></li></ol></li></ol></div>
             
 
           </div>

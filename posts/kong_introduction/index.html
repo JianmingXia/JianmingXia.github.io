@@ -1,0 +1,1070 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=6.3.0" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=6.3.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=6.3.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=6.3.0">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=6.3.0" color="#222">
+
+
+
+
+
+
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '6.3.0',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="说在前面之前做了Kong与Express-Gateway的比较，毫无疑问，Kong更胜一筹；同时在另一方面，Tyk也战胜了Ambassador。Kong与Tyk进行最终角逐，在这两者之间，也没有进行过多比较，只是考虑了当前的场景：我们需要一个API Gateway，需要支持JWT、支持日志处理、方便监控，而这些Kong的插件完全支持，而且从社区活跃上看，Kong的&amp;gt;18K的stars也给了我">
+<meta name="keywords" content="API Gateway,Kong">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Kong 入门">
+<meta property="og:url" content="https://blog.ryoma.top/posts/kong_introduction/index.html">
+<meta property="og:site_name" content="Ryoma&#39;s Blog">
+<meta property="og:description" content="说在前面之前做了Kong与Express-Gateway的比较，毫无疑问，Kong更胜一筹；同时在另一方面，Tyk也战胜了Ambassador。Kong与Tyk进行最终角逐，在这两者之间，也没有进行过多比较，只是考虑了当前的场景：我们需要一个API Gateway，需要支持JWT、支持日志处理、方便监控，而这些Kong的插件完全支持，而且从社区活跃上看，Kong的&amp;gt;18K的stars也给了我">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2018/png/92822/1538039841324-8ae99265-8150-4e58-bc1f-2565e703b3d6.png">
+<meta property="og:updated_time" content="2018-09-27T10:22:29.801Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Kong 入门">
+<meta name="twitter:description" content="说在前面之前做了Kong与Express-Gateway的比较，毫无疑问，Kong更胜一筹；同时在另一方面，Tyk也战胜了Ambassador。Kong与Tyk进行最终角逐，在这两者之间，也没有进行过多比较，只是考虑了当前的场景：我们需要一个API Gateway，需要支持JWT、支持日志处理、方便监控，而这些Kong的插件完全支持，而且从社区活跃上看，Kong的&amp;gt;18K的stars也给了我">
+<meta name="twitter:image" content="https://cdn.nlark.com/yuque/0/2018/png/92822/1538039841324-8ae99265-8150-4e58-bc1f-2565e703b3d6.png">
+
+
+
+
+
+
+  <link rel="canonical" href="https://blog.ryoma.top/posts/kong_introduction/"/>
+
+
+
+<script type="text/javascript" id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>Kong 入门 | Ryoma's Blog</title>
+  
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style type="text/css">
+    .use-motion .motion-element,
+    .use-motion .brand,
+    .use-motion .menu-item,
+    .sidebar-inner,
+    .use-motion .post-block,
+    .use-motion .pagination,
+    .use-motion .comments,
+    .use-motion .post-header,
+    .use-motion .post-body,
+    .use-motion .collection-title { opacity: initial; }
+
+    .use-motion .logo,
+    .use-motion .site-title,
+    .use-motion .site-subtitle {
+      opacity: initial;
+      top: initial;
+    }
+
+    .use-motion {
+      .logo-line-before i { left: initial; }
+      .logo-line-after i { right: initial; }
+    }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Ryoma's Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+      
+        <p class="site-subtitle">纸上得来终觉浅</p>
+      
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+    <a href="/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-home"></i> <br />首页</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+    <a href="/tags/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />标签</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+    <a href="/categories/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-th"></i> <br />分类</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+    <a href="/archives/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />归档</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+    <a href="/about/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-user"></i> <br />关于我</a>
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.ryoma.top/posts/kong_introduction/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Ryoma">
+      <meta itemprop="description" content="Ryoma's Blog">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Ryoma's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Kong 入门
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2018-09-27 19:00:00" itemprop="dateCreated datePublished" datetime="2018-09-27T19:00:00+08:00">2018-09-27</time>
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/微服务/" itemprop="url" rel="index"><span itemprop="name">微服务</span></a></span>
+
+                
+                
+                  ，
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/Kong/" itemprop="url" rel="index"><span itemprop="name">Kong</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/posts/kong_introduction/#comments" itemprop="discussionUrl">
+                
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="posts/kong_introduction/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="说在前面"><a href="#说在前面" class="headerlink" title="说在前面"></a>说在前面</h2><p>之前做了Kong与Express-Gateway的比较，毫无疑问，Kong更胜一筹；同时在另一方面，Tyk也战胜了Ambassador。Kong与Tyk进行最终角逐，在这两者之间，也没有进行过多比较，只是考虑了当前的场景：我们需要一个API Gateway，需要支持JWT、支持日志处理、方便监控，而这些Kong的插件完全支持，而且从社区活跃上看，Kong的&gt;18K的stars也给了我更大的信心，这也是选择Kong的最终原因，并不是Tyk不够好。</p>
+<h2 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h2><p>最初尝试使用CentOS安装，使用yum直接安装但是一直提示无法下载；后选择下载安装包，然后本地安装，启动时又提示需要安装数据库。考虑到安装这部分还是轻量级的比较好，所以选用了以Docker方式去安装，按照<a href="https://docs.konghq.com/install/docker/?_ga=2.106120899.1705340860.1537930352-980333107.1537168769" target="_blank" rel="noopener">官方文档</a>即可</p>
+<a id="more"></a>
+<h2 id="名词解释"><a href="#名词解释" class="headerlink" title="名词解释"></a>名词解释</h2><h3 id="端口"><a href="#端口" class="headerlink" title="端口"></a>端口</h3><ul>
+<li>8000：监听HTTP入口流量，并将其转发至上游服务</li>
+<li>8001：用于配置Kong监听服务的端口</li>
+<li>8443：与8000类似，监听HTTPS</li>
+<li>8444：与8001类似，也是用于管理API监听的</li>
+</ul>
+<h2 id="配置服务"><a href="#配置服务" class="headerlink" title="配置服务"></a>配置服务</h2><h3 id="使用Admin-API添加服务"><a href="#使用Admin-API添加服务" class="headerlink" title="使用Admin API添加服务"></a>使用Admin API添加服务</h3><figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">curl -i -X POST \</span><br><span class="line">  --url http://localhost:<span class="number">8001</span>/services/ \</span><br><span class="line">  --data <span class="string">'name=example-service'</span> \</span><br><span class="line">  --data <span class="string">'url=http://mockbin.org'</span></span><br></pre></td></tr></table></figure>
+<h4 id="返回结果"><a href="#返回结果" class="headerlink" title="返回结果"></a>返回结果</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">HTTP/1.1 201 Created</span><br><span class="line">Date: Thu, 27 Sep 2018 07:49:54 GMT</span><br><span class="line">Content-Type: application/json; charset=utf-8</span><br><span class="line">Connection: keep-alive</span><br><span class="line">Access-Control-Allow-Origin: *</span><br><span class="line">Server: kong/0.14.1</span><br><span class="line">Content-Length: 259</span><br><span class="line"></span><br><span class="line">&#123;&quot;host&quot;:&quot;mockbin.org&quot;,&quot;created_at&quot;:1538034594,&quot;connect_timeout&quot;:60000,&quot;id&quot;:&quot;4bdb97b4-4735-403d-afd6-811770b8717b&quot;,&quot;protocol&quot;:&quot;http&quot;,&quot;name&quot;:&quot;example-service&quot;,&quot;read_timeout&quot;:60000,&quot;port&quot;:80,&quot;path&quot;:null,&quot;updated_at&quot;:1538034594,&quot;retries&quot;:5,&quot;write_timeout&quot;:60000&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="继续访问"><a href="#继续访问" class="headerlink" title="继续访问"></a>继续访问</h4><figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl -i http://localhost:<span class="number">8001</span>/services/</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">HTTP/1.1 200 OK</span><br><span class="line">Date: Thu, 27 Sep 2018 08:22:30 GMT</span><br><span class="line">Content-Type: application/json; charset=utf-8</span><br><span class="line">Connection: keep-alive</span><br><span class="line">Access-Control-Allow-Origin: *</span><br><span class="line">Server: kong/0.14.1</span><br><span class="line">Content-Length: 282</span><br><span class="line"></span><br><span class="line">&#123;&quot;next&quot;:null,&quot;data&quot;:[&#123;&quot;host&quot;:&quot;mockbin.org&quot;,&quot;created_at&quot;:1538034594,&quot;connect_timeout&quot;:60000,&quot;id&quot;:&quot;4bdb97b4-4735-403d-afd6-811770b8717b&quot;,&quot;protocol&quot;:&quot;http&quot;,&quot;name&quot;:&quot;example-service&quot;,&quot;read_timeout&quot;:60000,&quot;port&quot;:80,&quot;path&quot;:null,&quot;updated_at&quot;:1538034594,&quot;retries&quot;:5,&quot;write_timeout&quot;:60000&#125;]&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="给服务添加一个路由"><a href="#给服务添加一个路由" class="headerlink" title="给服务添加一个路由"></a>给服务添加一个路由</h3><figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">curl -i -X POST \</span><br><span class="line">  --url http://localhost:<span class="number">8001</span>/services/example-service/routes \</span><br><span class="line">  --data <span class="string">'hosts[]=example.com'</span></span><br></pre></td></tr></table></figure>
+<h4 id="返回结果-1"><a href="#返回结果-1" class="headerlink" title="返回结果"></a>返回结果</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">HTTP/1.1 201 Created</span><br><span class="line">Date: Thu, 27 Sep 2018 08:30:36 GMT</span><br><span class="line">Content-Type: application/json; charset=utf-8</span><br><span class="line">Connection: keep-alive</span><br><span class="line">Access-Control-Allow-Origin: *</span><br><span class="line">Server: kong/0.14.1</span><br><span class="line">Content-Length: 290</span><br><span class="line"></span><br><span class="line">&#123;&quot;created_at&quot;:1538037036,&quot;strip_path&quot;:true,&quot;hosts&quot;:[&quot;example.com&quot;],&quot;preserve_host&quot;:false,&quot;regex_priority&quot;:0,&quot;updated_at&quot;:1538037036,&quot;paths&quot;:null,&quot;service&quot;:&#123;&quot;id&quot;:&quot;4bdb97b4-4735-403d-afd6-811770b8717b&quot;&#125;,&quot;methods&quot;:null,&quot;protocols&quot;:[&quot;http&quot;,&quot;https&quot;],&quot;id&quot;:&quot;a4935728-b01e-436b-bf27-0ce6c73a3730&quot;&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="继续访问-1"><a href="#继续访问-1" class="headerlink" title="继续访问"></a>继续访问</h4><figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl -i http://localhost:<span class="number">8001</span>/services/example-service/routes</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">HTTP/1.1 200 OK</span><br><span class="line">Date: Thu, 27 Sep 2018 08:30:50 GMT</span><br><span class="line">Content-Type: application/json; charset=utf-8</span><br><span class="line">Connection: keep-alive</span><br><span class="line">Access-Control-Allow-Origin: *</span><br><span class="line">Server: kong/0.14.1</span><br><span class="line">Content-Length: 285</span><br><span class="line"></span><br><span class="line">&#123;&quot;next&quot;:null,&quot;data&quot;:[&#123;&quot;created_at&quot;:1538037036,&quot;strip_path&quot;:true,&quot;hosts&quot;:[&quot;example.com&quot;],&quot;preserve_host&quot;:false,&quot;regex_priority&quot;:0,&quot;updated_at&quot;:1538037036,&quot;service&quot;:&#123;&quot;id&quot;:&quot;4bdb97b4-4735-403d-afd6-811770b8717b&quot;&#125;,&quot;protocols&quot;:[&quot;http&quot;,&quot;https&quot;],&quot;id&quot;:&quot;a4935728-b01e-436b-bf27-0ce6c73a3730&quot;&#125;]&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="通过Kong来转发请求"><a href="#通过Kong来转发请求" class="headerlink" title="通过Kong来转发请求"></a>通过Kong来转发请求</h3><figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">curl -i -X GET \</span><br><span class="line">  --url http://localhost:<span class="number">8000</span>/ \</span><br><span class="line">  --header <span class="string">'Host: example.com'</span></span><br></pre></td></tr></table></figure>
+<p>向<a href="http://localhost:8000/" target="_blank" rel="noopener">http://localhost:8000/</a>发起Get请求，并附加Header<br>返回最初配置的<a href="http://mockbin.org" target="_blank" rel="noopener">http://mockbin.org</a>内容=&gt;<a href="#bo2ihd">链接</a></p>
+<blockquote>
+<p>我在使用Postman去访问搭建Kong的服务器时，遇到了一个问题，简单来说就是访问失败，又从另外一台腾讯云机器访问</p>
+<p><img src="https://cdn.nlark.com/yuque/0/2018/png/92822/1538039841324-8ae99265-8150-4e58-bc1f-2565e703b3d6.png" alt="image.png | left | 719x50"></p>
+<p>简单来说，就是<strong>example.com</strong>未备案，在本地上访问还是OK的</p>
+</blockquote>
+<h2 id="启用插件"><a href="#启用插件" class="headerlink" title="启用插件"></a>启用插件</h2><blockquote>
+<p>Kong的核心原则之一——通过插件实现可扩展性</p>
+</blockquote>
+<h3 id="配置key-auth插件"><a href="#配置key-auth插件" class="headerlink" title="配置key-auth插件"></a>配置key-auth插件</h3><figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">curl -i -X POST \</span><br><span class="line">  --url http://localhost:<span class="number">8001</span>/services/example-service/plugins/ \</span><br><span class="line">  --data <span class="string">'name=key-auth'</span></span><br></pre></td></tr></table></figure>
+<h4 id="返回结果-2"><a href="#返回结果-2" class="headerlink" title="返回结果"></a>返回结果</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">HTTP/1.1 201 Created</span><br><span class="line">Date: Thu, 27 Sep 2018 09:20:04 GMT</span><br><span class="line">Content-Type: application/json; charset=utf-8</span><br><span class="line">Connection: keep-alive</span><br><span class="line">Access-Control-Allow-Origin: *</span><br><span class="line">Server: kong/0.14.1</span><br><span class="line">Content-Length: 276</span><br><span class="line"></span><br><span class="line">&#123;&quot;created_at&quot;:1538040005000,&quot;config&quot;:&#123;&quot;key_in_body&quot;:false,&quot;run_on_preflight&quot;:true,&quot;anonymous&quot;:&quot;&quot;,&quot;hide_credentials&quot;:false,&quot;key_names&quot;:[&quot;apikey&quot;]&#125;,&quot;id&quot;:&quot;153b0d83-9c5d-454f-9f3e-e392be5b830b&quot;,&quot;enabled&quot;:true,&quot;service_id&quot;:&quot;4bdb97b4-4735-403d-afd6-811770b8717b&quot;,&quot;name&quot;:&quot;key-auth&quot;&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="验证插件是否配置成功"><a href="#验证插件是否配置成功" class="headerlink" title="验证插件是否配置成功"></a>验证插件是否配置成功</h3><figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">curl -i -X GET \</span><br><span class="line">  --url http://localhost:<span class="number">8000</span>/ \</span><br><span class="line">  --header <span class="string">'Host: example.com'</span></span><br></pre></td></tr></table></figure>
+<h4 id="返回结果-3"><a href="#返回结果-3" class="headerlink" title="返回结果"></a>返回结果</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">HTTP/1.1 401 Unauthorized</span><br><span class="line">Date: Thu, 27 Sep 2018 09:23:50 GMT</span><br><span class="line">Content-Type: application/json; charset=utf-8</span><br><span class="line">Connection: keep-alive</span><br><span class="line">WWW-Authenticate: Key realm=&quot;kong&quot;</span><br><span class="line">Server: kong/0.14.1</span><br><span class="line">Content-Length: 41</span><br><span class="line"></span><br><span class="line">&#123;&quot;message&quot;:&quot;No API key found in request&quot;&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="增加消费者"><a href="#增加消费者" class="headerlink" title="增加消费者"></a>增加消费者</h2><h3 id="创建消费者"><a href="#创建消费者" class="headerlink" title="创建消费者"></a>创建消费者</h3><figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">curl -i -X POST \</span><br><span class="line">  --url http://localhost:<span class="number">8001</span>/consumers/ \</span><br><span class="line">  --data <span class="string">"username=Jason"</span></span><br></pre></td></tr></table></figure>
+<h4 id="返回结果-4"><a href="#返回结果-4" class="headerlink" title="返回结果"></a>返回结果</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">HTTP/1.1 201 Created</span><br><span class="line">Date: Thu, 27 Sep 2018 09:28:49 GMT</span><br><span class="line">Content-Type: application/json; charset=utf-8</span><br><span class="line">Connection: keep-alive</span><br><span class="line">Access-Control-Allow-Origin: *</span><br><span class="line">Server: kong/0.14.1</span><br><span class="line">Content-Length: 106</span><br><span class="line"></span><br><span class="line">&#123;&quot;custom_id&quot;:null,&quot;created_at&quot;:1538040529,&quot;username&quot;:&quot;Jason&quot;,&quot;id&quot;:&quot;0ad63029-c2fd-4a25-ba97-433aec6edafe&quot;&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="再试一次"><a href="#再试一次" class="headerlink" title="再试一次"></a>再试一次</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">HTTP/1.1 409 Conflict</span><br><span class="line">Date: Thu, 27 Sep 2018 09:30:15 GMT</span><br><span class="line">Content-Type: application/json; charset=utf-8</span><br><span class="line">Connection: keep-alive</span><br><span class="line">Access-Control-Allow-Origin: *</span><br><span class="line">Server: kong/0.14.1</span><br><span class="line">Content-Length: 164</span><br><span class="line"></span><br><span class="line">&#123;&quot;strategy&quot;:&quot;postgres&quot;,&quot;message&quot;:&quot;UNIQUE violation detected on &apos;&#123;username=\&quot;Jason\&quot;&#125;&apos;&quot;,&quot;name&quot;:&quot;unique constraint violation&quot;,&quot;fields&quot;:&#123;&quot;username&quot;:&quot;Jason&quot;&#125;,&quot;code&quot;:5&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="为消费者提供凭证"><a href="#为消费者提供凭证" class="headerlink" title="为消费者提供凭证"></a>为消费者提供凭证</h3><figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">curl -i -X POST \</span><br><span class="line">  --url http://localhost:<span class="number">8001</span>/consumers/Jason/key-auth/ \</span><br><span class="line">  --data <span class="string">'key=ENTER_KEY_HERE'</span></span><br></pre></td></tr></table></figure>
+<h4 id="返回结果-5"><a href="#返回结果-5" class="headerlink" title="返回结果"></a>返回结果</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">HTTP/1.1 201 Created</span><br><span class="line">Date: Thu, 27 Sep 2018 09:34:04 GMT</span><br><span class="line">Content-Type: application/json; charset=utf-8</span><br><span class="line">Connection: keep-alive</span><br><span class="line">Access-Control-Allow-Origin: *</span><br><span class="line">Server: kong/0.14.1</span><br><span class="line">Content-Length: 149</span><br><span class="line"></span><br><span class="line">&#123;&quot;id&quot;:&quot;e0376b92-613f-452c-bf80-b6e8671d16d6&quot;,&quot;created_at&quot;:1538040845000,&quot;key&quot;:&quot;ENTER_KEY_HERE&quot;,&quot;consumer_id&quot;:&quot;0ad63029-c2fd-4a25-ba97-433aec6edafe&quot;&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="再试一次-1"><a href="#再试一次-1" class="headerlink" title="再试一次"></a>再试一次</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">HTTP/1.1 409 Conflict</span><br><span class="line">Date: Thu, 27 Sep 2018 09:34:15 GMT</span><br><span class="line">Content-Type: application/json; charset=utf-8</span><br><span class="line">Connection: keep-alive</span><br><span class="line">Access-Control-Allow-Origin: *</span><br><span class="line">Server: kong/0.14.1</span><br><span class="line">Content-Length: 53</span><br><span class="line"></span><br><span class="line">&#123;&quot;key&quot;:&quot;already exists with value &apos;ENTER_KEY_HERE&apos;&quot;&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="验证凭证是否有效"><a href="#验证凭证是否有效" class="headerlink" title="验证凭证是否有效"></a>验证凭证是否有效</h3><p>在原有请求基础上，附加一个apikey header：<br><figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">curl -i -X GET \</span><br><span class="line">  --url http://localhost:<span class="number">8000</span> \</span><br><span class="line">  --header <span class="string">"Host: example.com"</span> \</span><br><span class="line">  --header <span class="string">"apikey: ENTER_KEY_HERE"</span></span><br></pre></td></tr></table></figure></p>
+<h2 id="资料"><a href="#资料" class="headerlink" title="资料"></a>资料</h2><ul>
+<li><a href="https://konghq.com/install/" target="_blank" rel="noopener">https://konghq.com/install/</a></li>
+<li><a href="https://docs.konghq.com/0.14.x/getting-started/configuring-a-service/" target="_blank" rel="noopener">https://docs.konghq.com/0.14.x/getting-started/configuring-a-service/</a></li>
+<li><a href="https://docs.konghq.com/0.14.x/getting-started/enabling-plugins/" target="_blank" rel="noopener">https://docs.konghq.com/0.14.x/getting-started/enabling-plugins/</a></li>
+<li><a href="https://docs.konghq.com/0.14.x/getting-started/adding-consumers/" target="_blank" rel="noopener">https://docs.konghq.com/0.14.x/getting-started/adding-consumers/</a></li>
+</ul>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/API-Gateway/" rel="tag"># API Gateway</a>
+          
+            <a href="/tags/Kong/" rel="tag"># Kong</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/posts/kong_vs_express-gateway/" rel="next" title="Kong VS express gateway">
+                <i class="fa fa-chevron-left"></i> Kong VS express gateway
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+    <div class="comments" id="comments">
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/avatar.jpg"
+                alt="Ryoma" />
+            
+              <p class="site-author-name" itemprop="name">Ryoma</p>
+              <p class="site-description motion-element" itemprop="description">Ryoma's Blog</p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">55</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  <a href="/categories/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">18</span>
+                    <span class="site-state-item-name">分类</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  <a href="/tags/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">57</span>
+                    <span class="site-state-item-name">标签</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+            <div class="links-of-author motion-element">
+              
+                <span class="links-of-author-item">
+                  <a href="https://github.com/JianmingXia" target="_blank" title="GitHub"><i class="fa fa-fw fa-github"></i>GitHub</a>
+                  
+                </span>
+              
+                <span class="links-of-author-item">
+                  <a href="mailto:xiajianming_xjm@163.com" target="_blank" title="E-Mail"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                  
+                </span>
+              
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#说在前面"><span class="nav-number">1.</span> <span class="nav-text">说在前面</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#安装"><span class="nav-number">2.</span> <span class="nav-text">安装</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#名词解释"><span class="nav-number">3.</span> <span class="nav-text">名词解释</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#端口"><span class="nav-number">3.1.</span> <span class="nav-text">端口</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#配置服务"><span class="nav-number">4.</span> <span class="nav-text">配置服务</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#使用Admin-API添加服务"><span class="nav-number">4.1.</span> <span class="nav-text">使用Admin API添加服务</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#返回结果"><span class="nav-number">4.1.1.</span> <span class="nav-text">返回结果</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#继续访问"><span class="nav-number">4.1.2.</span> <span class="nav-text">继续访问</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#给服务添加一个路由"><span class="nav-number">4.2.</span> <span class="nav-text">给服务添加一个路由</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#返回结果-1"><span class="nav-number">4.2.1.</span> <span class="nav-text">返回结果</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#继续访问-1"><span class="nav-number">4.2.2.</span> <span class="nav-text">继续访问</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#通过Kong来转发请求"><span class="nav-number">4.3.</span> <span class="nav-text">通过Kong来转发请求</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#启用插件"><span class="nav-number">5.</span> <span class="nav-text">启用插件</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#配置key-auth插件"><span class="nav-number">5.1.</span> <span class="nav-text">配置key-auth插件</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#返回结果-2"><span class="nav-number">5.1.1.</span> <span class="nav-text">返回结果</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#验证插件是否配置成功"><span class="nav-number">5.2.</span> <span class="nav-text">验证插件是否配置成功</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#返回结果-3"><span class="nav-number">5.2.1.</span> <span class="nav-text">返回结果</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#增加消费者"><span class="nav-number">6.</span> <span class="nav-text">增加消费者</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#创建消费者"><span class="nav-number">6.1.</span> <span class="nav-text">创建消费者</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#返回结果-4"><span class="nav-number">6.1.1.</span> <span class="nav-text">返回结果</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#再试一次"><span class="nav-number">6.1.2.</span> <span class="nav-text">再试一次</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#为消费者提供凭证"><span class="nav-number">6.2.</span> <span class="nav-text">为消费者提供凭证</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#返回结果-5"><span class="nav-number">6.2.1.</span> <span class="nav-text">返回结果</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#再试一次-1"><span class="nav-number">6.2.2.</span> <span class="nav-text">再试一次</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#验证凭证是否有效"><span class="nav-number">6.3.</span> <span class="nav-text">验证凭证是否有效</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#资料"><span class="nav-number">7.</span> <span class="nav-text">资料</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2017 &mdash; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Ryoma</span>
+
+  
+
+  
+</div>
+
+
+
+
+  <div class="powered-by"><a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> v3.7.1</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://theme-next.org">NexT.Gemini</a> v6.3.0</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+	
+    
+
+    
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/three/three.min.js"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/three/canvas_sphere.min.js"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=6.3.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=6.3.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=6.3.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=6.3.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=6.3.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=6.3.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=6.3.0"></script>
+
+
+
+  
+
+  
+    <script id="dsq-count-scr" src="https://ryoma-blog.disqus.com/count.js" async></script>
+  
+
+  
+    <script type="text/javascript">
+      var disqus_config = function () {
+        this.page.url = 'https://blog.ryoma.top/posts/kong_introduction/';
+        this.page.identifier = 'posts/kong_introduction/';
+        this.page.title = 'Kong 入门';
+        };
+      function loadComments () {
+        var d = document, s = d.createElement('script');
+        s.src = 'https://ryoma-blog.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', '' + +new Date());
+        (d.head || d.body).appendChild(s);
+      }
+      
+        $(function () {
+          var offsetTop = $('#comments').offset().top - $(window).height();
+          if (offsetTop <= 0) {
+            // load directly when there's no a scrollbar
+            loadComments();
+          } else {
+            $(window).on('scroll.disqus_scroll', function () {
+              var scrollTop = document.documentElement.scrollTop;
+              if (scrollTop >= offsetTop) {
+                $(window).off('.disqus_scroll');
+                loadComments();
+              }
+            });
+          }
+        });
+      
+    </script>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
