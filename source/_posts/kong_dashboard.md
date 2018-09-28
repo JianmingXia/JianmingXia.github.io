@@ -1,5 +1,5 @@
 ---
-title: Kong Dashboard
+title: Kong——Dashboard
 date: 2018/09/28 19:00:00
 tags:
   - Kong

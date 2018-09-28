@@ -1,9 +1,9 @@
 ---
-title: Kong 入门
+title: Kong——入门
 date: 2018/09/27 19:00:00
 tags:
-  - API Gateway
   - Kong
+  - Proxy
 categories: 
   - [微服务]
   - [Kong]
