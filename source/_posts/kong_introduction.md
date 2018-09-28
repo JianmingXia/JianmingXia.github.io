@@ -15,14 +15,67 @@ categories:
 ## 安装
 最初尝试使用CentOS安装，使用yum直接安装但是一直提示无法下载；后选择下载安装包，然后本地安装，启动时又提示需要安装数据库。考虑到安装这部分还是轻量级的比较好，所以选用了以Docker方式去安装，按照[官方文档](https://docs.konghq.com/install/docker/?_ga=2.106120899.1705340860.1537930352-980333107.1537168769)即可
 
+### 创建Docker网络
+```plain
+docker network create kong-net
+```
+
+### 使用数据库
+这里使用PostgreSQL：
+
+```
+docker run -d --name kong-database \
+    --network=kong-net \
+    -p 5432:5432 \
+    -e "POSTGRES_USER=kong" \
+    -e "POSTGRES_DB=kong" \
+    postgres:9.6
+```
+
 <!-- more -->
 
-## 名词解释
+### 准备数据库
+初始化数据库表：
+
+```
+docker run --rm \
+    --network=kong-net \
+    -e "KONG_DATABASE=postgres" \
+    -e "KONG_PG_HOST=kong-database" \
+    -e "KONG_CASSANDRA_CONTACT_POINTS=kong-database" \
+    kong:latest kong migrations up
+```
+
+### 启动
+```
+docker run -d --name kong \
+    --network=kong-net \
+    -e "KONG_DATABASE=postgres" \
+    -e "KONG_PG_HOST=kong-database" \
+    -e "KONG_CASSANDRA_CONTACT_POINTS=kong-database" \
+    -e "KONG_PROXY_ACCESS_LOG=/dev/stdout" \
+    -e "KONG_ADMIN_ACCESS_LOG=/dev/stdout" \
+    -e "KONG_PROXY_ERROR_LOG=/dev/stderr" \
+    -e "KONG_ADMIN_ERROR_LOG=/dev/stderr" \
+    -e "KONG_ADMIN_LISTEN=0.0.0.0:8001, 0.0.0.0:8444 ssl" \
+    -p 8000:8000 \
+    -p 8443:8443 \
+    -p 8001:8001 \
+    -p 8444:8444 \
+    kong:latest
+```
+
+## 基本概念
 ### 端口
-* 8000：监听HTTP入口流量，并将其转发至上游服务
-* 8001：用于配置Kong监听服务的端口
-* 8443：与8000类似，监听HTTPS
-* 8444：与8001类似，也是用于管理API监听的
+#### 代理
+* 8000：监听客户端传入的HTTP流量，并将其转发至上游服务(上线后修改成80)
+* 8443：与8000类似，监听HTTPS(上线后修改成443)
+
+#### 管理API
+这些端口暴露出来是Kong用于管理API，如果在生产环境请使用防火墙保护，防止未经授权的访问：
+
+* 8001：可用于操作Kong的 Admin API
+* 8444：与8001类似，使用HTTPS
 
 ## 配置服务
 ### 使用Admin API添加服务
@@ -236,6 +289,7 @@ curl -i -X GET \
 
 ## 资料
 * [https://konghq.com/install/](https://konghq.com/install/)
+* https://docs.konghq.com/0.14.x/network/#proxy
 * [https://docs.konghq.com/0.14.x/getting-started/configuring-a-service/](https://docs.konghq.com/0.14.x/getting-started/configuring-a-service/)
 * [https://docs.konghq.com/0.14.x/getting-started/enabling-plugins/](https://docs.konghq.com/0.14.x/getting-started/enabling-plugins/)
 * [https://docs.konghq.com/0.14.x/getting-started/adding-consumers/](https://docs.konghq.com/0.14.x/getting-started/adding-consumers/)
