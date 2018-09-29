@@ -1,5 +1,5 @@
 ---
-title: Kong——Proxy参考
+title: Kong——Proxy
 date: 2018/09/28 20:30:00
 tags:
   - API Gateway
@@ -14,6 +14,8 @@ categories:
 Kong公开几个接口，可以调整两个配置属性：
 * proxy\_listen：定义了一个地址/端口列表——Kong将接受来自客户端的流量并代理上游服务
 * admin\_listen：同样定义了一个地址/端口列表——但这些仅限于管理员访问
+
+从0.13.0版本开始，API实体被弃用，使用 Routes 及 Services 实体替代
 
 ## 术语
 * client：指下游客户端向Kong的代理端口发出请求

@@ -12,11 +12,24 @@ categories:
 
 > 虽然Kong提供了REST API用于配置，但是平时可能更习惯使用可视化界面操作，而且可视化界面在浏览上也更友好一点。
 
+## RESTful API
+> 如果使用Kong提供的RESTful API 进行配置，需要了解各种HTTP方法
+
+常用的HTTP 方法：
+
+- GET：从服务器取出资源
+- POST：在服务器新建一个资源
+- PUT：在服务器更新资源（提供完整属性）
+- PATCH：在服务器更新资源（只需要提供改变的属性）
+- DELETE：从服务器删除资源
+
 ## Kong UI选择
 有两个使用数较多的Dashboard：
 * kong-dashboard：[https://github.com/PGBI/kong-dashboard](https://github.com/PGBI/kong-dashboard)
 * konga：[https://github.com/pantsel/konga](https://github.com/pantsel/konga)
 从github上对比，Stars等konga会略逊一筹，但是较于kong-dashboard，它更紧跟Kong的版本，先尝试一下konga
+
+<!-- more -->
 
 ## konga
 
@@ -31,8 +44,6 @@ docker run --rm -d -p 1337:1337 \
 
 ### 激活
 进入__Connections__点击__ACTIVATE__
-
-<!-- more -->
 
 ![image.png | left | 827x403](https://cdn.nlark.com/yuque/0/2018/png/92822/1538117832597-93962bed-b4d5-4ea0-8872-7ba0c5982528.png "")
 
