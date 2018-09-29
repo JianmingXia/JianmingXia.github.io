@@ -1,0 +1,1561 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=6.3.0" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=6.3.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=6.3.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=6.3.0">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=6.3.0" color="#222">
+
+
+
+
+
+
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '6.3.0',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="Endpoint非特殊说明，默认为GETKong为了便于管理附带了一个内部RESTful Admin API。对Admin API的请求可以发送到集群中的任何节点，而Kong将保持所有节点的配置一致  8001：Admin API监听的默认端口 8444：Admin API的HTTPS默认端口   这个API是为内部使用而设计的，它提供了对Kong的完全控制，所以在设置Kong环境时要小心，以避">
+<meta name="keywords" content="API Gateway,Kong">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Kong——Admin API">
+<meta property="og:url" content="https://blog.ryoma.top/posts/kong_admin_api/index.html">
+<meta property="og:site_name" content="Ryoma&#39;s Blog">
+<meta property="og:description" content="Endpoint非特殊说明，默认为GETKong为了便于管理附带了一个内部RESTful Admin API。对Admin API的请求可以发送到集群中的任何节点，而Kong将保持所有节点的配置一致  8001：Admin API监听的默认端口 8444：Admin API的HTTPS默认端口   这个API是为内部使用而设计的，它提供了对Kong的完全控制，所以在设置Kong环境时要小心，以避">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2018-09-29T12:05:12.048Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Kong——Admin API">
+<meta name="twitter:description" content="Endpoint非特殊说明，默认为GETKong为了便于管理附带了一个内部RESTful Admin API。对Admin API的请求可以发送到集群中的任何节点，而Kong将保持所有节点的配置一致  8001：Admin API监听的默认端口 8444：Admin API的HTTPS默认端口   这个API是为内部使用而设计的，它提供了对Kong的完全控制，所以在设置Kong环境时要小心，以避">
+
+
+
+
+
+
+  <link rel="canonical" href="https://blog.ryoma.top/posts/kong_admin_api/"/>
+
+
+
+<script type="text/javascript" id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>Kong——Admin API | Ryoma's Blog</title>
+  
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style type="text/css">
+    .use-motion .motion-element,
+    .use-motion .brand,
+    .use-motion .menu-item,
+    .sidebar-inner,
+    .use-motion .post-block,
+    .use-motion .pagination,
+    .use-motion .comments,
+    .use-motion .post-header,
+    .use-motion .post-body,
+    .use-motion .collection-title { opacity: initial; }
+
+    .use-motion .logo,
+    .use-motion .site-title,
+    .use-motion .site-subtitle {
+      opacity: initial;
+      top: initial;
+    }
+
+    .use-motion {
+      .logo-line-before i { left: initial; }
+      .logo-line-after i { right: initial; }
+    }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Ryoma's Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+      
+        <p class="site-subtitle">纸上得来终觉浅</p>
+      
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+    <a href="/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-home"></i> <br />首页</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+    <a href="/tags/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />标签</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+    <a href="/categories/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-th"></i> <br />分类</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+    <a href="/archives/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />归档</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+    <a href="/about/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-user"></i> <br />关于我</a>
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.ryoma.top/posts/kong_admin_api/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Ryoma">
+      <meta itemprop="description" content="Ryoma's Blog">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Ryoma's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Kong——Admin API
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2018-09-29 20:00:00" itemprop="dateCreated datePublished" datetime="2018-09-29T20:00:00+08:00">2018-09-29</time>
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/微服务/" itemprop="url" rel="index"><span itemprop="name">微服务</span></a></span>
+
+                
+                
+                  ，
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/Kong/" itemprop="url" rel="index"><span itemprop="name">Kong</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/posts/kong_admin_api/#comments" itemprop="discussionUrl">
+                
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="posts/kong_admin_api/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <blockquote>
+<p>Endpoint非特殊说明，默认为GET<br>Kong为了便于管理附带了一个内部RESTful Admin API。对Admin API的请求可以发送到集群中的任何节点，而Kong将保持所有节点的配置一致</p>
+<ul>
+<li>8001：Admin API监听的默认端口</li>
+<li>8444：Admin API的HTTPS默认端口</li>
+</ul>
+</blockquote>
+<p>这个API是为内部使用而设计的，它提供了对Kong的完全控制，所以在设置Kong环境时要小心，以避免不必要的公开暴露这个API<br><a id="more"></a></p>
+<h2 id="特殊说明"><a href="#特殊说明" class="headerlink" title="特殊说明"></a>特殊说明</h2><p>本文还有Plugin Object、Certificate Object、SNI Object及Target Object未完成</p>
+<h2 id="支持Content-Types"><a href="#支持Content-Types" class="headerlink" title="支持Content Types"></a>支持Content Types</h2><p>Admin API 接受两种类型：</p>
+<h3 id="application-x-www-form-urlencoded"><a href="#application-x-www-form-urlencoded" class="headerlink" title="application/x-www-form-urlencoded"></a>application/x-www-form-urlencoded</h3><p>对于基本请求body来说足够简单，可能会经常使用。<br>注意：在发送嵌套值时，Kong希望嵌套对象使用带点的键引用，如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">config.limit=10&amp;config.period=seconds</span><br></pre></td></tr></table></figure></p>
+<h3 id="application-json"><a href="#application-json" class="headerlink" title="application/json"></a>application/json</h3><p>对于复杂的body(复杂的插件配置)来说很方便，在这种情况下，只需发送想要发送的数据的JSON：<br><figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    <span class="attr">"config"</span>: &#123;</span><br><span class="line">        <span class="attr">"limit"</span>: <span class="number">10</span>,</span><br><span class="line">        <span class="attr">"period"</span>: <span class="string">"seconds"</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h2 id="Information-routes"><a href="#Information-routes" class="headerlink" title="Information routes"></a>Information routes</h2><h3 id="检索节点信息"><a href="#检索节点信息" class="headerlink" title="检索节点信息"></a>检索节点信息</h3><p>检索关于节点的通用详细信息</p>
+<h4 id="Endpoint"><a href="#Endpoint" class="headerlink" title="Endpoint"></a>Endpoint</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/</span><br></pre></td></tr></table></figure>
+<h4 id="Response"><a href="#Response" class="headerlink" title="Response"></a>Response</h4><figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    <span class="attr">"plugins"</span>:&#123;</span><br><span class="line">        <span class="attr">"enabled_in_cluster"</span>:[</span><br><span class="line">            <span class="string">"key-auth"</span></span><br><span class="line">        ],</span><br><span class="line">        "available_on_server":Object&#123;...&#125;</span><br><span class="line">    &#125;,</span><br><span class="line">    "tagline":"Welcome to kong",</span><br><span class="line">    "configuration":Object&#123;...&#125;,</span><br><span class="line">    "version":"0.14.1",</span><br><span class="line">    "node_id":"1e9d57bb-c2ae-445c-8ac7-068dac657348",</span><br><span class="line">    "lua_version":"LuaJIT 2.1.0-beta3",</span><br><span class="line">    "prng_seeds":&#123;</span><br><span class="line">        "pid: 55":233132241169</span><br><span class="line">    &#125;,</span><br><span class="line">    "timers":&#123;</span><br><span class="line">        "pending":5,</span><br><span class="line">        "running":0</span><br><span class="line">    &#125;,</span><br><span class="line">    "hostname":"0afb364e8473"</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>node_id：表示正在运行的Kong节点的UUID。这个UUID是在Kong启动时随机生成的，因此节点在每次重新启动时都会有一个不同的node_id</li>
+<li>available_on_server：节点上安装的插件名称</li>
+<li>enabled_in_cluster：启用/配置插件的名称。也就是说，当前数据存储中的插件配置由所有Kong节点共享。</li>
+</ul>
+<h3 id="检索节点状态"><a href="#检索节点状态" class="headerlink" title="检索节点状态"></a>检索节点状态</h3><p>检索有关节点的使用信息，并提供一些关于基础nginx进程正在处理的连接的基本信息，以及数据库连接的状态<br>如果想要监视Kong进程，因为Kong是构建在nginx之上的，可以使用每个现有的nginx监视工具或代理</p>
+<h4 id="Endpoint-1"><a href="#Endpoint-1" class="headerlink" title="Endpoint"></a>Endpoint</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/status</span><br></pre></td></tr></table></figure>
+<h4 id="Response-1"><a href="#Response-1" class="headerlink" title="Response"></a>Response</h4><figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    <span class="attr">"database"</span>:&#123;</span><br><span class="line">        <span class="attr">"reachable"</span>:<span class="literal">true</span></span><br><span class="line">    &#125;,</span><br><span class="line">    <span class="attr">"server"</span>:&#123;</span><br><span class="line">        <span class="attr">"connections_writing"</span>:<span class="number">1</span>,</span><br><span class="line">        <span class="attr">"total_requests"</span>:<span class="number">1801</span>,</span><br><span class="line">        <span class="attr">"connections_handled"</span>:<span class="number">1837</span>,</span><br><span class="line">        <span class="attr">"connections_accepted"</span>:<span class="number">1837</span>,</span><br><span class="line">        <span class="attr">"connections_reading"</span>:<span class="number">0</span>,</span><br><span class="line">        <span class="attr">"connections_active"</span>:<span class="number">1</span>,</span><br><span class="line">        <span class="attr">"connections_waiting"</span>:<span class="number">0</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>server：关于nginx HTTP/S服务器的度量<ul>
+<li>total_requests：客户端请求的总数</li>
+<li>connections_active：当前活动客户端连接的数量，包括等待连接</li>
+<li>connections_accepted：接受的客户端连接的总数</li>
+<li>connections_handled：已处理连接的总数。通常，除非达到了某些资源限制，否则参数值与接受值相同</li>
+<li>connections_reading：Kong正在读取请求头的当前连接数</li>
+<li>connections_writing：nginx将响应写回客户端的当前连接数</li>
+<li>connections_waiting：等待请求的空闲客户端连接的当前数量</li>
+</ul>
+</li>
+<li>database：关于数据库的度量<ul>
+<li>reachable：反映数据库连接状态的布尔值。注意：此标志并不反映数据库本身的健康状况</li>
+</ul>
+</li>
+</ul>
+<h2 id="Service-Object"><a href="#Service-Object" class="headerlink" title="Service Object"></a>Service Object</h2><p>顾名思义，服务实体是每个上游服务的抽象。服务的示例包括数据转换微服务、计费API等<br>服务的主要属性是其URL (Kong应该代理到的地方)，可以将其设置为单个字符串，也可以单独指定其protocol、host、port和path</p>
+<p>服务与路由相关联(服务可以有许多与之关联的路由)。路由是Kong的入口，定义规则以匹配客户端请求。匹配路由后，Kong将请求代理给其关联的服务，见<a href="https://docs.konghq.com/0.14.x/proxy/" target="_blank" rel="noopener">文档</a>。</p>
+<h3 id="添加Service"><a href="#添加Service" class="headerlink" title="添加Service"></a>添加Service</h3><h4 id="Endpoint-2"><a href="#Endpoint-2" class="headerlink" title="Endpoint"></a>Endpoint</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">POST /services/</span><br></pre></td></tr></table></figure>
+<h4 id="Request-Body"><a href="#Request-Body" class="headerlink" title="Request Body"></a>Request Body</h4><table>
+<thead>
+<tr>
+<th>属性</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>name</td>
+<td>服务名称</td>
+</tr>
+<tr>
+<td>protocol</td>
+<td>与上游通信使用的协议。http(默认)及https二者之一</td>
+</tr>
+<tr>
+<td>host</td>
+<td>上游服务host</td>
+</tr>
+<tr>
+<td>port</td>
+<td>上游服务port，默认是80</td>
+</tr>
+<tr>
+<td>path</td>
+<td>请求至上游服务的path，默认为空</td>
+</tr>
+<tr>
+<td>retries</td>
+<td>代理失败时的重试次数，默认为5</td>
+</tr>
+<tr>
+<td>connect_timeout</td>
+<td>与上游服务建立连接的超时时间（以毫秒为单位），默认为60000</td>
+</tr>
+<tr>
+<td>write_timeout</td>
+<td>将请求发送至上游服务两个连续写操作之间的超时（以毫秒为单位）</td>
+</tr>
+<tr>
+<td>read_timeout</td>
+<td>与write_timeout类似，<strong>读</strong>操作</td>
+</tr>
+<tr>
+<td>url</td>
+<td>快捷属性——protocol host port path。这个属性是只写的（Admin API 不会返回这个属性）</td>
+</tr>
+</tbody>
+</table>
+<h4 id="Response-2"><a href="#Response-2" class="headerlink" title="Response"></a>Response</h4><figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">curl -i -X POST http://localhost:<span class="number">8001</span>/services/ \</span><br><span class="line">     -d <span class="string">'name=admin-service'</span> \</span><br><span class="line">     -d <span class="string">'url=http://admin.com'</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    <span class="attr">"host"</span>:<span class="string">"admin.com"</span>,</span><br><span class="line">    <span class="attr">"created_at"</span>:<span class="number">1538192759</span>,</span><br><span class="line">    <span class="attr">"connect_timeout"</span>:<span class="number">60000</span>,</span><br><span class="line">    <span class="attr">"id"</span>:<span class="string">"eceb7e8c-5009-4c4b-8018-9eca69116749"</span>,</span><br><span class="line">    <span class="attr">"protocol"</span>:<span class="string">"http"</span>,</span><br><span class="line">    <span class="attr">"name"</span>:<span class="string">"admin-service"</span>,</span><br><span class="line">    <span class="attr">"read_timeout"</span>:<span class="number">60000</span>,</span><br><span class="line">    <span class="attr">"port"</span>:<span class="number">80</span>,</span><br><span class="line">    <span class="attr">"path"</span>:<span class="literal">null</span>,</span><br><span class="line">    <span class="attr">"updated_at"</span>:<span class="number">1538192759</span>,</span><br><span class="line">    <span class="attr">"retries"</span>:<span class="number">5</span>,</span><br><span class="line">    <span class="attr">"write_timeout"</span>:<span class="number">60000</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="检索Service"><a href="#检索Service" class="headerlink" title="检索Service"></a>检索Service</h3><h4 id="Endpoints"><a href="#Endpoints" class="headerlink" title="Endpoints"></a>Endpoints</h4><h5 id="services-name-or-id"><a href="#services-name-or-id" class="headerlink" title="/services/{name or id}"></a>/services/{name or id}</h5><table>
+<thead>
+<tr>
+<th>属性</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>name or id</td>
+<td>要检索服务的唯一标识符或名称</td>
+</tr>
+</tbody>
+</table>
+<h5 id="routes-route-id-service"><a href="#routes-route-id-service" class="headerlink" title="/routes/{route id}/service"></a>/routes/{route id}/service</h5><table>
+<thead>
+<tr>
+<th>属性</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>route id</td>
+<td>属于要检索的服务的Route的唯一标识符</td>
+</tr>
+</tbody>
+</table>
+<h4 id="Response-3"><a href="#Response-3" class="headerlink" title="Response"></a>Response</h4><figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl -i http://localhost:<span class="number">8001</span>/services/admin-service</span><br></pre></td></tr></table></figure>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    <span class="attr">"host"</span>:<span class="string">"admin.com"</span>,</span><br><span class="line">    <span class="attr">"created_at"</span>:<span class="number">1538192759</span>,</span><br><span class="line">    <span class="attr">"connect_timeout"</span>:<span class="number">60000</span>,</span><br><span class="line">    <span class="attr">"id"</span>:<span class="string">"eceb7e8c-5009-4c4b-8018-9eca69116749"</span>,</span><br><span class="line">    <span class="attr">"protocol"</span>:<span class="string">"http"</span>,</span><br><span class="line">    <span class="attr">"name"</span>:<span class="string">"admin-service"</span>,</span><br><span class="line">    <span class="attr">"read_timeout"</span>:<span class="number">60000</span>,</span><br><span class="line">    <span class="attr">"port"</span>:<span class="number">80</span>,</span><br><span class="line">    <span class="attr">"updated_at"</span>:<span class="number">1538192759</span>,</span><br><span class="line">    <span class="attr">"retries"</span>:<span class="number">5</span>,</span><br><span class="line">    <span class="attr">"write_timeout"</span>:<span class="number">60000</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="Services-列表"><a href="#Services-列表" class="headerlink" title="Services 列表"></a>Services 列表</h3><h4 id="Endpoint-3"><a href="#Endpoint-3" class="headerlink" title="Endpoint"></a>Endpoint</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/services/</span><br></pre></td></tr></table></figure>
+<h4 id="Request-Querystring-Parameters"><a href="#Request-Querystring-Parameters" class="headerlink" title="Request Querystring Parameters"></a>Request Querystring Parameters</h4><table>
+<thead>
+<tr>
+<th>属性</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>offset</td>
+<td>用于分页的游标——offset是一个对象标识符，它定义列表中的一个位置</td>
+</tr>
+<tr>
+<td>size</td>
+<td>每页返回的数量</td>
+</tr>
+</tbody>
+</table>
+<h4 id="Response-4"><a href="#Response-4" class="headerlink" title="Response"></a>Response</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl -i http://localhost:8001/services?size=2</span><br></pre></td></tr></table></figure>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    <span class="attr">"next"</span>:<span class="string">"/services?offset=WyI0YmRiOTdiNC00NzM1LTQwM2QtYWZkNi04MTE3NzBiODcxN2IiXQ"</span>,</span><br><span class="line">    <span class="attr">"data"</span>:[</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="attr">"host"</span>:<span class="string">"foo-service.com"</span>,</span><br><span class="line">            <span class="attr">"created_at"</span>:<span class="number">1538122593</span>,</span><br><span class="line">            <span class="attr">"connect_timeout"</span>:<span class="number">60000</span>,</span><br><span class="line">            <span class="attr">"id"</span>:<span class="string">"1c0a70da-ca56-44bb-8b4b-3e10a154450f"</span>,</span><br><span class="line">            <span class="attr">"protocol"</span>:<span class="string">"http"</span>,</span><br><span class="line">            <span class="attr">"name"</span>:<span class="string">"foo-service"</span>,</span><br><span class="line">            <span class="attr">"read_timeout"</span>:<span class="number">60000</span>,</span><br><span class="line">            <span class="attr">"port"</span>:<span class="number">80</span>,</span><br><span class="line">            <span class="attr">"path"</span>:<span class="literal">null</span>,</span><br><span class="line">            <span class="attr">"updated_at"</span>:<span class="number">1538122593</span>,</span><br><span class="line">            <span class="attr">"retries"</span>:<span class="number">5</span>,</span><br><span class="line">            <span class="attr">"write_timeout"</span>:<span class="number">60000</span></span><br><span class="line">        &#125;,</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="attr">"host"</span>:<span class="string">"mockbin.org"</span>,</span><br><span class="line">            <span class="attr">"created_at"</span>:<span class="number">1538034594</span>,</span><br><span class="line">            <span class="attr">"connect_timeout"</span>:<span class="number">60000</span>,</span><br><span class="line">            <span class="attr">"id"</span>:<span class="string">"4bdb97b4-4735-403d-afd6-811770b8717b"</span>,</span><br><span class="line">            <span class="attr">"protocol"</span>:<span class="string">"http"</span>,</span><br><span class="line">            <span class="attr">"name"</span>:<span class="string">"example-service"</span>,</span><br><span class="line">            <span class="attr">"read_timeout"</span>:<span class="number">60000</span>,</span><br><span class="line">            <span class="attr">"port"</span>:<span class="number">80</span>,</span><br><span class="line">            <span class="attr">"path"</span>:<span class="literal">null</span>,</span><br><span class="line">            <span class="attr">"updated_at"</span>:<span class="number">1538034594</span>,</span><br><span class="line">            <span class="attr">"retries"</span>:<span class="number">5</span>,</span><br><span class="line">            <span class="attr">"write_timeout"</span>:<span class="number">60000</span></span><br><span class="line">        &#125;</span><br><span class="line">    ],</span><br><span class="line">    <span class="attr">"offset"</span>:<span class="string">"WyI0YmRiOTdiNC00NzM1LTQwM2QtYWZkNi04MTE3NzBiODcxN2IiXQ"</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="更新Service"><a href="#更新Service" class="headerlink" title="更新Service"></a>更新Service</h3><h4 id="Endpoints-1"><a href="#Endpoints-1" class="headerlink" title="Endpoints"></a>Endpoints</h4><h5 id="PATCH-services-name-or-id"><a href="#PATCH-services-name-or-id" class="headerlink" title="PATCH /services/{name or id}"></a>PATCH /services/{name or id}</h5><table>
+<thead>
+<tr>
+<th>属性</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>name or id</td>
+<td>要更新服务的id或name属性</td>
+</tr>
+</tbody>
+</table>
+<h5 id="PATCH-routes-route-id-service"><a href="#PATCH-routes-route-id-service" class="headerlink" title="PATCH /routes/{route id}/service"></a>PATCH /routes/{route id}/service</h5><table>
+<thead>
+<tr>
+<th style="text-align:left">属性</th>
+<th style="text-align:left">描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">route id</td>
+<td style="text-align:left">要更新服务的路由id属性</td>
+</tr>
+</tbody>
+</table>
+<h4 id="Request-Body-1"><a href="#Request-Body-1" class="headerlink" title="Request Body"></a>Request Body</h4><blockquote>
+<p>参考<strong>添加Service</strong>时的参数</p>
+</blockquote>
+<h4 id="Response-5"><a href="#Response-5" class="headerlink" title="Response"></a>Response</h4><figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">curl -i -X PATCH http://localhost:<span class="number">8001</span>/services/admin-service \</span><br><span class="line">    -d <span class="string">'url=http://admin.com/api'</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    <span class="attr">"host"</span>:<span class="string">"admin.com"</span>,</span><br><span class="line">    <span class="attr">"created_at"</span>:<span class="number">1538192759</span>,</span><br><span class="line">    <span class="attr">"connect_timeout"</span>:<span class="number">60000</span>,</span><br><span class="line">    <span class="attr">"id"</span>:<span class="string">"eceb7e8c-5009-4c4b-8018-9eca69116749"</span>,</span><br><span class="line">    <span class="attr">"protocol"</span>:<span class="string">"http"</span>,</span><br><span class="line">    <span class="attr">"name"</span>:<span class="string">"admin-service"</span>,</span><br><span class="line">    <span class="attr">"read_timeout"</span>:<span class="number">60000</span>,</span><br><span class="line">    <span class="attr">"port"</span>:<span class="number">80</span>,</span><br><span class="line">    <span class="attr">"path"</span>:<span class="string">"/api"</span>,</span><br><span class="line">    <span class="attr">"updated_at"</span>:<span class="number">1538200257</span>,</span><br><span class="line">    <span class="attr">"retries"</span>:<span class="number">5</span>,</span><br><span class="line">    <span class="attr">"write_timeout"</span>:<span class="number">60000</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="更新或创建Service"><a href="#更新或创建Service" class="headerlink" title="更新或创建Service"></a>更新或创建Service</h3><h4 id="Endpoint-4"><a href="#Endpoint-4" class="headerlink" title="Endpoint"></a>Endpoint</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">PUT /services/&#123;name or id&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="Request-Body-2"><a href="#Request-Body-2" class="headerlink" title="Request Body"></a>Request Body</h4><blockquote>
+<p>参考<strong>添加Service</strong>时的参数</p>
+</blockquote>
+<ul>
+<li>用Body中指定的定义插入(或替换)请求资源下的服务，服务将通过名称或id属性进行标识</li>
+<li>当名称或id属性具有UUID的结构时，插入/替换的服务将由其id标识；否则，它将由其名称来标识</li>
+<li>在不指定id(既不在URL中也不在正文中)的情况下创建新服务时，它将自动生成</li>
+<li>不允许在URL中指定的名称与在请求Body中的名称不同</li>
+</ul>
+<h4 id="Response-6"><a href="#Response-6" class="headerlink" title="Response"></a>Response</h4><figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">curl -i -X PUT http://localhost:<span class="number">8001</span>/services/admin-service \</span><br><span class="line">    -d <span class="string">'url=http://admin.com/api/doc'</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    <span class="attr">"host"</span>:<span class="string">"admin.com"</span>,</span><br><span class="line">    <span class="attr">"created_at"</span>:<span class="number">1538200849</span>,</span><br><span class="line">    <span class="attr">"connect_timeout"</span>:<span class="number">60000</span>,</span><br><span class="line">    <span class="attr">"id"</span>:<span class="string">"eceb7e8c-5009-4c4b-8018-9eca69116749"</span>,</span><br><span class="line">    <span class="attr">"protocol"</span>:<span class="string">"http"</span>,</span><br><span class="line">    <span class="attr">"name"</span>:<span class="string">"admin-service"</span>,</span><br><span class="line">    <span class="attr">"read_timeout"</span>:<span class="number">60000</span>,</span><br><span class="line">    <span class="attr">"port"</span>:<span class="number">80</span>,</span><br><span class="line">    <span class="attr">"path"</span>:<span class="string">"/api/doc"</span>,</span><br><span class="line">    <span class="attr">"updated_at"</span>:<span class="number">1538200849</span>,</span><br><span class="line">    <span class="attr">"retries"</span>:<span class="number">5</span>,</span><br><span class="line">    <span class="attr">"write_timeout"</span>:<span class="number">60000</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="删除Service"><a href="#删除Service" class="headerlink" title="删除Service"></a>删除Service</h3><h4 id="Endpoint-5"><a href="#Endpoint-5" class="headerlink" title="Endpoint"></a>Endpoint</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">DELETE /services/&#123;name or id&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="Response-7"><a href="#Response-7" class="headerlink" title="Response"></a>Response</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl -i -X DELETE http://localhost:8001/services/admin-service</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">HTTP/1.1 204 No Content</span><br><span class="line">Date: Sat, 29 Sep 2018 06:02:59 GMT</span><br><span class="line">Connection: keep-alive</span><br><span class="line">Access-Control-Allow-Origin: *</span><br><span class="line">Server: kong/0.14.1</span><br></pre></td></tr></table></figure>
+<h2 id="Route-Object"><a href="#Route-Object" class="headerlink" title="Route Object"></a>Route Object</h2><p>路由实体定义规则以匹配客户端请求，每个路由都与服务相关联，服务可能有多个路由与之相关联——每个匹配给定路由的请求都将代理到其关联服务。</p>
+<p>路由和服务的组合(以及它们之间的关注点分离)提供了一种强大的路由机制，可以通过这种机制在Kong定义细粒度的入口点，从而为基础设施提供不同的上游服务。</p>
+<p>重新添加测试Service：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">curl -i -X POST http://localhost:8001/services/ \</span><br><span class="line">     -d &apos;name=admin-service&apos; \</span><br><span class="line">     -d &apos;url=http://admin.com/api&apos;</span><br></pre></td></tr></table></figure></p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    <span class="attr">"host"</span>:<span class="string">"admin.com"</span>,</span><br><span class="line">    <span class="attr">"created_at"</span>:<span class="number">1538202152</span>,</span><br><span class="line">    <span class="attr">"connect_timeout"</span>:<span class="number">60000</span>,</span><br><span class="line">    <span class="attr">"id"</span>:<span class="string">"50adcbf0-8553-466a-b957-49b6acdbbe6d"</span>,</span><br><span class="line">    <span class="attr">"protocol"</span>:<span class="string">"http"</span>,</span><br><span class="line">    <span class="attr">"name"</span>:<span class="string">"admin-service"</span>,</span><br><span class="line">    <span class="attr">"read_timeout"</span>:<span class="number">60000</span>,</span><br><span class="line">    <span class="attr">"port"</span>:<span class="number">80</span>,</span><br><span class="line">    <span class="attr">"path"</span>:<span class="string">"/api"</span>,</span><br><span class="line">    <span class="attr">"updated_at"</span>:<span class="number">1538202152</span>,</span><br><span class="line">    <span class="attr">"retries"</span>:<span class="number">5</span>,</span><br><span class="line">    <span class="attr">"write_timeout"</span>:<span class="number">60000</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="添加Route"><a href="#添加Route" class="headerlink" title="添加Route"></a>添加Route</h3><h4 id="Endpoints-2"><a href="#Endpoints-2" class="headerlink" title="Endpoints"></a>Endpoints</h4><h5 id="POST-routes"><a href="#POST-routes" class="headerlink" title="POST /routes/"></a>POST /routes/</h5><h5 id="POST-services-name-or-id-routes"><a href="#POST-services-name-or-id-routes" class="headerlink" title="POST /services/{name or id}/routes/"></a>POST /services/{name or id}/routes/</h5><blockquote>
+<p>这个在Admin API文档中漏了，但是Proxy部分的文档中有类似使用，亲测有效</p>
+</blockquote>
+<p>name or id 是service的标识符</p>
+<h4 id="Request-Body-3"><a href="#Request-Body-3" class="headerlink" title="Request Body"></a>Request Body</h4><table>
+<thead>
+<tr>
+<th>属性</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>protocols</td>
+<td>此路由允许的协议列表，默认情况下，是[“http”， “https”]，两种协议都接收。当设置为[“https”]时，HTTP请求将被响应为升级到https的请求。使用form-encoded时像这样protocols[]=http&amp;protocols[]=https；用JSON时，使用数组即可。</td>
+</tr>
+<tr>
+<td>methods</td>
+<td>匹配此路由的HTTP方法列表，如[“GET”, “POST”]，必须至少设置一个hosts, paths 或 methods。编码方式与protocols类似</td>
+</tr>
+<tr>
+<td>hosts</td>
+<td>匹配此路由的域名列表，如example.com。其它与methods类似</td>
+</tr>
+<tr>
+<td>path</td>
+<td>匹配此路径的路径列表，如/my-path。其它与methods类似</td>
+</tr>
+<tr>
+<td>strip_path</td>
+<td>当匹配一条路径路由时，从上游请求URL中删除匹配前缀，默认值为true</td>
+</tr>
+<tr>
+<td>preserve_host</td>
+<td>当通过主机域名匹配路由时，在上游请求头中使用请求Host header替换。默认设置为false，上游Host header将为服务的host</td>
+</tr>
+<tr>
+<td>service</td>
+<td>此路由关联的服务，这是路由代理通信到的地方。两种方式：service.id=&lt;service_id&gt; “service”:{“id”:”&lt;service_id&gt;”}</td>
+</tr>
+</tbody>
+</table>
+<h4 id="Response-8"><a href="#Response-8" class="headerlink" title="Response"></a>Response</h4><figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">curl -i -X POST http://localhost:<span class="number">8001</span>/routes/ \</span><br><span class="line">    -d <span class="string">'hosts[]=example.com'</span> \</span><br><span class="line">    -d <span class="string">'paths[]=/foo'</span> \</span><br><span class="line">    -d <span class="string">'service.id=50adcbf0-8553-466a-b957-49b6acdbbe6d'</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    <span class="attr">"created_at"</span>:<span class="number">1538202438</span>,</span><br><span class="line">    <span class="attr">"strip_path"</span>:<span class="literal">true</span>,</span><br><span class="line">    <span class="attr">"hosts"</span>:[</span><br><span class="line">        <span class="string">"example.com"</span></span><br><span class="line">    ],</span><br><span class="line">    <span class="attr">"preserve_host"</span>:<span class="literal">false</span>,</span><br><span class="line">    <span class="attr">"regex_priority"</span>:<span class="number">0</span>,</span><br><span class="line">    <span class="attr">"updated_at"</span>:<span class="number">1538202438</span>,</span><br><span class="line">    <span class="attr">"paths"</span>:[</span><br><span class="line">        <span class="string">"/foo"</span></span><br><span class="line">    ],</span><br><span class="line">    <span class="attr">"service"</span>:&#123;</span><br><span class="line">        <span class="attr">"id"</span>:<span class="string">"50adcbf0-8553-466a-b957-49b6acdbbe6d"</span></span><br><span class="line">    &#125;,</span><br><span class="line">    <span class="attr">"methods"</span>:<span class="literal">null</span>,</span><br><span class="line">    <span class="attr">"protocols"</span>:[</span><br><span class="line">        <span class="string">"http"</span>,</span><br><span class="line">        <span class="string">"https"</span></span><br><span class="line">    ],</span><br><span class="line">    <span class="attr">"id"</span>:<span class="string">"35bd4d4e-cde7-4f7e-8b55-a688be3d28d6"</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="检索Route"><a href="#检索Route" class="headerlink" title="检索Route"></a>检索Route</h3><h4 id="Endpoint-6"><a href="#Endpoint-6" class="headerlink" title="Endpoint"></a>Endpoint</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/routes/&#123;id&#125;</span><br></pre></td></tr></table></figure>
+<p>id：要检索Route的id属性</p>
+<h4 id="Response-9"><a href="#Response-9" class="headerlink" title="Response"></a>Response</h4><figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl -i -X GET http://localhost:<span class="number">8001</span>/routes/<span class="number">35</span>bd4d4e-cde7-<span class="number">4</span>f7e-<span class="number">8</span>b55-a688be3d28d6</span><br></pre></td></tr></table></figure>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    <span class="attr">"created_at"</span>:<span class="number">1538202438</span>,</span><br><span class="line">    <span class="attr">"strip_path"</span>:<span class="literal">true</span>,</span><br><span class="line">    <span class="attr">"hosts"</span>:[</span><br><span class="line">        <span class="string">"example.com"</span></span><br><span class="line">    ],</span><br><span class="line">    <span class="attr">"preserve_host"</span>:<span class="literal">false</span>,</span><br><span class="line">    <span class="attr">"regex_priority"</span>:<span class="number">0</span>,</span><br><span class="line">    <span class="attr">"updated_at"</span>:<span class="number">1538202438</span>,</span><br><span class="line">    <span class="attr">"paths"</span>:[</span><br><span class="line">        <span class="string">"/foo"</span></span><br><span class="line">    ],</span><br><span class="line">    <span class="attr">"service"</span>:&#123;</span><br><span class="line">        <span class="attr">"id"</span>:<span class="string">"50adcbf0-8553-466a-b957-49b6acdbbe6d"</span></span><br><span class="line">    &#125;,</span><br><span class="line">    <span class="attr">"protocols"</span>:[</span><br><span class="line">        <span class="string">"http"</span>,</span><br><span class="line">        <span class="string">"https"</span></span><br><span class="line">    ],</span><br><span class="line">    <span class="attr">"id"</span>:<span class="string">"35bd4d4e-cde7-4f7e-8b55-a688be3d28d6"</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="Routes列表"><a href="#Routes列表" class="headerlink" title="Routes列表"></a>Routes列表</h3><h4 id="Endpoint-7"><a href="#Endpoint-7" class="headerlink" title="Endpoint"></a>Endpoint</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/routes</span><br></pre></td></tr></table></figure>
+<h4 id="Request-Querystring-Parameters-1"><a href="#Request-Querystring-Parameters-1" class="headerlink" title="Request Querystring Parameters"></a>Request Querystring Parameters</h4><p>与<strong>Services列表</strong>类似，offset及size属性</p>
+<h4 id="Response-10"><a href="#Response-10" class="headerlink" title="Response"></a>Response</h4><figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl -i -X GET http://localhost:<span class="number">8001</span>/routes?size=<span class="number">2</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    <span class="attr">"next"</span>:<span class="string">"/routes?offset=WyJhNDkzNTcyOC1iMDFlLTQzNmItYmYyNy0wY2U2YzczYTM3MzAiXQ"</span>,</span><br><span class="line">    <span class="attr">"data"</span>:[</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="attr">"created_at"</span>:<span class="number">1538202438</span>,</span><br><span class="line">            <span class="attr">"strip_path"</span>:<span class="literal">true</span>,</span><br><span class="line">            <span class="attr">"hosts"</span>:[</span><br><span class="line">                <span class="string">"example.com"</span></span><br><span class="line">            ],</span><br><span class="line">            <span class="attr">"preserve_host"</span>:<span class="literal">false</span>,</span><br><span class="line">            <span class="attr">"regex_priority"</span>:<span class="number">0</span>,</span><br><span class="line">            <span class="attr">"updated_at"</span>:<span class="number">1538202438</span>,</span><br><span class="line">            <span class="attr">"paths"</span>:[</span><br><span class="line">                <span class="string">"/foo"</span></span><br><span class="line">            ],</span><br><span class="line">            <span class="attr">"service"</span>:&#123;</span><br><span class="line">                <span class="attr">"id"</span>:<span class="string">"50adcbf0-8553-466a-b957-49b6acdbbe6d"</span></span><br><span class="line">            &#125;,</span><br><span class="line">            <span class="attr">"methods"</span>:<span class="literal">null</span>,</span><br><span class="line">            <span class="attr">"protocols"</span>:[</span><br><span class="line">                <span class="string">"http"</span>,</span><br><span class="line">                <span class="string">"https"</span></span><br><span class="line">            ],</span><br><span class="line">            <span class="attr">"id"</span>:<span class="string">"35bd4d4e-cde7-4f7e-8b55-a688be3d28d6"</span></span><br><span class="line">        &#125;,</span><br><span class="line">        Object&#123;...&#125;</span><br><span class="line">    ],</span><br><span class="line">    "offset":"WyJhNDkzNTcyOC1iMDFlLTQzNmItYmYyNy0wY2U2YzczYTM3MzAiXQ"</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="列出与服务相关的路由"><a href="#列出与服务相关的路由" class="headerlink" title="列出与服务相关的路由"></a>列出与服务相关的路由</h3><h4 id="Endpoint-8"><a href="#Endpoint-8" class="headerlink" title="Endpoint"></a>Endpoint</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/services/&#123;service name or id&#125;/routes</span><br></pre></td></tr></table></figure>
+<p>要检索服务（id或名称）的所属路由——在使用此Endpoint时，只列出属于指定服务的路由</p>
+<h4 id="Response-11"><a href="#Response-11" class="headerlink" title="Response"></a>Response</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl -i -X GET http://localhost:8001/services/admin-service/routes</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    &quot;next&quot;:null,</span><br><span class="line">    &quot;data&quot;:[</span><br><span class="line">        &#123;</span><br><span class="line">            &quot;created_at&quot;:1538202438,</span><br><span class="line">            &quot;strip_path&quot;:true,</span><br><span class="line">            &quot;hosts&quot;:[</span><br><span class="line">                &quot;example.com&quot;</span><br><span class="line">            ],</span><br><span class="line">            &quot;preserve_host&quot;:false,</span><br><span class="line">            &quot;regex_priority&quot;:0,</span><br><span class="line">            &quot;updated_at&quot;:1538202438,</span><br><span class="line">            &quot;paths&quot;:[</span><br><span class="line">                &quot;/foo&quot;</span><br><span class="line">            ],</span><br><span class="line">            &quot;service&quot;:&#123;</span><br><span class="line">                &quot;id&quot;:&quot;50adcbf0-8553-466a-b957-49b6acdbbe6d&quot;</span><br><span class="line">            &#125;,</span><br><span class="line">            &quot;protocols&quot;:[</span><br><span class="line">                &quot;http&quot;,</span><br><span class="line">                &quot;https&quot;</span><br><span class="line">            ],</span><br><span class="line">            &quot;id&quot;:&quot;35bd4d4e-cde7-4f7e-8b55-a688be3d28d6&quot;</span><br><span class="line">        &#125;,</span><br><span class="line">        Object&#123;...&#125;,</span><br><span class="line">        Object&#123;...&#125;</span><br><span class="line">    ]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="更新Route"><a href="#更新Route" class="headerlink" title="更新Route"></a>更新Route</h3><h4 id="Endpoint-9"><a href="#Endpoint-9" class="headerlink" title="Endpoint"></a>Endpoint</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">PATCH /routes/&#123;id&#125;</span><br></pre></td></tr></table></figure>
+<p>要更新的路由的id属性</p>
+<h4 id="Request-Body-4"><a href="#Request-Body-4" class="headerlink" title="Request Body"></a>Request Body</h4><p>同<strong>添加Route</strong>部分</p>
+<h4 id="Response-12"><a href="#Response-12" class="headerlink" title="Response"></a>Response</h4><figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">curl -i -X PATCH http://localhost:<span class="number">8001</span>/routes/<span class="number">35</span>bd4d4e-cde7-<span class="number">4</span>f7e-<span class="number">8</span>b55-a688be3d28d6 \</span><br><span class="line">    -d <span class="string">'paths[]=/api'</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    <span class="attr">"created_at"</span>:<span class="number">1538202438</span>,</span><br><span class="line">    <span class="attr">"strip_path"</span>:<span class="literal">true</span>,</span><br><span class="line">    <span class="attr">"hosts"</span>:[</span><br><span class="line">        <span class="string">"example.com"</span></span><br><span class="line">    ],</span><br><span class="line">    <span class="attr">"preserve_host"</span>:<span class="literal">false</span>,</span><br><span class="line">    <span class="attr">"regex_priority"</span>:<span class="number">0</span>,</span><br><span class="line">    <span class="attr">"updated_at"</span>:<span class="number">1538204091</span>,</span><br><span class="line">    <span class="attr">"paths"</span>:[</span><br><span class="line">        <span class="string">"/api"</span></span><br><span class="line">    ],</span><br><span class="line">    <span class="attr">"service"</span>:&#123;</span><br><span class="line">        <span class="attr">"id"</span>:<span class="string">"50adcbf0-8553-466a-b957-49b6acdbbe6d"</span></span><br><span class="line">    &#125;,</span><br><span class="line">    <span class="attr">"methods"</span>:<span class="literal">null</span>,</span><br><span class="line">    <span class="attr">"protocols"</span>:[</span><br><span class="line">        <span class="string">"http"</span>,</span><br><span class="line">        <span class="string">"https"</span></span><br><span class="line">    ],</span><br><span class="line">    <span class="attr">"id"</span>:<span class="string">"35bd4d4e-cde7-4f7e-8b55-a688be3d28d6"</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="更新或创建Route"><a href="#更新或创建Route" class="headerlink" title="更新或创建Route"></a>更新或创建Route</h3><h4 id="Endpoint-10"><a href="#Endpoint-10" class="headerlink" title="Endpoint"></a>Endpoint</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">PUT /routes/&#123;id&#125;</span><br></pre></td></tr></table></figure>
+<p>id：要更新的路由id属性</p>
+<h4 id="Request-Body-5"><a href="#Request-Body-5" class="headerlink" title="Request Body"></a>Request Body</h4><p>同<strong>添加Route</strong>部分</p>
+<ul>
+<li>用body中指定的定义插入(或替换)请求资源下的路由</li>
+<li>Route将由URL中给出的id属性标识</li>
+</ul>
+<h4 id="Response-13"><a href="#Response-13" class="headerlink" title="Response"></a>Response</h4><figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">curl -i -X PUT http://localhost:<span class="number">8001</span>/routes/<span class="number">35</span>bd4d4e-cde7-<span class="number">4</span>f7e-<span class="number">8</span>b55-a688be3d28d6 \</span><br><span class="line">    -d <span class="string">'paths[]=/apixxx'</span> \</span><br><span class="line">    -d <span class="string">'hosts[]=example.com'</span> \</span><br><span class="line">    -d <span class="string">'service.id=50adcbf0-8553-466a-b957-49b6acdbbe6d'</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    <span class="attr">"created_at"</span>:<span class="number">1538204412</span>,</span><br><span class="line">    <span class="attr">"strip_path"</span>:<span class="literal">true</span>,</span><br><span class="line">    <span class="attr">"hosts"</span>:[</span><br><span class="line">        <span class="string">"example.com"</span></span><br><span class="line">    ],</span><br><span class="line">    <span class="attr">"preserve_host"</span>:<span class="literal">false</span>,</span><br><span class="line">    <span class="attr">"regex_priority"</span>:<span class="number">0</span>,</span><br><span class="line">    <span class="attr">"updated_at"</span>:<span class="number">1538204412</span>,</span><br><span class="line">    <span class="attr">"paths"</span>:[</span><br><span class="line">        <span class="string">"/apixxx"</span></span><br><span class="line">    ],</span><br><span class="line">    <span class="attr">"service"</span>:&#123;</span><br><span class="line">        <span class="attr">"id"</span>:<span class="string">"50adcbf0-8553-466a-b957-49b6acdbbe6d"</span></span><br><span class="line">    &#125;,</span><br><span class="line">    <span class="attr">"methods"</span>:<span class="literal">null</span>,</span><br><span class="line">    <span class="attr">"protocols"</span>:[</span><br><span class="line">        <span class="string">"http"</span>,</span><br><span class="line">        <span class="string">"https"</span></span><br><span class="line">    ],</span><br><span class="line">    <span class="attr">"id"</span>:<span class="string">"35bd4d4e-cde7-4f7e-8b55-a688be3d28d6"</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="删除Route"><a href="#删除Route" class="headerlink" title="删除Route"></a>删除Route</h3><h4 id="Endpoint-11"><a href="#Endpoint-11" class="headerlink" title="Endpoint"></a>Endpoint</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">DELETE /routes/&#123;id&#125;</span><br></pre></td></tr></table></figure>
+<p>id：要删除的Route id属性</p>
+<h4 id="Response-14"><a href="#Response-14" class="headerlink" title="Response"></a>Response</h4><figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl -i -X DELETE http://localhost:<span class="number">8001</span>/routes/<span class="number">35</span>bd4d4e-cde7-<span class="number">4</span>f7e-<span class="number">8</span>b55-a688be3d28d6</span><br></pre></td></tr></table></figure>
+<h2 id="Consumer-Object"><a href="#Consumer-Object" class="headerlink" title="Consumer Object"></a>Consumer Object</h2><p>消费者对象表示服务的消费者或用户，可以依赖Kong作为主要数据存储，也可以将消费者列表映射到数据库，以保持Kong与现有主数据存储之间的一致性</p>
+<h3 id="创建Consumer"><a href="#创建Consumer" class="headerlink" title="创建Consumer"></a>创建Consumer</h3><h4 id="Endpoint-12"><a href="#Endpoint-12" class="headerlink" title="Endpoint"></a>Endpoint</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">POST /consumers/</span><br></pre></td></tr></table></figure>
+<h4 id="Request-Form-Parameters"><a href="#Request-Form-Parameters" class="headerlink" title="Request Form Parameters"></a>Request Form Parameters</h4><table>
+<thead>
+<tr>
+<th>属性</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>username</td>
+<td>用户的唯一用户名。必须将此字段或custom_id与请求一起发送</td>
+</tr>
+<tr>
+<td>custom_id</td>
+<td>为消费者存储现有的唯一ID——用于在现有数据库中与用户进行映射，必须将此字段或username与请求一起发送</td>
+</tr>
+</tbody>
+</table>
+<h4 id="Response-15"><a href="#Response-15" class="headerlink" title="Response"></a>Response</h4><p>username 与 custom_id都传上：<br><figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">curl -i -X POST http://localhost:<span class="number">8001</span>/consumers \</span><br><span class="line">    -d <span class="string">'custom_id=10'</span> \</span><br><span class="line">    -d <span class="string">'username=10'</span></span><br></pre></td></tr></table></figure></p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    <span class="attr">"custom_id"</span>:<span class="string">"10"</span>,</span><br><span class="line">    <span class="attr">"created_at"</span>:<span class="number">1538205455</span>,</span><br><span class="line">    <span class="attr">"username"</span>:<span class="string">"10"</span>,</span><br><span class="line">    <span class="attr">"id"</span>:<span class="string">"24d9cf29-f6e0-40d6-a1ec-7fb00161ee50"</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="检索Consumer"><a href="#检索Consumer" class="headerlink" title="检索Consumer"></a>检索Consumer</h3><h4 id="Endpoint-13"><a href="#Endpoint-13" class="headerlink" title="Endpoint"></a>Endpoint</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/consumers/&#123;username or id&#125;</span><br></pre></td></tr></table></figure>
+<p>要检索的消费者唯一的用户名或id（不是custom_id）</p>
+<h4 id="Response-16"><a href="#Response-16" class="headerlink" title="Response"></a>Response</h4><figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">curl -i -X GET http://localhost:<span class="number">8001</span>/consumers/<span class="number">24</span>d9cf29-f6e0-<span class="number">40</span>d6-a1ec-<span class="number">7</span>fb00161ee50</span><br><span class="line"></span><br><span class="line">curl -i -X GET http://localhost:<span class="number">8001</span>/consumers/<span class="number">10</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    <span class="attr">"custom_id"</span>:<span class="string">"10"</span>,</span><br><span class="line">    <span class="attr">"created_at"</span>:<span class="number">1538205455</span>,</span><br><span class="line">    <span class="attr">"username"</span>:<span class="string">"10"</span>,</span><br><span class="line">    <span class="attr">"id"</span>:<span class="string">"24d9cf29-f6e0-40d6-a1ec-7fb00161ee50"</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="Consumers列表"><a href="#Consumers列表" class="headerlink" title="Consumers列表"></a>Consumers列表</h3><h4 id="Endpoint-14"><a href="#Endpoint-14" class="headerlink" title="Endpoint"></a>Endpoint</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/consumers/</span><br></pre></td></tr></table></figure>
+<h4 id="Request-Querystring-Parameters-2"><a href="#Request-Querystring-Parameters-2" class="headerlink" title="Request Querystring Parameters"></a>Request Querystring Parameters</h4><blockquote>
+<p>custom_id这个属性应该是官网错误，与之前类似，传入的应当是size 与 offset</p>
+</blockquote>
+<h4 id="Response-17"><a href="#Response-17" class="headerlink" title="Response"></a>Response</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl -i -X GET http://localhost:8001/consumers?size=1</span><br></pre></td></tr></table></figure>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    <span class="attr">"next"</span>:<span class="string">"/consumers?offset=WyIwYWQ2MzAyOS1jMmZkLTRhMjUtYmE5Ny00MzNhZWM2ZWRhZmUiXQ"</span>,</span><br><span class="line">    <span class="attr">"data"</span>:[</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="attr">"custom_id"</span>:<span class="literal">null</span>,</span><br><span class="line">            <span class="attr">"created_at"</span>:<span class="number">1538040529</span>,</span><br><span class="line">            <span class="attr">"username"</span>:<span class="string">"Jason"</span>,</span><br><span class="line">            <span class="attr">"id"</span>:<span class="string">"0ad63029-c2fd-4a25-ba97-433aec6edafe"</span></span><br><span class="line">        &#125;</span><br><span class="line">    ],</span><br><span class="line">    <span class="attr">"offset"</span>:<span class="string">"WyIwYWQ2MzAyOS1jMmZkLTRhMjUtYmE5Ny00MzNhZWM2ZWRhZmUiXQ"</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="更新Consumer"><a href="#更新Consumer" class="headerlink" title="更新Consumer"></a>更新Consumer</h3><h4 id="Endpoint-15"><a href="#Endpoint-15" class="headerlink" title="Endpoint"></a>Endpoint</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">PATCH /consumers/&#123;username or id&#125;</span><br></pre></td></tr></table></figure>
+<p>要更新消费者的唯一标识符或用户名</p>
+<h4 id="Request-Body-6"><a href="#Request-Body-6" class="headerlink" title="Request Body"></a>Request Body</h4><p>参考<strong>创建Consumer</strong>部分，username与custom_id属性</p>
+<h4 id="Response-18"><a href="#Response-18" class="headerlink" title="Response"></a>Response</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">curl -i -X PATCH http://localhost:8001/consumers/10 \</span><br><span class="line">    -d &apos;username=first-user&apos;</span><br></pre></td></tr></table></figure>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    <span class="attr">"custom_id"</span>:<span class="string">"10"</span>,</span><br><span class="line">    <span class="attr">"created_at"</span>:<span class="number">1538205455</span>,</span><br><span class="line">    <span class="attr">"username"</span>:<span class="string">"first-user"</span>,</span><br><span class="line">    <span class="attr">"id"</span>:<span class="string">"24d9cf29-f6e0-40d6-a1ec-7fb00161ee50"</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="更新或创建Consumer"><a href="#更新或创建Consumer" class="headerlink" title="更新或创建Consumer"></a>更新或创建Consumer</h3><h4 id="Endpoint-16"><a href="#Endpoint-16" class="headerlink" title="Endpoint"></a>Endpoint</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">PUT /consumers/&#123;username or id&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="Request-Body-7"><a href="#Request-Body-7" class="headerlink" title="Request Body"></a>Request Body</h4><p>参考<strong>创建Consumer</strong>部分，username与custom_id属性</p>
+<ul>
+<li>用body中指定的定义在请求的资源下插入(或替换)使用者，消费者将通过用户名或id属性进行标识</li>
+<li>当用户名或id属性具有UUID结构时，被插入/替换的使用者将由其id标识，否则将由其用户名标识</li>
+<li>在不指定id(既不在URL中也不在body中)的情况下创建新使用者时，将自动生成它</li>
+<li>在URL中指定的用户名和请求body中不允许不同</li>
+</ul>
+<h4 id="Response-19"><a href="#Response-19" class="headerlink" title="Response"></a>Response</h4><p>参考 POST 和 PATCH 的Response</p>
+<h3 id="删除Consumer"><a href="#删除Consumer" class="headerlink" title="删除Consumer"></a>删除Consumer</h3><h4 id="Endpoint-17"><a href="#Endpoint-17" class="headerlink" title="Endpoint"></a>Endpoint</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">DELETE /consumers/&#123;username or id&#125;</span><br></pre></td></tr></table></figure>
+<p>要删除消费者的唯一标识符或名称</p>
+<h4 id="Response-20"><a href="#Response-20" class="headerlink" title="Response"></a>Response</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl -i -X DELETE http://localhost:8001/consumers/first-user</span><br></pre></td></tr></table></figure>
+<h2 id="Plugin-Object"><a href="#Plugin-Object" class="headerlink" title="Plugin Object"></a>Plugin Object</h2><p>插件实体表示将在HTTP请求/响应生命周期中执行的插件配置，它向运行在Kong后面的服务添加功能，例如身份验证或限流，更多插件见<a href="https://docs.konghq.com/hub/" target="_blank" rel="noopener">文档</a>。</p>
+<p>当向服务添加插件配置时，客户端向该服务发出的每个请求都将运行该插件。如果某个插件需要为某些特定的消费者调整到不同<br>的值，可以通过指定consumer_id值来实现</p>
+<h3 id="优先了解"><a href="#优先了解" class="headerlink" title="优先了解"></a>优先了解</h3><p>插件每次请求只运行一次，但是它运行的配置取决于它所配置的实体。插件可以为各种实体、实体组合甚至全局配置。这很有用，例如，当希望为大多数请求配置插件，但使身份验证请求的行为略有不同时。<br>因此，当插件被应用到具有不同配置的不同实体时，就存在运行插件的优先顺序。经验法则是：插件配置的实体越多，它的优先级就越高。<br>当插件被多次配置时，优先级的完整顺序是：</p>
+<ul>
+<li>配置在一个组合上的插件：路由、服务和消费者（消费者表示请求必须经过身份验证）</li>
+<li>在路由和消费者的组合上配置的插件（消费者表示请求必须经过身份验证）</li>
+<li>在服务和消费者的组合上配置的插件（消费者表示请求必须经过身份验证）</li>
+<li>在路由和服务的组合上配置的插件</li>
+<li>在消费者上配置的插件（消费者表示请求必须经过身份验证）</li>
+<li>在路由上配置的插件</li>
+<li>在服务上配置的插件</li>
+<li>全局运行的插件</li>
+</ul>
+<p>比如：如果限流插件应用两次（不同配置）：服务（插件配置A）和消费者（插件配置B），然后验证该消费者的请求将运行插件配置B并忽略A。但是，如果请求没有验证此消费者身份，则回退运行插件配置A。<br>注意：如果配置B被禁用(它的启用标志被设置为false)，config A will apply to requests that would have otherwise matched config B.（这段英文不理解。。。）</p>
+<h3 id="添加Plugin"><a href="#添加Plugin" class="headerlink" title="添加Plugin"></a>添加Plugin</h3><h3 id="检索Plugin"><a href="#检索Plugin" class="headerlink" title="检索Plugin"></a>检索Plugin</h3><h3 id="列出所有Plugins"><a href="#列出所有Plugins" class="headerlink" title="列出所有Plugins"></a>列出所有Plugins</h3><h3 id="更新Plugin"><a href="#更新Plugin" class="headerlink" title="更新Plugin"></a>更新Plugin</h3><h3 id="更新或添加Plugin"><a href="#更新或添加Plugin" class="headerlink" title="更新或添加Plugin"></a>更新或添加Plugin</h3><h3 id="删除Plugin"><a href="#删除Plugin" class="headerlink" title="删除Plugin"></a>删除Plugin</h3><h3 id="检索启用Plugins"><a href="#检索启用Plugins" class="headerlink" title="检索启用Plugins"></a>检索启用Plugins</h3><h3 id="检索Plugin-Schema"><a href="#检索Plugin-Schema" class="headerlink" title="检索Plugin Schema"></a>检索Plugin Schema</h3><h2 id="Certificate-Object"><a href="#Certificate-Object" class="headerlink" title="Certificate Object"></a>Certificate Object</h2><p>证书对象表示SSL证书的公共证书/私钥对，Kong使用这些对象来处理加密请求的SSL/TLS，证书有选择地与SNI对象关联，以便将证书/密钥对绑定到一个或多个主机名</p>
+<h3 id="添加Certificate"><a href="#添加Certificate" class="headerlink" title="添加Certificate"></a>添加Certificate</h3><h3 id="检索Certificate"><a href="#检索Certificate" class="headerlink" title="检索Certificate"></a>检索Certificate</h3><h3 id="Certificates列表"><a href="#Certificates列表" class="headerlink" title="Certificates列表"></a>Certificates列表</h3><h3 id="更新Certificate"><a href="#更新Certificate" class="headerlink" title="更新Certificate"></a>更新Certificate</h3><h3 id="更新或创建Certificate"><a href="#更新或创建Certificate" class="headerlink" title="更新或创建Certificate"></a>更新或创建Certificate</h3><h3 id="删除Certificate"><a href="#删除Certificate" class="headerlink" title="删除Certificate"></a>删除Certificate</h3><h2 id="SNI-Objects"><a href="#SNI-Objects" class="headerlink" title="SNI Objects"></a>SNI Objects</h2><p>SNI对象表示主机名到证书的多对一映射，也就是说，证书对象可以有许多与之关联的主机名；当Kong收到SSL请求时，它使用Client Hello中的SNI字段去查找与SNI关联证书的证书对象。</p>
+<h3 id="添加SNI"><a href="#添加SNI" class="headerlink" title="添加SNI"></a>添加SNI</h3><h3 id="检索SNI"><a href="#检索SNI" class="headerlink" title="检索SNI"></a>检索SNI</h3><h3 id="SNIs-列表"><a href="#SNIs-列表" class="headerlink" title="SNIs 列表"></a>SNIs 列表</h3><h3 id="更新SNI"><a href="#更新SNI" class="headerlink" title="更新SNI"></a>更新SNI</h3><h3 id="更新或创建SNI"><a href="#更新或创建SNI" class="headerlink" title="更新或创建SNI"></a>更新或创建SNI</h3><h3 id="删除SNI"><a href="#删除SNI" class="headerlink" title="删除SNI"></a>删除SNI</h3><h2 id="Upstream-Objects"><a href="#Upstream-Objects" class="headerlink" title="Upstream Objects"></a>Upstream Objects</h2><p>上游对象表示虚拟主机名，可用于在多个服务（targets）上负载均衡传入请求。比如host是service.v1.xyz的服务对象，其上游名为service.v1.xyz，用于主机为Service .v1.xyz的服务对象。此服务的请求将被代理到上游中定义的targets。<br>上游还包括<a href="https://docs.konghq.com/0.14.x/health-checks-circuit-breakers/" target="_blank" rel="noopener">健康检查</a>，能够根据是否有能力去处理请求来启用和禁用targets——健康检查的配置存储在上游对象中，并应用于其所有目标。</p>
+<h3 id="添加upstream"><a href="#添加upstream" class="headerlink" title="添加upstream"></a>添加upstream</h3><h4 id="Endpoint-18"><a href="#Endpoint-18" class="headerlink" title="Endpoint"></a>Endpoint</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">POST /upstreams/</span><br></pre></td></tr></table></figure>
+<h4 id="Request-Body-8"><a href="#Request-Body-8" class="headerlink" title="Request Body"></a>Request Body</h4><blockquote>
+<p>参考原文：<a href="https://docs.konghq.com/0.14.x/admin-api/#add-upstream" target="_blank" rel="noopener">https://docs.konghq.com/0.14.x/admin-api/#add-upstream</a></p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th>属性</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>name</td>
+<td>这是一个hostname，它必须等于服务的host</td>
+</tr>
+<tr>
+<td>slots</td>
+<td>负载均衡算法中的槽数（10-65536，默认为1000）——接口返回的是10000</td>
+</tr>
+<tr>
+<td>hash_on</td>
+<td>使用什么作为散列输入：none、consumer、ip、header或cookie（默认为none，导致加权循环模式）</td>
+</tr>
+<tr>
+<td>hash_fallback</td>
+<td>如果主hash_on不返回哈希值，应该使用什么作为哈希输入（比如缺少header，或者没有标识消费者）。其中之一：none、consumer、ip、header或cookie（默认为none，如果hash_on设置为cookie，则不可用）</td>
+</tr>
+<tr>
+<td>hash_on_header</td>
+<td>要将值作为散列输入的头名称（只有当hash_on被设置为header时才需要）</td>
+</tr>
+<tr>
+<td>hash_fallback_header</td>
+<td>要将值作为散列输入的头名称（只有当hash_fallback设置为header时才需要）</td>
+</tr>
+<tr>
+<td>hash_on_cookie</td>
+<td>将值作为散列输入的cookie名称（只有当hash_on或hash_fallback设置为cookie时才需要）。如果指定的cookie不在请求中，Kong将生成一个值并在响应中设置cookie</td>
+</tr>
+<tr>
+<td>hash_on_cookie_path</td>
+<td>要在响应标头中设置的cookie路径（仅当hash_on或hash_fallback设置为cookie时才需要，默认值为”/“）</td>
+</tr>
+<tr>
+<td>healthchecks.active.timeout</td>
+<td>用于主动健康检查的套接字超时(以秒为单位)</td>
+</tr>
+<tr>
+<td>healthchecks.active.concurrency</td>
+<td>在主动健康检查中要同时检查的目标数量</td>
+</tr>
+<tr>
+<td>healthchecks.active.http_path</td>
+<td>在GET HTTP请求中使用的路径，以探测主动健康检查</td>
+</tr>
+<tr>
+<td>healthchecks.active.healthy.interval</td>
+<td>主动健康检查与健康目标之间的间隔（以秒为单位），值为0表示不应该执行针对健康目标的主动探测</td>
+</tr>
+<tr>
+<td>healthchecks.active.healthy.http_statuses</td>
+<td>一个HTTP状态数组，用于表明成功，表示在主动健康检查中由探测返回时的健康状态</td>
+</tr>
+<tr>
+<td>healthchecks.active.healthy.successes</td>
+<td>在主动探测(由healthcheck.active.health.http_statuses定义)中目标健康的成功次数</td>
+</tr>
+<tr>
+<td>healthchecks.active.unhealthy.interval</td>
+<td>主动检查不健康目标的间隔时间(以秒为单位)，值为0表示不健康目标的主动探测不应该执行</td>
+</tr>
+<tr>
+<td>healthchecks.active.unhealthy.http_statuses</td>
+<td>一个HTTP状态数组，用于表明失败，在主动健康检查中由探测返回时表示不健康</td>
+</tr>
+<tr>
+<td>healthchecks.active.unhealthy.tcp_failures</td>
+<td>在主动探测中TCP失败的数量以认为目标的不健康</td>
+</tr>
+<tr>
+<td>healthchecks.active.unhealthy.timeouts</td>
+<td>在主动探测中考虑不健康目标的超时次数</td>
+</tr>
+<tr>
+<td>healthchecks.active.unhealthy.http_failures</td>
+<td>主动探测中的HTTP失败次数(由healthcheck.active.unhealth.http_statuses定义)以认为目标不健康</td>
+</tr>
+<tr>
+<td>healthchecks.passive.healthy.http_statuses</td>
+<td>一种HTTP状态数组，当代理流量产生时，它表示健康状态，通过被动健康检查可以观察到</td>
+</tr>
+<tr>
+<td>healthchecks.passive.healthy.successes</td>
+<td>代理流量(由healthcheck.passive.health.http_statuses定义)中认为目标健康的成功次数，通过被动健康检查观察</td>
+</tr>
+<tr>
+<td>healthchecks.passive.unhealthy.http_statuses</td>
+<td>一种HTTP状态数组，它表示代理流量产生的不健康状态，如被动健康检查所观察到的</td>
+</tr>
+<tr>
+<td>healthchecks.passive.unhealthy.tcp_failures</td>
+<td>通过被动健康检查可以观察到，代理流量中TCP失败的数量，以考虑不健康的目标</td>
+</tr>
+<tr>
+<td>healthchecks.passive.unhealthy.timeouts</td>
+<td>通过被动的健康检查，在代理流量中考虑不健康目标的超时次数</td>
+</tr>
+<tr>
+<td>healthchecks.passive.unhealthy.http_failures</td>
+<td>被代理的流量(由healthcheck.passive.unhealth.http_statuses定义)中认为目标不健康的HTTP故障数，由被动健康检查观察到</td>
+</tr>
+</tbody>
+</table>
+<h4 id="Response-21"><a href="#Response-21" class="headerlink" title="Response"></a>Response</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">curl -i -X POST http://localhost:8001/upstreams/ \</span><br><span class="line">    -d &apos;name=service.v1.xyz&apos;</span><br></pre></td></tr></table></figure>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    <span class="attr">"healthchecks"</span>:&#123;</span><br><span class="line">        <span class="attr">"active"</span>:&#123;</span><br><span class="line">            <span class="attr">"unhealthy"</span>:&#123;</span><br><span class="line">                <span class="attr">"http_statuses"</span>:[</span><br><span class="line">                    <span class="number">429</span>,</span><br><span class="line">                    <span class="number">404</span>,</span><br><span class="line">                    <span class="number">500</span>,</span><br><span class="line">                    <span class="number">501</span>,</span><br><span class="line">                    <span class="number">502</span>,</span><br><span class="line">                    <span class="number">503</span>,</span><br><span class="line">                    <span class="number">504</span>,</span><br><span class="line">                    <span class="number">505</span></span><br><span class="line">                ],</span><br><span class="line">                <span class="attr">"tcp_failures"</span>:<span class="number">0</span>,</span><br><span class="line">                <span class="attr">"timeouts"</span>:<span class="number">0</span>,</span><br><span class="line">                <span class="attr">"http_failures"</span>:<span class="number">0</span>,</span><br><span class="line">                <span class="attr">"interval"</span>:<span class="number">0</span></span><br><span class="line">            &#125;,</span><br><span class="line">            <span class="attr">"http_path"</span>:<span class="string">"/"</span>,</span><br><span class="line">            <span class="attr">"healthy"</span>:&#123;</span><br><span class="line">                <span class="attr">"http_statuses"</span>:[</span><br><span class="line">                    <span class="number">200</span>,</span><br><span class="line">                    <span class="number">302</span></span><br><span class="line">                ],</span><br><span class="line">                <span class="attr">"interval"</span>:<span class="number">0</span>,</span><br><span class="line">                <span class="attr">"successes"</span>:<span class="number">0</span></span><br><span class="line">            &#125;,</span><br><span class="line">            <span class="attr">"timeout"</span>:<span class="number">1</span>,</span><br><span class="line">            <span class="attr">"concurrency"</span>:<span class="number">10</span></span><br><span class="line">        &#125;,</span><br><span class="line">        <span class="attr">"passive"</span>:&#123;</span><br><span class="line">            <span class="attr">"unhealthy"</span>:&#123;</span><br><span class="line">                <span class="attr">"http_failures"</span>:<span class="number">0</span>,</span><br><span class="line">                <span class="attr">"http_statuses"</span>:[</span><br><span class="line">                    <span class="number">429</span>,</span><br><span class="line">                    <span class="number">500</span>,</span><br><span class="line">                    <span class="number">503</span></span><br><span class="line">                ],</span><br><span class="line">                <span class="attr">"tcp_failures"</span>:<span class="number">0</span>,</span><br><span class="line">                <span class="attr">"timeouts"</span>:<span class="number">0</span></span><br><span class="line">            &#125;,</span><br><span class="line">            <span class="attr">"healthy"</span>:&#123;</span><br><span class="line">                <span class="attr">"successes"</span>:<span class="number">0</span>,</span><br><span class="line">                <span class="attr">"http_statuses"</span>:[</span><br><span class="line">                    <span class="number">200</span>,</span><br><span class="line">                    <span class="number">201</span>,</span><br><span class="line">                    <span class="number">202</span>,</span><br><span class="line">                    <span class="number">203</span>,</span><br><span class="line">                    <span class="number">204</span>,</span><br><span class="line">                    <span class="number">205</span>,</span><br><span class="line">                    <span class="number">206</span>,</span><br><span class="line">                    <span class="number">207</span>,</span><br><span class="line">                    <span class="number">208</span>,</span><br><span class="line">                    <span class="number">226</span>,</span><br><span class="line">                    <span class="number">300</span>,</span><br><span class="line">                    <span class="number">301</span>,</span><br><span class="line">                    <span class="number">302</span>,</span><br><span class="line">                    <span class="number">303</span>,</span><br><span class="line">                    <span class="number">304</span>,</span><br><span class="line">                    <span class="number">305</span>,</span><br><span class="line">                    <span class="number">306</span>,</span><br><span class="line">                    <span class="number">307</span>,</span><br><span class="line">                    <span class="number">308</span></span><br><span class="line">                ]</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;,</span><br><span class="line">    <span class="attr">"created_at"</span>:<span class="number">1538215964826</span>,</span><br><span class="line">    <span class="attr">"hash_on"</span>:<span class="string">"none"</span>,</span><br><span class="line">    <span class="attr">"id"</span>:<span class="string">"d878123e-e295-4801-a231-912bcd3148d5"</span>,</span><br><span class="line">    <span class="attr">"hash_on_cookie_path"</span>:<span class="string">"/"</span>,</span><br><span class="line">    <span class="attr">"name"</span>:<span class="string">"service.v1.xyz"</span>,</span><br><span class="line">    <span class="attr">"hash_fallback"</span>:<span class="string">"none"</span>,</span><br><span class="line">    <span class="attr">"slots"</span>:<span class="number">10000</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="检索upstream"><a href="#检索upstream" class="headerlink" title="检索upstream"></a>检索upstream</h3><h4 id="Endpoint-19"><a href="#Endpoint-19" class="headerlink" title="Endpoint"></a>Endpoint</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/upstreams/&#123;name or id&#125;</span><br></pre></td></tr></table></figure>
+<p>要检索的upstream的标识符或名称</p>
+<h4 id="Response-22"><a href="#Response-22" class="headerlink" title="Response"></a>Response</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl -i -X GET http://localhost:8001/upstreams/service.v1.xyz</span><br></pre></td></tr></table></figure>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    <span class="attr">"healthchecks"</span>:&#123;</span><br><span class="line">        "active":Object&#123;...&#125;,</span><br><span class="line">        "passive":Object&#123;...&#125;</span><br><span class="line">    &#125;,</span><br><span class="line">    "created_at":1538215964826,</span><br><span class="line">    "hash_on":"none",</span><br><span class="line">    "id":"d878123e-e295-4801-a231-912bcd3148d5",</span><br><span class="line">    "hash_on_cookie_path":"/",</span><br><span class="line">    "name":"service.v1.xyz",</span><br><span class="line">    "hash_fallback":"none",</span><br><span class="line">    "slots":10000</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="upstreams列表"><a href="#upstreams列表" class="headerlink" title="upstreams列表"></a>upstreams列表</h3><h4 id="Endpoint-20"><a href="#Endpoint-20" class="headerlink" title="Endpoint"></a>Endpoint</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/upstreams/</span><br></pre></td></tr></table></figure>
+<h4 id="Request-Querystring-Parameters-3"><a href="#Request-Querystring-Parameters-3" class="headerlink" title="Request Querystring Parameters"></a>Request Querystring Parameters</h4><table>
+<thead>
+<tr>
+<th>属性</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id</td>
+<td>一个基于上游id字段的列表过滤器</td>
+</tr>
+<tr>
+<td>name</td>
+<td>一个基于上游名称字段的列表过滤器</td>
+</tr>
+<tr>
+<td>hash_on</td>
+<td>一个基于上游hash_on字段的列表过滤器</td>
+</tr>
+<tr>
+<td>hash_fallback</td>
+<td>列表中的一个基于上游hash_fallback字段的过滤器</td>
+</tr>
+<tr>
+<td>hash_on_header</td>
+<td></td>
+</tr>
+<tr>
+<td>hash_fallback_header</td>
+<td></td>
+</tr>
+<tr>
+<td>slots</td>
+<td></td>
+</tr>
+<tr>
+<td>size</td>
+<td></td>
+</tr>
+<tr>
+<td>offset</td>
+</tr>
+</tbody>
+</table>
+<h4 id="Response-23"><a href="#Response-23" class="headerlink" title="Response"></a>Response</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl -i -X GET http://localhost:8001/upstreams?size=1</span><br></pre></td></tr></table></figure>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    <span class="attr">"next"</span>:<span class="string">"http://localhost:8001/upstreams?offset=Mg%3D%3D&amp;size=1"</span>,</span><br><span class="line">    <span class="attr">"total"</span>:<span class="number">2</span>,</span><br><span class="line">    <span class="attr">"data"</span>:[</span><br><span class="line">        &#123;</span><br><span class="line">            "healthchecks":Object&#123;...&#125;,</span><br><span class="line">            "created_at":1538215964826,</span><br><span class="line">            "hash_on":"none",</span><br><span class="line">            "id":"d878123e-e295-4801-a231-912bcd3148d5",</span><br><span class="line">            "hash_on_cookie_path":"/",</span><br><span class="line">            "name":"service.v1.xyz",</span><br><span class="line">            "hash_fallback":"none",</span><br><span class="line">            "slots":10000</span><br><span class="line">        &#125;</span><br><span class="line">    ],</span><br><span class="line">    "offset":"Mg=="</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="更新upstream"><a href="#更新upstream" class="headerlink" title="更新upstream"></a>更新upstream</h3><h4 id="Endpoint-21"><a href="#Endpoint-21" class="headerlink" title="Endpoint"></a>Endpoint</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">PATCH /upstreams/&#123;name or id&#125;</span><br></pre></td></tr></table></figure>
+<p>要更新的上游标识符或名称</p>
+<h4 id="Request-Body-9"><a href="#Request-Body-9" class="headerlink" title="Request Body"></a>Request Body</h4><p>参考<strong>添加upstream</strong>部分</p>
+<h4 id="Response-24"><a href="#Response-24" class="headerlink" title="Response"></a>Response</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">curl -i -X PATCH http://localhost:8001/upstreams/service.v1.xyz \</span><br><span class="line">    -d &apos;slots=2000&apos;</span><br></pre></td></tr></table></figure>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    "healthchecks":Object&#123;...&#125;,</span><br><span class="line">    "created_at":1538215964826,</span><br><span class="line">    "hash_on":"none",</span><br><span class="line">    "id":"d878123e-e295-4801-a231-912bcd3148d5",</span><br><span class="line">    "hash_on_cookie_path":"/",</span><br><span class="line">    "name":"service.v1.xyz",</span><br><span class="line">    "hash_fallback":"none",</span><br><span class="line">    "slots":2000</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="更新或创建upstream"><a href="#更新或创建upstream" class="headerlink" title="更新或创建upstream"></a>更新或创建upstream</h3><h4 id="Endpoint-22"><a href="#Endpoint-22" class="headerlink" title="Endpoint"></a>Endpoint</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">PUT /upstreams/</span><br></pre></td></tr></table></figure>
+<h4 id="Request-Body-10"><a href="#Request-Body-10" class="headerlink" title="Request Body"></a>Request Body</h4><p>参考<strong>添加upstream</strong>部分，除此之外，还需要更多参数，可见<strong>Response</strong>部分</p>
+<p>PUT Endpoint的行为如下：如果请求payload不包含实体的主键（上游id），实体将使用给定的payload创建。如果请求payload确实包含实体的主键，那么有效负载将“替换”给定主键指定的实体。如果主键不是现有实体的主键，将返回404 not FOUND</p>
+<h4 id="Response-25"><a href="#Response-25" class="headerlink" title="Response"></a>Response</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">curl -i -X PUT http://localhost:8001/upstreams/ \</span><br><span class="line">    -d &apos;name=service.v1.xyza&apos;</span><br></pre></td></tr></table></figure>
+<p>可参考POST 和 PATCH的响应<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">curl -i -X PUT http://localhost:8001/upstreams/ \</span><br><span class="line">    -d &apos;name=service.v1.xyzab&apos; \</span><br><span class="line">    -d &apos;id=0ce1e400-aba5-4c66-8e83-309fac8f6bcc&apos;</span><br></pre></td></tr></table></figure></p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    <span class="attr">"created_at"</span>:<span class="string">"created_at is required"</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="删除upstream"><a href="#删除upstream" class="headerlink" title="删除upstream"></a>删除upstream</h3><h4 id="Endpoint-23"><a href="#Endpoint-23" class="headerlink" title="Endpoint"></a>Endpoint</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">DELETE /upstreams/&#123;name or id&#125;</span><br></pre></td></tr></table></figure>
+<p>要删除的上游标识符或名称</p>
+<h4 id="Response-26"><a href="#Response-26" class="headerlink" title="Response"></a>Response</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl -i -X DELETE http://localhost:8001/upstreams/service.v1.xyza</span><br></pre></td></tr></table></figure>
+<h3 id="显示节点的upstream健康情况"><a href="#显示节点的upstream健康情况" class="headerlink" title="显示节点的upstream健康情况"></a>显示节点的upstream健康情况</h3><p>根据特定的Kong节点的透视图，显示给定上游的所有目标的健康状态。注意，作为特定于节点的信息，向Kong集群的不同节点发出相同的请求可能会产生不同的结果。例如，Kong集群的一个特定节点可能遇到网络问题，导致它无法连接到某些Targets：这些Targets将被该节点标记为不健康（将流量从该节点定向到它能够成功到达的其他目标），但对所有其他Kong节点（使用该目标没有任何问题）都是健康的。<br>响应的数据字段包含Target对象数组，每个Target的health在其health字段中返回：</p>
+<ul>
+<li>如果一个Target由于DNS问题而无法在环平衡器中激活，它的状态将显示为DNS_ERROR</li>
+<li>当上游配置中没有启用健康检查时，活动Target的健康状态显示为HEALTHCHECKS_OFF</li>
+<li>当启用健康检查并确定Target为健康时，无论是自动或手动，其状态显示为HEALTHY。这意味着该Target目前包含在上游的负载均衡器环中</li>
+<li>当Target被主动或被动的健康检查(断路器)或手动关闭时，其状态显示为UNHEALTHY。负载均衡器没有通过上游将任何流量定向到此目标</li>
+</ul>
+<h4 id="Endpoint-24"><a href="#Endpoint-24" class="headerlink" title="Endpoint"></a>Endpoint</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/upstreams/&#123;name or id&#125;/health/</span><br></pre></td></tr></table></figure>
+<p>显示Target健康状态的上游标识符或名称</p>
+<h4 id="Response-27"><a href="#Response-27" class="headerlink" title="Response"></a>Response</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl -i -X GET http://localhost:8001/upstreams/service.v1.xyz/health/</span><br></pre></td></tr></table></figure>
+<h2 id="Target-Object"><a href="#Target-Object" class="headerlink" title="Target Object"></a>Target Object</h2><h3 id="添加target"><a href="#添加target" class="headerlink" title="添加target"></a>添加target</h3><h3 id="targets列表"><a href="#targets列表" class="headerlink" title="targets列表"></a>targets列表</h3><h3 id="所有targets列表"><a href="#所有targets列表" class="headerlink" title="所有targets列表"></a>所有targets列表</h3><h3 id="删除target"><a href="#删除target" class="headerlink" title="删除target"></a>删除target</h3><h3 id="Set-target-as-healthy"><a href="#Set-target-as-healthy" class="headerlink" title="Set target as healthy"></a>Set target as healthy</h3><h3 id="Set-target-as-unhealthy"><a href="#Set-target-as-unhealthy" class="headerlink" title="Set target as unhealthy"></a>Set target as unhealthy</h3><h2 id="资料"><a href="#资料" class="headerlink" title="资料"></a>资料</h2><ul>
+<li><a href="https://docs.konghq.com/0.14.x/admin-api/" target="_blank" rel="noopener">https://docs.konghq.com/0.14.x/admin-api/</a></li>
+</ul>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/API-Gateway/" rel="tag"># API Gateway</a>
+          
+            <a href="/tags/Kong/" rel="tag"># Kong</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/posts/kong_proxy/" rel="next" title="Kong——Proxy">
+                <i class="fa fa-chevron-left"></i> Kong——Proxy
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+    <div class="comments" id="comments">
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/avatar.jpg"
+                alt="Ryoma" />
+            
+              <p class="site-author-name" itemprop="name">Ryoma</p>
+              <p class="site-description motion-element" itemprop="description">Ryoma's Blog</p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">58</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  <a href="/categories/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">18</span>
+                    <span class="site-state-item-name">分类</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  <a href="/tags/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">60</span>
+                    <span class="site-state-item-name">标签</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+            <div class="links-of-author motion-element">
+              
+                <span class="links-of-author-item">
+                  <a href="https://github.com/JianmingXia" target="_blank" title="GitHub"><i class="fa fa-fw fa-github"></i>GitHub</a>
+                  
+                </span>
+              
+                <span class="links-of-author-item">
+                  <a href="mailto:xiajianming_xjm@163.com" target="_blank" title="E-Mail"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                  
+                </span>
+              
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#特殊说明"><span class="nav-number">1.</span> <span class="nav-text">特殊说明</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#支持Content-Types"><span class="nav-number">2.</span> <span class="nav-text">支持Content Types</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#application-x-www-form-urlencoded"><span class="nav-number">2.1.</span> <span class="nav-text">application/x-www-form-urlencoded</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#application-json"><span class="nav-number">2.2.</span> <span class="nav-text">application/json</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Information-routes"><span class="nav-number">3.</span> <span class="nav-text">Information routes</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#检索节点信息"><span class="nav-number">3.1.</span> <span class="nav-text">检索节点信息</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Endpoint"><span class="nav-number">3.1.1.</span> <span class="nav-text">Endpoint</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Response"><span class="nav-number">3.1.2.</span> <span class="nav-text">Response</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#检索节点状态"><span class="nav-number">3.2.</span> <span class="nav-text">检索节点状态</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Endpoint-1"><span class="nav-number">3.2.1.</span> <span class="nav-text">Endpoint</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Response-1"><span class="nav-number">3.2.2.</span> <span class="nav-text">Response</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Service-Object"><span class="nav-number">4.</span> <span class="nav-text">Service Object</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#添加Service"><span class="nav-number">4.1.</span> <span class="nav-text">添加Service</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Endpoint-2"><span class="nav-number">4.1.1.</span> <span class="nav-text">Endpoint</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Request-Body"><span class="nav-number">4.1.2.</span> <span class="nav-text">Request Body</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Response-2"><span class="nav-number">4.1.3.</span> <span class="nav-text">Response</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#检索Service"><span class="nav-number">4.2.</span> <span class="nav-text">检索Service</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Endpoints"><span class="nav-number">4.2.1.</span> <span class="nav-text">Endpoints</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#services-name-or-id"><span class="nav-number">4.2.1.1.</span> <span class="nav-text">/services/{name or id}</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#routes-route-id-service"><span class="nav-number">4.2.1.2.</span> <span class="nav-text">/routes/{route id}/service</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Response-3"><span class="nav-number">4.2.2.</span> <span class="nav-text">Response</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Services-列表"><span class="nav-number">4.3.</span> <span class="nav-text">Services 列表</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Endpoint-3"><span class="nav-number">4.3.1.</span> <span class="nav-text">Endpoint</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Request-Querystring-Parameters"><span class="nav-number">4.3.2.</span> <span class="nav-text">Request Querystring Parameters</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Response-4"><span class="nav-number">4.3.3.</span> <span class="nav-text">Response</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#更新Service"><span class="nav-number">4.4.</span> <span class="nav-text">更新Service</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Endpoints-1"><span class="nav-number">4.4.1.</span> <span class="nav-text">Endpoints</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#PATCH-services-name-or-id"><span class="nav-number">4.4.1.1.</span> <span class="nav-text">PATCH /services/{name or id}</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#PATCH-routes-route-id-service"><span class="nav-number">4.4.1.2.</span> <span class="nav-text">PATCH /routes/{route id}/service</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Request-Body-1"><span class="nav-number">4.4.2.</span> <span class="nav-text">Request Body</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Response-5"><span class="nav-number">4.4.3.</span> <span class="nav-text">Response</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#更新或创建Service"><span class="nav-number">4.5.</span> <span class="nav-text">更新或创建Service</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Endpoint-4"><span class="nav-number">4.5.1.</span> <span class="nav-text">Endpoint</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Request-Body-2"><span class="nav-number">4.5.2.</span> <span class="nav-text">Request Body</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Response-6"><span class="nav-number">4.5.3.</span> <span class="nav-text">Response</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#删除Service"><span class="nav-number">4.6.</span> <span class="nav-text">删除Service</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Endpoint-5"><span class="nav-number">4.6.1.</span> <span class="nav-text">Endpoint</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Response-7"><span class="nav-number">4.6.2.</span> <span class="nav-text">Response</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Route-Object"><span class="nav-number">5.</span> <span class="nav-text">Route Object</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#添加Route"><span class="nav-number">5.1.</span> <span class="nav-text">添加Route</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Endpoints-2"><span class="nav-number">5.1.1.</span> <span class="nav-text">Endpoints</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#POST-routes"><span class="nav-number">5.1.1.1.</span> <span class="nav-text">POST /routes/</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#POST-services-name-or-id-routes"><span class="nav-number">5.1.1.2.</span> <span class="nav-text">POST /services/{name or id}/routes/</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Request-Body-3"><span class="nav-number">5.1.2.</span> <span class="nav-text">Request Body</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Response-8"><span class="nav-number">5.1.3.</span> <span class="nav-text">Response</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#检索Route"><span class="nav-number">5.2.</span> <span class="nav-text">检索Route</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Endpoint-6"><span class="nav-number">5.2.1.</span> <span class="nav-text">Endpoint</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Response-9"><span class="nav-number">5.2.2.</span> <span class="nav-text">Response</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Routes列表"><span class="nav-number">5.3.</span> <span class="nav-text">Routes列表</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Endpoint-7"><span class="nav-number">5.3.1.</span> <span class="nav-text">Endpoint</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Request-Querystring-Parameters-1"><span class="nav-number">5.3.2.</span> <span class="nav-text">Request Querystring Parameters</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Response-10"><span class="nav-number">5.3.3.</span> <span class="nav-text">Response</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#列出与服务相关的路由"><span class="nav-number">5.4.</span> <span class="nav-text">列出与服务相关的路由</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Endpoint-8"><span class="nav-number">5.4.1.</span> <span class="nav-text">Endpoint</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Response-11"><span class="nav-number">5.4.2.</span> <span class="nav-text">Response</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#更新Route"><span class="nav-number">5.5.</span> <span class="nav-text">更新Route</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Endpoint-9"><span class="nav-number">5.5.1.</span> <span class="nav-text">Endpoint</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Request-Body-4"><span class="nav-number">5.5.2.</span> <span class="nav-text">Request Body</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Response-12"><span class="nav-number">5.5.3.</span> <span class="nav-text">Response</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#更新或创建Route"><span class="nav-number">5.6.</span> <span class="nav-text">更新或创建Route</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Endpoint-10"><span class="nav-number">5.6.1.</span> <span class="nav-text">Endpoint</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Request-Body-5"><span class="nav-number">5.6.2.</span> <span class="nav-text">Request Body</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Response-13"><span class="nav-number">5.6.3.</span> <span class="nav-text">Response</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#删除Route"><span class="nav-number">5.7.</span> <span class="nav-text">删除Route</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Endpoint-11"><span class="nav-number">5.7.1.</span> <span class="nav-text">Endpoint</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Response-14"><span class="nav-number">5.7.2.</span> <span class="nav-text">Response</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Consumer-Object"><span class="nav-number">6.</span> <span class="nav-text">Consumer Object</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#创建Consumer"><span class="nav-number">6.1.</span> <span class="nav-text">创建Consumer</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Endpoint-12"><span class="nav-number">6.1.1.</span> <span class="nav-text">Endpoint</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Request-Form-Parameters"><span class="nav-number">6.1.2.</span> <span class="nav-text">Request Form Parameters</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Response-15"><span class="nav-number">6.1.3.</span> <span class="nav-text">Response</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#检索Consumer"><span class="nav-number">6.2.</span> <span class="nav-text">检索Consumer</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Endpoint-13"><span class="nav-number">6.2.1.</span> <span class="nav-text">Endpoint</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Response-16"><span class="nav-number">6.2.2.</span> <span class="nav-text">Response</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Consumers列表"><span class="nav-number">6.3.</span> <span class="nav-text">Consumers列表</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Endpoint-14"><span class="nav-number">6.3.1.</span> <span class="nav-text">Endpoint</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Request-Querystring-Parameters-2"><span class="nav-number">6.3.2.</span> <span class="nav-text">Request Querystring Parameters</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Response-17"><span class="nav-number">6.3.3.</span> <span class="nav-text">Response</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#更新Consumer"><span class="nav-number">6.4.</span> <span class="nav-text">更新Consumer</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Endpoint-15"><span class="nav-number">6.4.1.</span> <span class="nav-text">Endpoint</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Request-Body-6"><span class="nav-number">6.4.2.</span> <span class="nav-text">Request Body</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Response-18"><span class="nav-number">6.4.3.</span> <span class="nav-text">Response</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#更新或创建Consumer"><span class="nav-number">6.5.</span> <span class="nav-text">更新或创建Consumer</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Endpoint-16"><span class="nav-number">6.5.1.</span> <span class="nav-text">Endpoint</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Request-Body-7"><span class="nav-number">6.5.2.</span> <span class="nav-text">Request Body</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Response-19"><span class="nav-number">6.5.3.</span> <span class="nav-text">Response</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#删除Consumer"><span class="nav-number">6.6.</span> <span class="nav-text">删除Consumer</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Endpoint-17"><span class="nav-number">6.6.1.</span> <span class="nav-text">Endpoint</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Response-20"><span class="nav-number">6.6.2.</span> <span class="nav-text">Response</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Plugin-Object"><span class="nav-number">7.</span> <span class="nav-text">Plugin Object</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#优先了解"><span class="nav-number">7.1.</span> <span class="nav-text">优先了解</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#添加Plugin"><span class="nav-number">7.2.</span> <span class="nav-text">添加Plugin</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#检索Plugin"><span class="nav-number">7.3.</span> <span class="nav-text">检索Plugin</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#列出所有Plugins"><span class="nav-number">7.4.</span> <span class="nav-text">列出所有Plugins</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#更新Plugin"><span class="nav-number">7.5.</span> <span class="nav-text">更新Plugin</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#更新或添加Plugin"><span class="nav-number">7.6.</span> <span class="nav-text">更新或添加Plugin</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#删除Plugin"><span class="nav-number">7.7.</span> <span class="nav-text">删除Plugin</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#检索启用Plugins"><span class="nav-number">7.8.</span> <span class="nav-text">检索启用Plugins</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#检索Plugin-Schema"><span class="nav-number">7.9.</span> <span class="nav-text">检索Plugin Schema</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Certificate-Object"><span class="nav-number">8.</span> <span class="nav-text">Certificate Object</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#添加Certificate"><span class="nav-number">8.1.</span> <span class="nav-text">添加Certificate</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#检索Certificate"><span class="nav-number">8.2.</span> <span class="nav-text">检索Certificate</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Certificates列表"><span class="nav-number">8.3.</span> <span class="nav-text">Certificates列表</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#更新Certificate"><span class="nav-number">8.4.</span> <span class="nav-text">更新Certificate</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#更新或创建Certificate"><span class="nav-number">8.5.</span> <span class="nav-text">更新或创建Certificate</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#删除Certificate"><span class="nav-number">8.6.</span> <span class="nav-text">删除Certificate</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#SNI-Objects"><span class="nav-number">9.</span> <span class="nav-text">SNI Objects</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#添加SNI"><span class="nav-number">9.1.</span> <span class="nav-text">添加SNI</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#检索SNI"><span class="nav-number">9.2.</span> <span class="nav-text">检索SNI</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#SNIs-列表"><span class="nav-number">9.3.</span> <span class="nav-text">SNIs 列表</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#更新SNI"><span class="nav-number">9.4.</span> <span class="nav-text">更新SNI</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#更新或创建SNI"><span class="nav-number">9.5.</span> <span class="nav-text">更新或创建SNI</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#删除SNI"><span class="nav-number">9.6.</span> <span class="nav-text">删除SNI</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Upstream-Objects"><span class="nav-number">10.</span> <span class="nav-text">Upstream Objects</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#添加upstream"><span class="nav-number">10.1.</span> <span class="nav-text">添加upstream</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Endpoint-18"><span class="nav-number">10.1.1.</span> <span class="nav-text">Endpoint</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Request-Body-8"><span class="nav-number">10.1.2.</span> <span class="nav-text">Request Body</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Response-21"><span class="nav-number">10.1.3.</span> <span class="nav-text">Response</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#检索upstream"><span class="nav-number">10.2.</span> <span class="nav-text">检索upstream</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Endpoint-19"><span class="nav-number">10.2.1.</span> <span class="nav-text">Endpoint</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Response-22"><span class="nav-number">10.2.2.</span> <span class="nav-text">Response</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#upstreams列表"><span class="nav-number">10.3.</span> <span class="nav-text">upstreams列表</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Endpoint-20"><span class="nav-number">10.3.1.</span> <span class="nav-text">Endpoint</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Request-Querystring-Parameters-3"><span class="nav-number">10.3.2.</span> <span class="nav-text">Request Querystring Parameters</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Response-23"><span class="nav-number">10.3.3.</span> <span class="nav-text">Response</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#更新upstream"><span class="nav-number">10.4.</span> <span class="nav-text">更新upstream</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Endpoint-21"><span class="nav-number">10.4.1.</span> <span class="nav-text">Endpoint</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Request-Body-9"><span class="nav-number">10.4.2.</span> <span class="nav-text">Request Body</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Response-24"><span class="nav-number">10.4.3.</span> <span class="nav-text">Response</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#更新或创建upstream"><span class="nav-number">10.5.</span> <span class="nav-text">更新或创建upstream</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Endpoint-22"><span class="nav-number">10.5.1.</span> <span class="nav-text">Endpoint</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Request-Body-10"><span class="nav-number">10.5.2.</span> <span class="nav-text">Request Body</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Response-25"><span class="nav-number">10.5.3.</span> <span class="nav-text">Response</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#删除upstream"><span class="nav-number">10.6.</span> <span class="nav-text">删除upstream</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Endpoint-23"><span class="nav-number">10.6.1.</span> <span class="nav-text">Endpoint</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Response-26"><span class="nav-number">10.6.2.</span> <span class="nav-text">Response</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#显示节点的upstream健康情况"><span class="nav-number">10.7.</span> <span class="nav-text">显示节点的upstream健康情况</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Endpoint-24"><span class="nav-number">10.7.1.</span> <span class="nav-text">Endpoint</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Response-27"><span class="nav-number">10.7.2.</span> <span class="nav-text">Response</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Target-Object"><span class="nav-number">11.</span> <span class="nav-text">Target Object</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#添加target"><span class="nav-number">11.1.</span> <span class="nav-text">添加target</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#targets列表"><span class="nav-number">11.2.</span> <span class="nav-text">targets列表</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#所有targets列表"><span class="nav-number">11.3.</span> <span class="nav-text">所有targets列表</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#删除target"><span class="nav-number">11.4.</span> <span class="nav-text">删除target</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Set-target-as-healthy"><span class="nav-number">11.5.</span> <span class="nav-text">Set target as healthy</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Set-target-as-unhealthy"><span class="nav-number">11.6.</span> <span class="nav-text">Set target as unhealthy</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#资料"><span class="nav-number">12.</span> <span class="nav-text">资料</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2017 &mdash; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Ryoma</span>
+
+  
+
+  
+</div>
+
+
+
+
+  <div class="powered-by"><a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> v3.7.1</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://theme-next.org">NexT.Gemini</a> v6.3.0</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+	
+    
+
+    
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/three/three.min.js"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/three/canvas_sphere.min.js"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=6.3.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=6.3.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=6.3.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=6.3.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=6.3.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=6.3.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=6.3.0"></script>
+
+
+
+  
+
+  
+    <script id="dsq-count-scr" src="https://ryoma-blog.disqus.com/count.js" async></script>
+  
+
+  
+    <script type="text/javascript">
+      var disqus_config = function () {
+        this.page.url = 'https://blog.ryoma.top/posts/kong_admin_api/';
+        this.page.identifier = 'posts/kong_admin_api/';
+        this.page.title = 'Kong——Admin API';
+        };
+      function loadComments () {
+        var d = document, s = d.createElement('script');
+        s.src = 'https://ryoma-blog.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', '' + +new Date());
+        (d.head || d.body).appendChild(s);
+      }
+      
+        $(function () {
+          var offsetTop = $('#comments').offset().top - $(window).height();
+          if (offsetTop <= 0) {
+            // load directly when there's no a scrollbar
+            loadComments();
+          } else {
+            $(window).on('scroll.disqus_scroll', function () {
+              var scrollTop = document.documentElement.scrollTop;
+              if (scrollTop >= offsetTop) {
+                $(window).off('.disqus_scroll');
+                loadComments();
+              }
+            });
+          }
+        });
+      
+    </script>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

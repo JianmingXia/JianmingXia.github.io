@@ -309,7 +309,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://blog.ryoma.top/posts/kong_proxy_reference/">
+    <link itemprop="mainEntityOfPage" href="https://blog.ryoma.top/posts/kong_admin_api/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Ryoma">
@@ -328,8 +328,192 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/posts/kong_proxy_reference/" itemprop="url">
-                  Kong——Proxy参考
+                <a class="post-title-link" href="/posts/kong_admin_api/" itemprop="url">
+                  Kong——Admin API
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2018-09-29 20:00:00" itemprop="dateCreated datePublished" datetime="2018-09-29T20:00:00+08:00">2018-09-29</time>
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/微服务/" itemprop="url" rel="index"><span itemprop="name">微服务</span></a></span>
+
+                
+                
+                  ，
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/Kong/" itemprop="url" rel="index"><span itemprop="name">Kong</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/posts/kong_admin_api/#comments" itemprop="discussionUrl">
+                
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="posts/kong_admin_api/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <blockquote>
+<p>Endpoint非特殊说明，默认为GET<br>Kong为了便于管理附带了一个内部RESTful Admin API。对Admin API的请求可以发送到集群中的任何节点，而Kong将保持所有节点的配置一致</p>
+<ul>
+<li>8001：Admin API监听的默认端口</li>
+<li>8444：Admin API的HTTPS默认端口</li>
+</ul>
+</blockquote>
+<p>这个API是为内部使用而设计的，它提供了对Kong的完全控制，所以在设置Kong环境时要小心，以避免不必要的公开暴露这个API<br>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/posts/kong_admin_api/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.ryoma.top/posts/kong_proxy/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Ryoma">
+      <meta itemprop="description" content="Ryoma's Blog">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Ryoma's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/posts/kong_proxy/" itemprop="url">
+                  Kong——Proxy
                 </a>
               
             
@@ -395,10 +579,10 @@
                 <span class="post-meta-item-icon">
                   <i class="fa fa-comment-o"></i>
                 </span>
-                <a href="/posts/kong_proxy_reference/#comments" itemprop="discussionUrl">
+                <a href="/posts/kong_proxy/#comments" itemprop="discussionUrl">
                 
                   <span class="post-comments-count disqus-comment-count"
-                        data-disqus-identifier="posts/kong_proxy_reference/" itemprop="commentCount"></span>
+                        data-disqus-identifier="posts/kong_proxy/" itemprop="commentCount"></span>
                 </a>
               </span>
             
@@ -435,6 +619,7 @@
 <li>proxy_listen：定义了一个地址/端口列表——Kong将接受来自客户端的流量并代理上游服务</li>
 <li>admin_listen：同样定义了一个地址/端口列表——但这些仅限于管理员访问</li>
 </ul>
+<p>从0.13.0版本开始，API实体被弃用，使用 Routes 及 Services 实体替代</p>
 <h2 id="术语"><a href="#术语" class="headerlink" title="术语"></a>术语</h2><ul>
 <li>client：指下游客户端向Kong的代理端口发出请求</li>
 <li>upstream service：指位于Kong后面的API/服务，客户端请求被转发到该服务</li>
@@ -443,7 +628,7 @@
 <li>Plugin：指Kong的Plugins，在代理生命周期中运行的业务逻辑。插件可以通过管理API进行配置——可以全局配置(所有入口)，也可以在特定的路由和服务上配置
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/posts/kong_proxy_reference/#more" rel="contents">
+            <a class="btn" href="/posts/kong_proxy/#more" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -620,13 +805,22 @@
           <blockquote>
 <p>虽然Kong提供了REST API用于配置，但是平时可能更习惯使用可视化界面操作，而且可视化界面在浏览上也更友好一点。</p>
 </blockquote>
+<h2 id="RESTful-API"><a href="#RESTful-API" class="headerlink" title="RESTful API"></a>RESTful API</h2><blockquote>
+<p>如果使用Kong提供的RESTful API 进行配置，需要了解各种HTTP方法</p>
+</blockquote>
+<p>常用的HTTP 方法：</p>
+<ul>
+<li>GET：从服务器取出资源</li>
+<li>POST：在服务器新建一个资源</li>
+<li>PUT：在服务器更新资源（提供完整属性）</li>
+<li>PATCH：在服务器更新资源（只需要提供改变的属性）</li>
+<li>DELETE：从服务器删除资源</li>
+</ul>
 <h2 id="Kong-UI选择"><a href="#Kong-UI选择" class="headerlink" title="Kong UI选择"></a>Kong UI选择</h2><p>有两个使用数较多的Dashboard：</p>
 <ul>
 <li>kong-dashboard：<a href="https://github.com/PGBI/kong-dashboard" target="_blank" rel="noopener">https://github.com/PGBI/kong-dashboard</a></li>
 <li>konga：<a href="https://github.com/pantsel/konga" target="_blank" rel="noopener">https://github.com/pantsel/konga</a><br>从github上对比，Stars等konga会略逊一筹，但是较于kong-dashboard，它更紧跟Kong的版本，先尝试一下konga</li>
 </ul>
-<h2 id="konga"><a href="#konga" class="headerlink" title="konga"></a>konga</h2><h3 id="运行"><a href="#运行" class="headerlink" title="运行"></a>运行</h3><figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">docker run --rm -d -p <span class="number">1337</span>:<span class="number">1337</span> \</span><br><span class="line">     --network kong-net \</span><br><span class="line">     --name konga \</span><br><span class="line">     -e <span class="string">"NODE_ENV=production"</span> \</span><br><span class="line">     pantsel/konga</span><br></pre></td></tr></table></figure>
-<h3 id="激活"><a href="#激活" class="headerlink" title="激活"></a>激活</h3><p>进入<strong>Connections</strong>点击<strong>ACTIVATE</strong></p>
           <!--noindex-->
           <div class="post-button text-center">
             <a class="btn" href="/posts/kong_dashboard/#more" rel="contents">
@@ -1025,183 +1219,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://blog.ryoma.top/posts/how_to_select_api_gateway/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Ryoma">
-      <meta itemprop="description" content="Ryoma's Blog">
-      <meta itemprop="image" content="/images/avatar.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Ryoma's Blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/posts/how_to_select_api_gateway/" itemprop="url">
-                  如何选择 API Gateway
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-
-            
-            
-            
-
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-
-              
-                
-              
-
-              <time title="创建时间：2018-09-20 20:00:00" itemprop="dateCreated datePublished" datetime="2018-09-20T20:00:00+08:00">2018-09-20</time>
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/微服务/" itemprop="url" rel="index"><span itemprop="name">微服务</span></a></span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/posts/how_to_select_api_gateway/#comments" itemprop="discussionUrl">
-                
-                  <span class="post-comments-count disqus-comment-count"
-                        data-disqus-identifier="posts/how_to_select_api_gateway/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <h2 id="说在前面"><a href="#说在前面" class="headerlink" title="说在前面"></a>说在前面</h2><p>最近在参与项目的重构工作，由于之前的经验问题，导致目前的项目服务架构极其不合理。既然选择了重构，不仅仅是代码层面，架构上也是需要调整的。但是在选择的API网关上遇到了难题，之前团队也没有这方面的经验，目前也只能算是摸着石头过河。列举了一些在选择API Gateway时需要注意的内容，大家可以根据需要设定考虑API Gateway时的优先级，然后进行比对选择。</p>
-<h2 id="部署简单"><a href="#部署简单" class="headerlink" title="部署简单"></a>部署简单</h2><p>当我们需要创建新实例时，需要足够简单</p>
-<h2 id="可扩展性、可维护性"><a href="#可扩展性、可维护性" class="headerlink" title="可扩展性、可维护性"></a>可扩展性、可维护性</h2><ul>
-<li>若出现无法hold住的场景，是否能进行二次开发</li>
-<li>团队其它成员能否有能力维护</li>
-</ul>
-<h2 id="高可用性"><a href="#高可用性" class="headerlink" title="高可用性"></a>高可用性</h2><ul>
-<li>网关必须支持集群部署
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/posts/how_to_select_api_gateway/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -1253,7 +1270,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">57</span>
+                    <span class="site-state-item-count">58</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>

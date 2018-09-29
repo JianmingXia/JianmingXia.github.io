@@ -108,19 +108,19 @@
 
 
 
-  <meta name="description" content="通过详细解释Kong的路由功能和内部工作原理来介绍Kong的代理功能  Kong公开几个接口，可以调整两个配置属性：  proxy_listen：定义了一个地址/端口列表——Kong将接受来自客户端的流量并代理上游服务 admin_listen：同样定义了一个地址/端口列表——但这些仅限于管理员访问  术语 client：指下游客户端向Kong的代理端口发出请求 upstream service">
+  <meta name="description" content="通过详细解释Kong的路由功能和内部工作原理来介绍Kong的代理功能  Kong公开几个接口，可以调整两个配置属性：  proxy_listen：定义了一个地址/端口列表——Kong将接受来自客户端的流量并代理上游服务 admin_listen：同样定义了一个地址/端口列表——但这些仅限于管理员访问  从0.13.0版本开始，API实体被弃用，使用 Routes 及 Services 实体替代">
 <meta name="keywords" content="API Gateway,Kong">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Kong——Proxy参考">
-<meta property="og:url" content="https://blog.ryoma.top/posts/kong_proxy_reference/index.html">
+<meta property="og:title" content="Kong——Proxy">
+<meta property="og:url" content="https://blog.ryoma.top/posts/kong_proxy/index.html">
 <meta property="og:site_name" content="Ryoma&#39;s Blog">
-<meta property="og:description" content="通过详细解释Kong的路由功能和内部工作原理来介绍Kong的代理功能  Kong公开几个接口，可以调整两个配置属性：  proxy_listen：定义了一个地址/端口列表——Kong将接受来自客户端的流量并代理上游服务 admin_listen：同样定义了一个地址/端口列表——但这些仅限于管理员访问  术语 client：指下游客户端向Kong的代理端口发出请求 upstream service">
+<meta property="og:description" content="通过详细解释Kong的路由功能和内部工作原理来介绍Kong的代理功能  Kong公开几个接口，可以调整两个配置属性：  proxy_listen：定义了一个地址/端口列表——Kong将接受来自客户端的流量并代理上游服务 admin_listen：同样定义了一个地址/端口列表——但这些仅限于管理员访问  从0.13.0版本开始，API实体被弃用，使用 Routes 及 Services 实体替代">
 <meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="https://cdn.nlark.com/yuque/0/2018/png/92822/1538126272900-eb1ca537-d0d3-433e-bb77-15ddd385e8b4.png">
-<meta property="og:updated_time" content="2018-09-28T12:44:21.932Z">
+<meta property="og:updated_time" content="2018-09-29T12:05:12.048Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Kong——Proxy参考">
-<meta name="twitter:description" content="通过详细解释Kong的路由功能和内部工作原理来介绍Kong的代理功能  Kong公开几个接口，可以调整两个配置属性：  proxy_listen：定义了一个地址/端口列表——Kong将接受来自客户端的流量并代理上游服务 admin_listen：同样定义了一个地址/端口列表——但这些仅限于管理员访问  术语 client：指下游客户端向Kong的代理端口发出请求 upstream service">
+<meta name="twitter:title" content="Kong——Proxy">
+<meta name="twitter:description" content="通过详细解释Kong的路由功能和内部工作原理来介绍Kong的代理功能  Kong公开几个接口，可以调整两个配置属性：  proxy_listen：定义了一个地址/端口列表——Kong将接受来自客户端的流量并代理上游服务 admin_listen：同样定义了一个地址/端口列表——但这些仅限于管理员访问  从0.13.0版本开始，API实体被弃用，使用 Routes 及 Services 实体替代">
 <meta name="twitter:image" content="https://cdn.nlark.com/yuque/0/2018/png/92822/1538126272900-eb1ca537-d0d3-433e-bb77-15ddd385e8b4.png">
 
 
@@ -128,7 +128,7 @@
 
 
 
-  <link rel="canonical" href="https://blog.ryoma.top/posts/kong_proxy_reference/"/>
+  <link rel="canonical" href="https://blog.ryoma.top/posts/kong_proxy/"/>
 
 
 
@@ -138,7 +138,7 @@
   };
 </script>
 
-  <title>Kong——Proxy参考 | Ryoma's Blog</title>
+  <title>Kong——Proxy | Ryoma's Blog</title>
   
 
 
@@ -311,7 +311,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://blog.ryoma.top/posts/kong_proxy_reference/">
+    <link itemprop="mainEntityOfPage" href="https://blog.ryoma.top/posts/kong_proxy/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Ryoma">
@@ -328,7 +328,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">Kong——Proxy参考
+          <h1 class="post-title" itemprop="name headline">Kong——Proxy
               
             
           </h1>
@@ -393,10 +393,10 @@
                 <span class="post-meta-item-icon">
                   <i class="fa fa-comment-o"></i>
                 </span>
-                <a href="/posts/kong_proxy_reference/#comments" itemprop="discussionUrl">
+                <a href="/posts/kong_proxy/#comments" itemprop="discussionUrl">
                 
                   <span class="post-comments-count disqus-comment-count"
-                        data-disqus-identifier="posts/kong_proxy_reference/" itemprop="commentCount"></span>
+                        data-disqus-identifier="posts/kong_proxy/" itemprop="commentCount"></span>
                 </a>
               </span>
             
@@ -432,6 +432,7 @@
 <li>proxy_listen：定义了一个地址/端口列表——Kong将接受来自客户端的流量并代理上游服务</li>
 <li>admin_listen：同样定义了一个地址/端口列表——但这些仅限于管理员访问</li>
 </ul>
+<p>从0.13.0版本开始，API实体被弃用，使用 Routes 及 Services 实体替代</p>
 <h2 id="术语"><a href="#术语" class="headerlink" title="术语"></a>术语</h2><ul>
 <li>client：指下游客户端向Kong的代理端口发出请求</li>
 <li>upstream service：指位于Kong后面的API/服务，客户端请求被转发到该服务</li>
@@ -625,6 +626,10 @@
 
           <div class="post-nav-prev post-nav-item">
             
+              <a href="/posts/kong_admin_api/" rel="prev" title="Kong——Admin API">
+                Kong——Admin API <i class="fa fa-chevron-right"></i>
+              </a>
+            
           </div>
         </div>
       
@@ -707,7 +712,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">57</span>
+                    <span class="site-state-item-count">58</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
@@ -1116,9 +1121,9 @@
   
     <script type="text/javascript">
       var disqus_config = function () {
-        this.page.url = 'https://blog.ryoma.top/posts/kong_proxy_reference/';
-        this.page.identifier = 'posts/kong_proxy_reference/';
-        this.page.title = 'Kong——Proxy参考';
+        this.page.url = 'https://blog.ryoma.top/posts/kong_proxy/';
+        this.page.identifier = 'posts/kong_proxy/';
+        this.page.title = 'Kong——Proxy';
         };
       function loadComments () {
         var d = document, s = d.createElement('script');
