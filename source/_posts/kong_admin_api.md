@@ -18,7 +18,7 @@ Kong为了便于管理附带了一个内部RESTful Admin API。对Admin API的�
 <!-- more -->
 
 ## 特殊说明
-本文还有Plugin Object、Certificate Object、SNI Object及Target Object未完成
+本文还有Plugin Object、Certificate Object及SNI Object未完成
 
 ## 支持Content Types
 Admin API 接受两种类型：
@@ -835,7 +835,7 @@ SNI对象表示主机名到证书的多对一映射，也就是说，证书对�
 ### 删除SNI
 
 ## Upstream Objects
-上游对象表示虚拟主机名，可用于在多个服务（targets）上负载均衡传入请求。比如host是service.v1.xyz的服务对象，其上游名为service.v1.xyz，用于主机为Service .v1.xyz的服务对象。此服务的请求将被代理到上游中定义的targets。
+上游对象表示虚拟主机名，可用于在多个服务（targets）上负载均衡传入请求。比如host是service.v1.xyz的服务对象，其上游名为service.v1.xyz。此服务的请求将被代理到上游中定义的targets。
 上游还包括[健康检查](https://docs.konghq.com/0.14.x/health-checks-circuit-breakers/)，能够根据是否有能力去处理请求来启用和禁用targets——健康检查的配置存储在上游对象中，并应用于其所有目标。
 
 ### 添加upstream
@@ -1120,12 +1120,237 @@ curl -i -X GET http://localhost:8001/upstreams/service.v1.xyz/health/
 ```
 
 ## Target Object
+target是带有一个端口的ip地址/主机名，该端口标识后端服务的实例。每个upstream都可以有多个target，并且可以动态添加target，并即时改变。
+由于upstream维护target更改的历史记录，因此无法删除或修改target。要禁用一个target，发布一个新的权重为0的target；或者，使用DELETE便利方法来完成。
+
 ### 添加target
+#### Endpoint
+```plain
+POST /upstreams/{name or id}/targets
+```
+name or id：要添加target的upstream标识符或名称
+
+#### Request Body
+| 属性 | 描述 |
+| --- | --- |
+| target | target地址(ip或主机名)和端口。如果省略，端口默认为8000。如果主机名解析为SRV记录，则端口值将被dns记录中的值覆盖。 |
+| weight | 此target在upstream负载均衡中获得的权重（0-1000，默认为100）。如果主机名解析为SRV记录，则权重值将被dns记录中的值覆盖 |
+
+#### Response
+```
+curl -i -X POST http://localhost:8001/upstreams/service.v1.xyz/targets \
+    -d 'target=localhost:3000'
+```
+
+```
+{
+    "created_at":1538978616921,
+    "weight":100,
+    "upstream_id":"d878123e-e295-4801-a231-912bcd3148d5",
+    "target":"localhost:3000",
+    "id":"aa716c26-a250-43b4-a767-610562416e18"
+}
+```
+
 ### targets列表
+列出upstream负载均衡轮上当前活动的所有目标
+
+#### Endpoint
+```
+/upstreams/{name or id}/targets
+```
+name or id：要列出target的upstream标识符或名称
+
+#### Request Querystring Parameters
+| 属性 | 描述 |
+| --- | --- |
+| id | 一个基于target id字段的列表过滤器 |
+| target |  |
+| weight |  |
+| size |  |
+| offset |  |
+
+#### Response
+```
+curl -i http://localhost:8001/upstreams/service.v1.xyz/targets
+```
+
+```
+{
+    "data":[
+        {
+            "created_at":1538979123961,
+            "id":"17193554-f367-49f9-8188-6483774219d0",
+            "upstream_id":"d878123e-e295-4801-a231-912bcd3148d5",
+            "target":"localhost:3001",
+            "weight":300
+        },
+        {
+            "created_at":1538978616921,
+            "id":"aa716c26-a250-43b4-a767-610562416e18",
+            "upstream_id":"d878123e-e295-4801-a231-912bcd3148d5",
+            "target":"localhost:3000",
+            "weight":100
+        }
+    ],
+    "total":2
+}
+```
+
 ### 所有targets列表
+列出上游的所有target。可以返回同一target的多个target对象，显示特定target的更改历史。最新created_at的target对象是当前定义。
+
+#### Endpoint
+```
+/upstreams/{name or id}/targets/all/
+```
+name or id：要列出target的upstream标识符或名称
+
+#### Response
+```
+curl -i http://localhost:8001/upstreams/service.v1.xyz/targets/all/
+```
+
+```
+{
+    "total":3,
+    "data":[
+        {
+            "created_at":1538978616921,
+            "id":"aa716c26-a250-43b4-a767-610562416e18",
+            "upstream_id":"d878123e-e295-4801-a231-912bcd3148d5",
+            "target":"localhost:3000",
+            "weight":100
+        },
+        {
+            "created_at":1538979123961,
+            "id":"17193554-f367-49f9-8188-6483774219d0",
+            "upstream_id":"d878123e-e295-4801-a231-912bcd3148d5",
+            "target":"localhost:3001",
+            "weight":300
+        },
+        {
+            "created_at":1538979099139,
+            "id":"c266b0b9-f56e-4531-9897-6c7ec7578627",
+            "upstream_id":"d878123e-e295-4801-a231-912bcd3148d5",
+            "target":"localhost:3001",
+            "weight":100
+        }
+    ]
+}
+```
+
 ### 删除target
+禁用负载均衡器中的target。Under the hood，该方法为给定的target定义创建一个权重为0的新入口
+
+#### Endpoint
+```
+DELETE /upstreams/{upstream name or id}/targets/{target or id}
+```
+
+| 属性 | 描述 |
+| --- | --- |
+| upstream name or id | 要删除target的上游标识符或名称 |
+| target or id | 要删除的target的主机/端口组合元素，或现有目标条目的id |
+
+#### Response
+```
+curl -i -X DELETE http://localhost:8001/upstreams/service.v1.xyz/targets/17193554-f367-49f9-8188-6483774219d0/
+```
+
+此时再查看所有target列表，发现有一个weight:0的记录进行了覆盖：
+```
+{
+    "total":4,
+    "data":[
+        {
+            "created_at":1538980110838,
+            "id":"547eef27-6d23-46d6-af81-370dbacef819",
+            "upstream_id":"d878123e-e295-4801-a231-912bcd3148d5",
+            "target":"localhost:3001",
+            "weight":0
+        },
+        {
+            "created_at":1538978616921,
+            "id":"aa716c26-a250-43b4-a767-610562416e18",
+            "upstream_id":"d878123e-e295-4801-a231-912bcd3148d5",
+            "target":"localhost:3000",
+            "weight":100
+        },
+        {
+            "created_at":1538979123961,
+            "id":"17193554-f367-49f9-8188-6483774219d0",
+            "upstream_id":"d878123e-e295-4801-a231-912bcd3148d5",
+            "target":"localhost:3001",
+            "weight":300
+        },
+        {
+            "created_at":1538979099139,
+            "id":"c266b0b9-f56e-4531-9897-6c7ec7578627",
+            "upstream_id":"d878123e-e295-4801-a231-912bcd3148d5",
+            "target":"localhost:3001",
+            "weight":100
+        }
+    ]
+}
+```
+
 ### Set target as healthy
+在整个Kong集群中，将负载均衡器中target的当前健康状态设置为“健康”。
+此endpoint可用于手动重新启用以前由upstream的健康检查器禁用的target。Upstream只将请求转发给健康的节点，因此这个调用告诉Kong重新开始使用这个target。
+这将重置在Kong节点的所有workers中运行的健康检查程序的健康计数器，并广播一个集群范围的消息，以便将“健康”状态传播到整个Kong集群。
+
+#### Endpoint
+```
+POST /upstreams/{upstream name or id}/targets/{target or id}/healthy
+```
+
+| 属性 | 描述 |
+| --- | --- |
+| upstream name or id | upstream的唯一标识符或名称 |
+| target or id | 要设置为健康的target的主机/端口组合元素，或现有目标条目的id |
+
 ### Set target as unhealthy
+在整个Kong集群中，将负载均衡器中target的当前健康状态设置为“不健康”。
+此endpoint可用于手动禁用target并停止对请求的响应。上行流只将请求转发给健康的节点，因此这个调用告诉Kong开始跳过环平衡器算法中的这个target。
+这将重置在Kong节点的所有workers中运行的健康检查程序的健康计数器，并广播一个集群范围的消息，以便将“不健康”状态传播到整个Kong集群。
+[积极健康检查](https://docs.konghq.com/0.14.x/health-checks-circuit-breakers/#active-health-checks)继续执行不健康的目标。注意：如果激活了active health check，并且探测检测到target实际上是健康的，那么它将自动重新启用。如果希望永久从环平衡器中删除target，可以使用[删除target](#删除target)
+
+#### Endpoint
+```
+POST /upstreams/{upstream name or id}/targets/{target or id}/unhealthy
+```
+
+
+## 问题
+### service
+是每个上游服务的抽象，通过路由匹配进行转发
+Service可以是一个实际地址；也可以指向一个Kong内部的upstream
+
+### route
+路由定义规则以匹配客户端请求，每个路由都与服务相关联；而服务可能会有多个路由与之相关联
+
+### upstream
+当我们部署集群时，可以使用upstream来进行负载均衡
+
+### target
+target就是在使用upstream时进行负载均衡的终端
+
+### 流程
+#### 普通使用
+Route => Service
+
+#### 使用upstream
+Route => Service => Upstream => Target 
+
+### 关系
+#### service 和 route
+1 对 n
+
+#### upstream 和 target
+1 对 n
+
+
 
 ## 资料
 * [https://docs.konghq.com/0.14.x/admin-api/](https://docs.konghq.com/0.14.x/admin-api/)
