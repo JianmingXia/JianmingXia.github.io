@@ -108,27 +108,30 @@
 
 
 
-  <meta name="description" content="资源详情见项目地址 闲谈&amp;amp;缘由QRCode加了logo之后，很久也没有修改过了，毕竟现在线上也都在稳定使用。但是本周项目中有人提了一个issue-用toDataURL获取不到LOGO内容,想把canvas变成img，数据中没有LOGO内容，总结下问题是：希望渲染出来的二维码是使用img标签的。为什么此时的QRCodeJS做不到呢？因为我上次添加logo这个特性的时候，设置默认的就是canv">
-<meta name="keywords" content="JavaScript,QRCodeJS,canvas,cross domain">
+  <meta name="description" content="说在前面这段时间看了Kong的官方文档，按照文档的接口也做了一些实践，安装了Kong及对应的UI页面，这次打算在Kong中如何做负载均衡。 Nginx中的负载均衡1234567891011upstream test &amp;#123;	server localhost:5000 weight=100;	server localhost:5001 weight=50;&amp;#125;server &amp;#123;">
+<meta name="keywords" content="API Gateway,Kong">
 <meta property="og:type" content="article">
-<meta property="og:title" content="QRCodeJS——logo">
-<meta property="og:url" content="https://blog.ryoma.top/posts/qrcodejs_logo_issue/index.html">
+<meta property="og:title" content="Kong——负载均衡">
+<meta property="og:url" content="https://blog.ryoma.top/posts/kong_practice_0/index.html">
 <meta property="og:site_name" content="Ryoma&#39;s Blog">
-<meta property="og:description" content="资源详情见项目地址 闲谈&amp;amp;缘由QRCode加了logo之后，很久也没有修改过了，毕竟现在线上也都在稳定使用。但是本周项目中有人提了一个issue-用toDataURL获取不到LOGO内容,想把canvas变成img，数据中没有LOGO内容，总结下问题是：希望渲染出来的二维码是使用img标签的。为什么此时的QRCodeJS做不到呢？因为我上次添加logo这个特性的时候，设置默认的就是canv">
+<meta property="og:description" content="说在前面这段时间看了Kong的官方文档，按照文档的接口也做了一些实践，安装了Kong及对应的UI页面，这次打算在Kong中如何做负载均衡。 Nginx中的负载均衡1234567891011upstream test &amp;#123;	server localhost:5000 weight=100;	server localhost:5001 weight=50;&amp;#125;server &amp;#123;">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:image" content="https://user-images.githubusercontent.com/28302478/28298978-08fe623e-6ba9-11e7-949e-f976c6c25855.png">
-<meta property="og:updated_time" content="2018-10-08T11:24:39.698Z">
+<meta property="og:image" content="https://img.ryoma.top/Kong/kong_practice_0/kong_loadbalance.gif">
+<meta property="og:image" content="https://img.ryoma.top/Kong/kong_practice_0/kong_target.png">
+<meta property="og:image" content="https://img.ryoma.top/Kong/kong_practice_0/kong_service.png">
+<meta property="og:image" content="https://img.ryoma.top/Kong/kong_practice_0/kong_route.png">
+<meta property="og:updated_time" content="2018-10-08T11:24:39.694Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="QRCodeJS——logo">
-<meta name="twitter:description" content="资源详情见项目地址 闲谈&amp;amp;缘由QRCode加了logo之后，很久也没有修改过了，毕竟现在线上也都在稳定使用。但是本周项目中有人提了一个issue-用toDataURL获取不到LOGO内容,想把canvas变成img，数据中没有LOGO内容，总结下问题是：希望渲染出来的二维码是使用img标签的。为什么此时的QRCodeJS做不到呢？因为我上次添加logo这个特性的时候，设置默认的就是canv">
-<meta name="twitter:image" content="https://user-images.githubusercontent.com/28302478/28298978-08fe623e-6ba9-11e7-949e-f976c6c25855.png">
+<meta name="twitter:title" content="Kong——负载均衡">
+<meta name="twitter:description" content="说在前面这段时间看了Kong的官方文档，按照文档的接口也做了一些实践，安装了Kong及对应的UI页面，这次打算在Kong中如何做负载均衡。 Nginx中的负载均衡1234567891011upstream test &amp;#123;	server localhost:5000 weight=100;	server localhost:5001 weight=50;&amp;#125;server &amp;#123;">
+<meta name="twitter:image" content="https://img.ryoma.top/Kong/kong_practice_0/kong_loadbalance.gif">
 
 
 
 
 
 
-  <link rel="canonical" href="https://blog.ryoma.top/posts/qrcodejs_logo_issue/"/>
+  <link rel="canonical" href="https://blog.ryoma.top/posts/kong_practice_0/"/>
 
 
 
@@ -138,7 +141,7 @@
   };
 </script>
 
-  <title>QRCodeJS——logo | Ryoma's Blog</title>
+  <title>Kong——负载均衡 | Ryoma's Blog</title>
   
 
 
@@ -311,7 +314,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://blog.ryoma.top/posts/qrcodejs_logo_issue/">
+    <link itemprop="mainEntityOfPage" href="https://blog.ryoma.top/posts/kong_practice_0/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Ryoma">
@@ -328,7 +331,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">QRCodeJS——logo
+          <h1 class="post-title" itemprop="name headline">Kong——负载均衡
               
             
           </h1>
@@ -353,7 +356,7 @@
                 
               
 
-              <time title="创建时间：2017-09-10 12:00:00" itemprop="dateCreated datePublished" datetime="2017-09-10T12:00:00+08:00">2017-09-10</time>
+              <time title="创建时间：2018-09-29 20:00:00" itemprop="dateCreated datePublished" datetime="2018-09-29T20:00:00+08:00">2018-09-29</time>
             
 
             
@@ -371,14 +374,14 @@
                 <span class="post-meta-item-text">分类于</span>
               
               
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/JavaScript/" itemprop="url" rel="index"><span itemprop="name">JavaScript</span></a></span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/微服务/" itemprop="url" rel="index"><span itemprop="name">微服务</span></a></span>
 
                 
                 
                   ，
                 
               
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/QRCodeJS/" itemprop="url" rel="index"><span itemprop="name">QRCodeJS</span></a></span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/Kong/" itemprop="url" rel="index"><span itemprop="name">Kong</span></a></span>
 
                 
                 
@@ -393,10 +396,10 @@
                 <span class="post-meta-item-icon">
                   <i class="fa fa-comment-o"></i>
                 </span>
-                <a href="/posts/qrcodejs_logo_issue/#comments" itemprop="discussionUrl">
+                <a href="/posts/kong_practice_0/#comments" itemprop="discussionUrl">
                 
                   <span class="post-comments-count disqus-comment-count"
-                        data-disqus-identifier="posts/qrcodejs_logo_issue/" itemprop="commentCount"></span>
+                        data-disqus-identifier="posts/kong_practice_0/" itemprop="commentCount"></span>
                 </a>
               </span>
             
@@ -424,18 +427,26 @@
       
 
       
-        <h2 id="资源"><a href="#资源" class="headerlink" title="资源"></a>资源</h2><p>详情见<a href="https://github.com/JianmingXia/QRCodeJS" target="_blank" rel="noopener">项目地址</a></p>
-<h2 id="闲谈-amp-缘由"><a href="#闲谈-amp-缘由" class="headerlink" title="闲谈&amp;缘由"></a>闲谈&amp;缘由</h2><p>QRCode加了logo之后，很久也没有修改过了，毕竟现在线上也都在稳定使用。但是本周项目中有人提了一个issue-<a href="https://github.com/JianmingXia/QRCodeJS/issues/1" target="_blank" rel="noopener">用toDataURL获取不到LOGO内容,想把canvas变成img，数据中没有LOGO内容</a>，总结下问题是：希望渲染出来的二维码是使用img标签的。<br>为什么此时的QRCodeJS做不到呢？因为我上次添加logo这个特性的时候，设置默认的就是canvas表现。<br><a id="more"></a></p>
-<h2 id="实现原理-amp-解决"><a href="#实现原理-amp-解决" class="headerlink" title="实现原理&amp;解决"></a>实现原理&amp;解决</h2><ul>
-<li>img.src = canvas.toDataURL(“image/png”)<br>直接如上设置，想法很简单，将canvas转换成图片，但是在实际运行后发现，img中只有一个二维码。原因很简单，没有考虑到图片加载的时间，执行canvas.toDataURL时，图片并没有渲染成功。</li>
-</ul>
-<ul>
-<li>等待图片onload<br>是的，QRCodeJS如果需要让渲染出来的图片是img标签展示的，需要等待logo图片加载完毕之后，所以，在时间上相对于直接使用canvas会长一点。</li>
-</ul>
-<ul>
-<li><p>还有问题?<br>我把临时版本发给了使用者，他反馈我说还有问题，如下：<br><img src="https://user-images.githubusercontent.com/28302478/28298978-08fe623e-6ba9-11e7-949e-f976c6c25855.png" alt="error"><br>这个问题其实很明显了，我们看<a href="https://developer.mozilla.org/zh-CN/docs/Web/API/HTMLCanvasElement/toDataURL" target="_blank" rel="noopener">文档</a>就知道了，引用的图片跨域了，canvas.toDataURL自然会报错。<br>相关文章:<br><a href="https://stackoverflow.com/questions/20424279/canvas-todataurl-securityerror" target="_blank" rel="noopener">https://stackoverflow.com/questions/20424279/canvas-todataurl-securityerror</a></p>
-<h2 id="后记"><a href="#后记" class="headerlink" title="后记"></a>后记</h2><p>上篇说到，最近其实看了不少东西，只是没有动笔，本来计划聊聊<a href="https://github.com/quilljs/quill" target="_blank" rel="noopener">quill</a>，但是恰逢QRCodeJs的问题，所以下次再说，再加一句，这款编辑器真的很不错。</p>
-</li>
+        <h2 id="说在前面"><a href="#说在前面" class="headerlink" title="说在前面"></a>说在前面</h2><p>这段时间看了Kong的官方文档，按照文档的接口也做了一些实践，安装了Kong及对应的UI页面，这次打算在Kong中如何做负载均衡。</p>
+<h2 id="Nginx中的负载均衡"><a href="#Nginx中的负载均衡" class="headerlink" title="Nginx中的负载均衡"></a>Nginx中的负载均衡</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">upstream test &#123;</span><br><span class="line">	server localhost:5000 weight=100;</span><br><span class="line">	server localhost:5001 weight=50;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">server &#123;</span><br><span class="line">	listen	80;</span><br><span class="line">	location /api &#123;</span><br><span class="line">		proxy_pass http://test;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<a id="more"></a>
+<h2 id="开启服务"><a href="#开启服务" class="headerlink" title="开启服务"></a>开启服务</h2><h3 id="5000-js-及-5001-js"><a href="#5000-js-及-5001-js" class="headerlink" title="5000.js 及 5001.js"></a>5000.js 及 5001.js</h3><p>为了快速测试，这里我使用了NodeJS来开启两个服务，分别监听5000及5001端口：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">// 5000.js</span><br><span class="line">var express = require(&apos;express&apos;);</span><br><span class="line">var app = express();</span><br><span class="line"></span><br><span class="line">app.get(&apos;/api&apos;, function (req, res) &#123;</span><br><span class="line">  res.send(&apos;Hello World by port 5000&apos;);</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">app.listen(5000, function () &#123;</span><br><span class="line">  console.log(&apos;app is listening at port 5000&apos;);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure></p>
+<p>5001.js文件与之类似</p>
+<h3 id="访问"><a href="#访问" class="headerlink" title="访问"></a>访问</h3><p>启动5000.js 及 5001.js，根据Nginx中的配置进行访问（虽然样本比较小，但是5000出现的概率还是更高）</p>
+<p><img src="https://img.ryoma.top/Kong/kong_practice_0/kong_loadbalance.gif" alt="根据Nginx配置访问"></p>
+<h2 id="配置Upstream及Target"><a href="#配置Upstream及Target" class="headerlink" title="配置Upstream及Target"></a>配置Upstream及Target</h2><h3 id="创建Upstream"><a href="#创建Upstream" class="headerlink" title="创建Upstream"></a>创建Upstream</h3><p>名称为 test<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">curl -i -X POST http://localhost:8001/upstreams/ \</span><br><span class="line">    -d &apos;name=test&apos;</span><br></pre></td></tr></table></figure></p>
+<h3 id="添加Target"><a href="#添加Target" class="headerlink" title="添加Target"></a>添加Target</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">curl -i -X POST http://localhost:8001/upstreams/test/targets \</span><br><span class="line">    -d &apos;target=localhost:5000&apos; \</span><br><span class="line">    -d &apos;weight=100&apos;</span><br><span class="line"></span><br><span class="line">curl -i -X POST http://localhost:8001/upstreams/test/targets \</span><br><span class="line">    -d &apos;target=localhost:5001&apos; \</span><br><span class="line">    -d &apos;weight=50&apos;</span><br></pre></td></tr></table></figure>
+<p><img src="https://img.ryoma.top/Kong/kong_practice_0/kong_target.png" alt="配置结果"></p>
+<h2 id="配置Service-及-Route"><a href="#配置Service-及-Route" class="headerlink" title="配置Service 及 Route"></a>配置Service 及 Route</h2><h3 id="创建Service"><a href="#创建Service" class="headerlink" title="创建Service"></a>创建Service</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">curl -i -X POST http://localhost:8001/services/ \</span><br><span class="line">     -d &apos;name=test&apos; \</span><br><span class="line">     -d &apos;host=test&apos;</span><br></pre></td></tr></table></figure>
+<p><img src="https://img.ryoma.top/Kong/kong_practice_0/kong_service.png" alt="配置结果"></p>
+<h3 id="配置路由"><a href="#配置路由" class="headerlink" title="配置路由"></a>配置路由</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">curl -i -X POST http://localhost:8001/routes/ \</span><br><span class="line">    -d &apos;paths[]=/api&apos; \</span><br><span class="line">    -d &apos;service.id=5cb23544-b44e-4519-94e9-a9b9d8fe2a51&apos;</span><br></pre></td></tr></table></figure>
+<p><img src="https://img.ryoma.top/Kong/kong_practice_0/kong_route.png" alt="配置结果"></p>
+<p>至此，就可以根据Route匹配规则来直接访问了<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl -i http://localhost:8000/api</span><br></pre></td></tr></table></figure></p>
+<p>有一个需要注意的是Route中Strip path默认为true，它会在匹配路由后删除匹配前缀，要根据需要进行设置</p>
+<h2 id="资料"><a href="#资料" class="headerlink" title="资料"></a>资料</h2><ul>
+<li><a href="https://docs.konghq.com/0.14.x/admin-api/" target="_blank" rel="noopener">https://docs.konghq.com/0.14.x/admin-api/</a></li>
+<li><a href="https://www.cnkirito.moe/kong-loadbalance/" target="_blank" rel="noopener">https://www.cnkirito.moe/kong-loadbalance/</a></li>
+<li>可视化页面这部分使用的是KONGA：<a href="https://github.com/pantsel/konga" target="_blank" rel="noopener">https://github.com/pantsel/konga</a></li>
 </ul>
 
       
@@ -457,13 +468,9 @@
       
         <div class="post-tags">
           
-            <a href="/tags/JavaScript/" rel="tag"># JavaScript</a>
+            <a href="/tags/API-Gateway/" rel="tag"># API Gateway</a>
           
-            <a href="/tags/QRCodeJS/" rel="tag"># QRCodeJS</a>
-          
-            <a href="/tags/canvas/" rel="tag"># canvas</a>
-          
-            <a href="/tags/cross-domain/" rel="tag"># cross domain</a>
+            <a href="/tags/Kong/" rel="tag"># Kong</a>
           
         </div>
       
@@ -476,8 +483,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/posts/nginx_config/" rel="next" title="nginx 配置">
-                <i class="fa fa-chevron-left"></i> nginx 配置
+              <a href="/posts/kong_proxy/" rel="next" title="Kong——Proxy">
+                <i class="fa fa-chevron-left"></i> Kong——Proxy
               </a>
             
           </div>
@@ -486,8 +493,8 @@
 
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/posts/mysql_0/" rel="prev" title="Mysql（清除空数据）">
-                Mysql（清除空数据） <i class="fa fa-chevron-right"></i>
+              <a href="/posts/kong_admin_api/" rel="prev" title="Kong——Admin API">
+                Kong——Admin API <i class="fa fa-chevron-right"></i>
               </a>
             
           </div>
@@ -804,7 +811,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#资源"><span class="nav-number">1.</span> <span class="nav-text">资源</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#闲谈-amp-缘由"><span class="nav-number">2.</span> <span class="nav-text">闲谈&amp;缘由</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#实现原理-amp-解决"><span class="nav-number">3.</span> <span class="nav-text">实现原理&amp;解决</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#后记"><span class="nav-number">4.</span> <span class="nav-text">后记</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#说在前面"><span class="nav-number">1.</span> <span class="nav-text">说在前面</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Nginx中的负载均衡"><span class="nav-number">2.</span> <span class="nav-text">Nginx中的负载均衡</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#开启服务"><span class="nav-number">3.</span> <span class="nav-text">开启服务</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#5000-js-及-5001-js"><span class="nav-number">3.1.</span> <span class="nav-text">5000.js 及 5001.js</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#访问"><span class="nav-number">3.2.</span> <span class="nav-text">访问</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#配置Upstream及Target"><span class="nav-number">4.</span> <span class="nav-text">配置Upstream及Target</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#创建Upstream"><span class="nav-number">4.1.</span> <span class="nav-text">创建Upstream</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#添加Target"><span class="nav-number">4.2.</span> <span class="nav-text">添加Target</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#配置Service-及-Route"><span class="nav-number">5.</span> <span class="nav-text">配置Service 及 Route</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#创建Service"><span class="nav-number">5.1.</span> <span class="nav-text">创建Service</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#配置路由"><span class="nav-number">5.2.</span> <span class="nav-text">配置路由</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#资料"><span class="nav-number">6.</span> <span class="nav-text">资料</span></a></li></ol></div>
             
 
           </div>
@@ -981,9 +988,9 @@
   
     <script type="text/javascript">
       var disqus_config = function () {
-        this.page.url = 'https://blog.ryoma.top/posts/qrcodejs_logo_issue/';
-        this.page.identifier = 'posts/qrcodejs_logo_issue/';
-        this.page.title = 'QRCodeJS——logo';
+        this.page.url = 'https://blog.ryoma.top/posts/kong_practice_0/';
+        this.page.identifier = 'posts/kong_practice_0/';
+        this.page.title = 'Kong——负载均衡';
         };
       function loadComments () {
         var d = document, s = d.createElement('script');
