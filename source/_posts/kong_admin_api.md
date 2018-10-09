@@ -10,6 +10,8 @@ categories:
 ---
 
 > Endpoint非特殊说明，默认为GET
+> 本文是基于官方文档做的实践，主要内容是基于官方文档内容做的翻译以及在实践中的个人理解
+
 Kong为了便于管理附带了一个内部RESTful Admin API。对Admin API的请求可以发送到集群中的任何节点，而Kong将保持所有节点的配置一致
 * 8001：Admin API监听的默认端口
 * 8444：Admin API的HTTPS默认端口
@@ -18,7 +20,7 @@ Kong为了便于管理附带了一个内部RESTful Admin API。对Admin API的�
 <!-- more -->
 
 ## 特殊说明
-本文还有Plugin Object、Certificate Object及SNI Object未完成
+本文还有Certificate Object及SNI Object未完成
 
 ## 支持Content Types
 Admin API 接受两种类型：
@@ -790,7 +792,7 @@ curl -i -X DELETE http://localhost:8001/consumers/first-user
 的值，可以通过指定consumer\_id值来实现
 
 ### 优先了解
-插件每次请求只运行一次，但是它运行的配置取决于它所配置的实体。插件可以为各种实体、实体组合甚至全局配置。这很有用，例如，当希望为大多数请求配置插件，但使身份验证请求的行为略有不同时。
+插件每次请求只运行一次，但是它运行的配置取决于它所配置的实体。插件可以为各种实体、实体组合甚至全局配置。这很有用，例如，当希望为大多数请求配置插件，但是身份验证请求的行为略有不同时。
 因此，当插件被应用到具有不同配置的不同实体时，就存在运行插件的优先顺序。经验法则是：插件配置的实体越多，它的优先级就越高。
 当插件被多次配置时，优先级的完整顺序是：
 * 配置在一个组合上的插件：路由、服务和消费者（消费者表示请求必须经过身份验证）
@@ -806,13 +808,373 @@ curl -i -X DELETE http://localhost:8001/consumers/first-user
 注意：如果配置B被禁用(它的启用标志被设置为false)，config A will apply to requests that would have otherwise matched config B.（这段英文不理解。。。）
 
 ### 添加Plugin
+添加插件的几种方式：
+- 对每个Service/Route 和 Consumer：不要设置consumer_id并同时设置service_id或route_id
+- 对每个Service/Route 和 特定的Consumer：只设置consumer_id
+- 对每个Consumer 和 特定Service：只设置service_id（有的插件只能设置route_id）
+- 对每个Consumer 和 特定Route：只设置route_id（有的插件只能设置service_id）
+- 对特定的Service/Route 和 Consumer：同时设置 service_id/route_id 及 consumer_id
+
+注意：并不是所有的插件都允许设置特定的consumer_id，以插件文档为准。
+
+#### Endpoint
+```
+POST /plugins/
+```
+
+#### Request Body
+
+| 属性 | 描述 |
+| --- | --- |
+| name | 要添加的插件名称。目前插件必须单独安装在每个Kong实例中。 |
+| consumer_id | consumer的唯一标识符，在传入请求时覆盖此特定使用者的现有设置。 |
+| service_id | 服务的唯一标识符，在传入请求时覆盖此特定服务的现有设置 |
+| route_id | 路由的唯一标识符，在传入请求时覆盖此特定路由的现有设置 |
+| config.{property} | 插件的配置属性可以在插件文档页面的[Kong Hub](https://docs.konghq.com/hub/)找到 |
+| enabled | 是否运用插件。默认为 true |
+
+#### Response
+
+```
+curl -i -X POST http://localhost:8001/plugins/ \
+    -d "name=jwt" \
+    -d "route_id=e193d63e-3340-4c6a-b95f-601f3d4042b3"
+```
+
+```
+{
+    "created_at":1539075988000,
+    "config":{
+        "secret_is_base64":false,
+        "key_claim_name":"iss",
+        "cookie_names":{
+
+        },
+        "maximum_expiration":0,
+        "anonymous":"",
+        "run_on_preflight":true,
+        "uri_param_names":[
+            "jwt"
+        ]
+    },
+    "id":"934b2a41-ae0d-48dd-94e4-c1f4fb36be85",
+    "enabled":true,
+    "route_id":"e193d63e-3340-4c6a-b95f-601f3d4042b3",
+    "name":"jwt"
+}
+```
+
 ### 检索Plugin
+#### Endpoint
+```
+/plugins/{id}
+```
+
+#### Request Querystring Parameters
+id：要检索插件的唯一标识符
+
+#### Response
+
+```
+curl -i -X GET http://localhost:8001/plugins/934b2a41-ae0d-48dd-94e4-c1f4fb36be85
+```
+
+```
+{
+    "created_at":1539075988000,
+    "config":{
+        "secret_is_base64":false,
+        "key_claim_name":"iss",
+        "cookie_names":{
+
+        },
+        "maximum_expiration":0,
+        "anonymous":"",
+        "run_on_preflight":true,
+        "uri_param_names":[
+            "jwt"
+        ]
+    },
+    "id":"934b2a41-ae0d-48dd-94e4-c1f4fb36be85",
+    "name":"jwt",
+    "enabled":true,
+    "route_id":"e193d63e-3340-4c6a-b95f-601f3d4042b3"
+}
+```
+
 ### 列出所有Plugins
+#### Endpoint
+
+```
+/plugins/
+```
+
+#### Request Querystring Parameters
+
+| 属性 | 描述 |
+| --- | --- |
+| id | 一个基于id字段的列表过滤器 |
+| name |  |
+| service_id |  |
+| route_id |  |
+| consumer_id |  |
+| size |  |
+| offset |  |
+
+#### Response
+
+```
+curl -i -X GET http://localhost:8001/plugins/ \
+    -d "size=1"
+```
+
+```
+{
+    "total":1,
+    "data":[
+        {
+            "created_at":1539075988000,
+            "config":{
+                "secret_is_base64":false,
+                "key_claim_name":"iss",
+                "cookie_names":{
+
+                },
+                "maximum_expiration":0,
+                "anonymous":"",
+                "run_on_preflight":true,
+                "uri_param_names":[
+                    "jwt"
+                ]
+            },
+            "id":"934b2a41-ae0d-48dd-94e4-c1f4fb36be85",
+            "name":"jwt",
+            "enabled":true,
+            "route_id":"e193d63e-3340-4c6a-b95f-601f3d4042b3"
+        }
+    ]
+}
+```
+
 ### 更新Plugin
+#### Endpoint
+
+```
+PATCH /plugins/{plugin id}
+```
+
+plugin id：要更新插件配置的唯一标识符
+
+#### Request Body
+与添加时的配置相同
+
+#### Response
+
+```
+curl -i -X PATCH http://localhost:8001/plugins/934b2a41-ae0d-48dd-94e4-c1f4fb36be85 \
+    -d "enabled=false"
+```
+
+```
+{
+    "created_at":1539075988000,
+    "config":{
+        "key_claim_name":"iss",
+        "cookie_names":{
+
+        },
+        "secret_is_base64":false,
+        "anonymous":"",
+        "maximum_expiration":0,
+        "run_on_preflight":true,
+        "uri_param_names":[
+            "jwt"
+        ]
+    },
+    "id":"934b2a41-ae0d-48dd-94e4-c1f4fb36be85",
+    "enabled":false,
+    "route_id":"e193d63e-3340-4c6a-b95f-601f3d4042b3",
+    "name":"jwt"
+}
+```
+
 ### 更新或添加Plugin
+#### Endpoint
+
+```
+PUT /plugins/
+```
+
+#### Request Body
+与添加时的配置相同
+经过实践，created_at同样需要
+
+PUT endpoint 的行为如下：如果请求payload不包含实体的主键(插件的id和名称)，那么将使用给定的payload创建实体。如果请求payload确实包含实体的主键，那么payload将“替换”给定主键指定的实体。如果主键不是现有实体的主键，将返回404 not FOUND
+
+#### Response
+
+```
+curl -i -X PUT http://localhost:8001/plugins/ \
+    -d "id=934b2a41-ae0d-48dd-94e4-c1f4fb36be85" \
+    -d "name=jwt" \
+    -d "route_id=e193d63e-3340-4c6a-b95f-601f3d4042b3" \
+    -d "enabled=true" \
+    -d "created_at=1539075988000"
+```
+
+```
+{
+    "created_at":1539075988000,
+    "config":{
+        "secret_is_base64":false,
+        "key_claim_name":"iss",
+        "cookie_names":{
+
+        },
+        "maximum_expiration":0,
+        "anonymous":"",
+        "run_on_preflight":true,
+        "uri_param_names":[
+            "jwt"
+        ]
+    },
+    "id":"934b2a41-ae0d-48dd-94e4-c1f4fb36be85",
+    "enabled":true,
+    "route_id":"e193d63e-3340-4c6a-b95f-601f3d4042b3",
+    "name":"jwt"
+}
+```
+
 ### 删除Plugin
+#### Endpoint
+
+```
+DELETE /plugins/{plugin id}
+```
+
+#### Response
+
+```
+curl -i -X DELETE http://localhost:8001/plugins/934b2a41-ae0d-48dd-94e4-c1f4fb36be85
+```
+
 ### 检索启用Plugins
+检索Kong节点上所有已安装插件的列表
+
+#### Endpoint
+
+```
+/plugins/enabled
+```
+
+#### Response
+
+```
+curl -i -X GET http://localhost:8001/plugins/enabled
+```
+
+```
+{
+    "enabled_plugins":[
+        "response-transformer",
+        "oauth2",
+        "acl",
+        "correlation-id",
+        "pre-function",
+        "jwt",
+        "cors",
+        "ip-restriction",
+        "basic-auth",
+        "key-auth",
+        "rate-limiting",
+        "request-transformer",
+        "http-log",
+        "file-log",
+        "hmac-auth",
+        "ldap-auth",
+        "datadog",
+        "tcp-log",
+        "zipkin",
+        "post-function",
+        "request-size-limiting",
+        "bot-detection",
+        "syslog",
+        "loggly",
+        "azure-functions",
+        "udp-log",
+        "response-ratelimiting",
+        "aws-lambda",
+        "statsd",
+        "prometheus",
+        "request-termination"
+    ]
+}
+```
+
 ### 检索Plugin Schema
+检索插件配置的模式。这有助于理解插件接受哪些字段，并可用于构建到Kong插件系统的第三方集成
+
+#### Endpoint
+
+```
+/plugins/schema/{plugin name}
+```
+
+#### Response
+
+```
+curl -i -X GET http://localhost:8001/plugins/schema/jwt
+```
+
+```
+{
+    "fields":{
+        "secret_is_base64":{
+            "default":false,
+            "type":"boolean"
+        },
+        "cookie_names":{
+            "default":{
+
+            },
+            "type":"array"
+        },
+        "key_claim_name":{
+            "default":"iss",
+            "type":"string"
+        },
+        "anonymous":{
+            "default":"",
+            "func":"function",
+            "type":"string"
+        },
+        "claims_to_verify":{
+            "type":"array",
+            "enum":[
+                "exp",
+                "nbf"
+            ]
+        },
+        "maximum_expiration":{
+            "default":0,
+            "func":"function",
+            "type":"number"
+        },
+        "run_on_preflight":{
+            "default":true,
+            "type":"boolean"
+        },
+        "uri_param_names":{
+            "default":[
+                "jwt"
+            ],
+            "type":"array"
+        }
+    },
+    "no_consumer":true,
+    "self_check":"function"
+}
+```
 
 ## Certificate Object
 证书对象表示SSL证书的公共证书/私钥对，Kong使用这些对象来处理加密请求的SSL/TLS，证书有选择地与SNI对象关联，以便将证书/密钥对绑定到一个或多个主机名
@@ -1349,8 +1711,6 @@ Route => Service => Upstream => Target
 
 #### upstream 和 target
 1 对 n
-
-
 
 ## 资料
 * [https://docs.konghq.com/0.14.x/admin-api/](https://docs.konghq.com/0.14.x/admin-api/)

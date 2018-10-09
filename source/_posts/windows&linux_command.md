@@ -4,7 +4,7 @@ date: 2017/11/11 12:00:00
 tags:
   - windows
   - linux
-categories: 未分类
+categories: 技术杂集
 ---
 
 ## windows端口占用

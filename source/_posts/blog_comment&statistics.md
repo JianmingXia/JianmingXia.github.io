@@ -5,7 +5,7 @@ tags:
   - 评论
   - 阅读统计
   - 畅言
-categories: 博客相关
+categories: 搭建博客
 ---
 
 ## 说在前面

@@ -1,6 +1,6 @@
 ---
 title: Kong——负载均衡
-date: 2018/09/29 20:00:00
+date: 2018/10/08 20:00:00
 tags:
   - API Gateway
   - Kong
@@ -30,7 +30,7 @@ server {
 <!-- more -->
 
 ## 开启服务
-### 5000.js 及 5001.js
+### 普通Node服务
 为了快速测试，这里我使用了NodeJS来开启两个服务，分别监听5000及5001端口：
 ```
 // 5000.js
@@ -48,8 +48,20 @@ app.listen(5000, function () {
 
 5001.js文件与之类似
 
+### 以Docker方式运行
+如果Kong是使用Docker运行的，此时推荐NodeJS项目也使用Docker运行，通过容器互联的方式进行访问。
+
+```
+// 构建镜像
+docker build -t ryoma/5000 .
+
+// 启动自己构建的镜像ryoma/5000
+docker run -d --name ryoma-5000 --network=kong-net -p 5000:5000 ryoma/5000
+```
+另一个做类似处理。
+
 ### 访问
-启动5000.js 及 5001.js，根据Nginx中的配置进行访问（虽然样本比较小，但是5000出现的概率还是更高）
+启动Node服务，根据Nginx中的配置进行访问（虽然样本比较小，但是5000出现的概率还是更高）
 
 ![根据Nginx配置访问](https://img.ryoma.top/Kong/kong_practice_0/kong_loadbalance.gif)
 
@@ -62,6 +74,9 @@ curl -i -X POST http://localhost:8001/upstreams/ \
 ```
 
 ### 添加Target
+不同的服务部署方式，使用不同的方式来添加Target：
+
+#### 普通方式运行
 ```
 curl -i -X POST http://localhost:8001/upstreams/test/targets \
     -d 'target=localhost:5000' \
@@ -73,6 +88,19 @@ curl -i -X POST http://localhost:8001/upstreams/test/targets \
 ```
 
 ![配置结果](https://img.ryoma.top/Kong/kong_practice_0/kong_target.png)
+
+#### 以Docker方式运行
+```
+curl -i -X POST http://localhost:8001/upstreams/test/targets \
+    -d 'target=ryoma-5000:5000' \
+    -d 'weight=100'
+
+curl -i -X POST http://localhost:8001/upstreams/test/targets \
+    -d 'target=ryoma-5001:5001' \
+    -d 'weight=50'
+```
+
+![配置结果](https://img.ryoma.top/Kong/kong_practice_0/kong_target_docker.png)
 
 ## 配置Service 及 Route
 ### 创建Service
@@ -98,10 +126,12 @@ curl -i -X POST http://localhost:8001/routes/ \
 curl -i http://localhost:8000/api
 ```
 
-有一个需要注意的是Route中Strip path默认为true，它会在匹配路由后删除匹配前缀，要根据需要进行设置
+![访问http://localhost:8000/api](https://img.ryoma.top/Kong/kong_practice_0/kong_result.png)
+
+需要注意Route中Strip path默认为true，它会在匹配路由后删除匹配前缀，要根据需要进行设置，在这个案例中修改成false
 
 ## 资料
 
 - https://docs.konghq.com/0.14.x/admin-api/
 - https://www.cnkirito.moe/kong-loadbalance/
-- 可视化页面这部分使用的是KONGA：https://github.com/pantsel/konga
+- 可视化页面使用的是KONGA：https://github.com/pantsel/konga

@@ -6,7 +6,7 @@ tags:
   - Nginx
 categories: 
   - [Nginx]
-  - [博客相关]
+  - [搭建博客]
 ---
 
 ## 成果

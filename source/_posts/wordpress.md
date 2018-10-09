@@ -5,7 +5,7 @@ tags:
   - WordPress
   - 个人博客
   - Mysql
-categories: 博客相关
+categories: 搭建博客
 ---
 
 > WordPress 是一款常用的搭建个人博客网站软件，使用 PHP 语言和 MySQL 数据库开发。
