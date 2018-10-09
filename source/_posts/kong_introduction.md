@@ -10,7 +10,7 @@ categories:
 ---
 
 ## 说在前面
-之前做了Kong与Express-Gateway的比较，毫无疑问，Kong更胜一筹；同时在另一方面，Tyk也战胜了Ambassador。Kong与Tyk进行最终角逐，在这两者之间，也没有进行过多比较，只是考虑了当前的场景：我们需要一个API Gateway，需要支持JWT、支持日志处理、方便监控，而这些Kong的插件完全支持，而且从社区活跃上看，Kong的>18K的stars也给了我更大的信心，这也是选择Kong的最终原因，并不是Tyk不够好。
+之前做了Kong与Express-Gateway的比较，毫无疑问，Kong更胜一筹；同时在另一方面，Tyk也战胜了Ambassador。Kong与Tyk进行最终角逐，在这两者之间，也没有进行过多比较，只是考虑了当前的场景：我们需要一个API Gateway，需要支持JWT、支持日志处理、方便监控，而这些Kong的插件完全支持，而且从社区活跃上看，Kong 18K+的stars也给了我更大的信心，这也是选择Kong的最终原因，并不是Tyk不够好。
 
 ## 安装
 最初尝试使用CentOS安装，使用yum直接安装但是一直提示无法下载；后选择下载安装包，然后本地安装，启动时又提示需要安装数据库。考虑到安装这部分还是轻量级的比较好，所以选用了以Docker方式去安装，按照[官方文档](https://docs.konghq.com/install/docker/?_ga=2.106120899.1705340860.1537930352-980333107.1537168769)即可
