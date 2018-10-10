@@ -1,5 +1,5 @@
 ---
-title: Kong——Admin API
+title: Kong——Admin API文档
 date: 2018/09/29 20:00:00
 tags:
   - API Gateway
@@ -820,6 +820,10 @@ curl -i -X DELETE http://localhost:8001/consumers/first-user
 #### Endpoint
 ```
 POST /plugins/
+```
+
+```
+POST /services/{service}/plugins
 ```
 
 #### Request Body

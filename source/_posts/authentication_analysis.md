@@ -172,4 +172,5 @@ HMACSHA256(
 * [https://jwt.io/introduction/](https://jwt.io/introduction/)
 * [https://oauth.net/2/](https://oauth.net/2/)
 * [http://www.ruanyifeng.com/blog/2014/05/oauth\_2\_0.html](http://www.ruanyifeng.com/blog/2014/05/oauth_2_0.html)
+* http://blog.leapoahead.com/2015/09/06/understanding-jwt/
 

@@ -1,5 +1,5 @@
 ---
-title: Kong——Proxy
+title: Kong——Proxy文档
 date: 2018/09/28 20:30:00
 tags:
   - API Gateway
