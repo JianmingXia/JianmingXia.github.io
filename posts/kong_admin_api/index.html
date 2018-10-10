@@ -111,14 +111,14 @@
   <meta name="description" content="Endpoint非特殊说明，默认为GET本文是基于官方文档做的实践，主要内容是基于官方文档内容做的翻译以及在实践中的个人理解  Kong为了便于管理附带了一个内部RESTful Admin API。对Admin API的请求可以发送到集群中的任何节点，而Kong将保持所有节点的配置一致  8001：Admin API监听的默认端口 8444：Admin API的HTTPS默认端口  这个API是">
 <meta name="keywords" content="API Gateway,Kong">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Kong——Admin API">
+<meta property="og:title" content="Kong——Admin API文档">
 <meta property="og:url" content="https://blog.ryoma.top/posts/kong_admin_api/index.html">
 <meta property="og:site_name" content="Ryoma&#39;s Blog">
 <meta property="og:description" content="Endpoint非特殊说明，默认为GET本文是基于官方文档做的实践，主要内容是基于官方文档内容做的翻译以及在实践中的个人理解  Kong为了便于管理附带了一个内部RESTful Admin API。对Admin API的请求可以发送到集群中的任何节点，而Kong将保持所有节点的配置一致  8001：Admin API监听的默认端口 8444：Admin API的HTTPS默认端口  这个API是">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2018-10-09T11:17:44.858Z">
+<meta property="og:updated_time" content="2018-10-10T10:25:17.397Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Kong——Admin API">
+<meta name="twitter:title" content="Kong——Admin API文档">
 <meta name="twitter:description" content="Endpoint非特殊说明，默认为GET本文是基于官方文档做的实践，主要内容是基于官方文档内容做的翻译以及在实践中的个人理解  Kong为了便于管理附带了一个内部RESTful Admin API。对Admin API的请求可以发送到集群中的任何节点，而Kong将保持所有节点的配置一致  8001：Admin API监听的默认端口 8444：Admin API的HTTPS默认端口  这个API是">
 
 
@@ -136,7 +136,7 @@
   };
 </script>
 
-  <title>Kong——Admin API | Ryoma's Blog</title>
+  <title>Kong——Admin API文档 | Ryoma's Blog</title>
   
 
 
@@ -326,7 +326,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">Kong——Admin API
+          <h1 class="post-title" itemprop="name headline">Kong——Admin API文档
               
             
           </h1>
@@ -766,6 +766,7 @@
 </ul>
 <p>注意：并不是所有的插件都允许设置特定的consumer_id，以插件文档为准。</p>
 <h4 id="Endpoint-18"><a href="#Endpoint-18" class="headerlink" title="Endpoint"></a>Endpoint</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">POST /plugins/</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">POST /services/&#123;service&#125;/plugins</span><br></pre></td></tr></table></figure>
 <h4 id="Request-Body-8"><a href="#Request-Body-8" class="headerlink" title="Request Body"></a>Request Body</h4><table>
 <thead>
 <tr>
@@ -1213,8 +1214,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/posts/kong_proxy/" rel="next" title="Kong——Proxy">
-                <i class="fa fa-chevron-left"></i> Kong——Proxy
+              <a href="/posts/kong_proxy/" rel="next" title="Kong——Proxy文档">
+                <i class="fa fa-chevron-left"></i> Kong——Proxy文档
               </a>
             
           </div>
@@ -1309,7 +1310,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">60</span>
+                    <span class="site-state-item-count">62</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
@@ -1722,7 +1723,7 @@
       var disqus_config = function () {
         this.page.url = 'https://blog.ryoma.top/posts/kong_admin_api/';
         this.page.identifier = 'posts/kong_admin_api/';
-        this.page.title = 'Kong——Admin API';
+        this.page.title = 'Kong——Admin API文档';
         };
       function loadComments () {
         var d = document, s = d.createElement('script');
