@@ -2,9 +2,9 @@
 title: 分库分表分析
 date: 2018/09/03 21:00:00
 tags:
-  - Mysql
+  - MySQL
   - 分库分表
-categories: Mysql
+categories: MySQL
 ---
 
 ## 说在前面
@@ -181,7 +181,7 @@ categories: Mysql
 
 以下是一些需要了解的关键字：
 
-- 跨页——mysql底层通过“数据页”来存储，“跨页”可能会导致额外的性能开销
+- 跨页——MySQL底层通过“数据页”来存储，“跨页”可能会导致额外的性能开销
 - OLAP——On-Line Analytical Processing：强调数据库内存效率，强调内存各种指标的命令率，强调绑定变量，强调并发操作
 - OLTP——On-Line Transaction Processing：强调数据分析，强调SQL执行市场，强调磁盘I/O，强调分区等
 - 一致性Hash算法

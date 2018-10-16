@@ -6,7 +6,7 @@ tags:
 categories: Redis
 ---
 
-> 在本文中，**数据库**与**mysql**的意义相同
+> 在本文中，**数据库**与**MySQL**的意义相同
 
 ## 缓存策略分析
 > 根据场景选择缓存策略，不要在一个场景下混用策略
@@ -26,7 +26,7 @@ categories: Redis
 	- 先让缓存失效（不要使用set，使用delete）
 		- 如果成功，再操作数据库（无论操作数据库成功/失败，缓存数据都需要从数据库重新加载）
 		- 失败，直接返回
-	- [canal](https://github.com/alibaba/canal)：canal通过模拟mysql slave的交互协议，将自己伪装成mysql slave，然后通过解析mysql master推送的binlog文件，最后再进行redis数据的同步（使用canal算是Cache Aside Pattern策略的加强，但使用Canal要引入Java技术栈，故暂不引入，后续可根据需要再做考虑）
+	- [canal](https://github.com/alibaba/canal)：canal通过模拟MySQL slave的交互协议，将自己伪装成MySQL slave，然后通过解析MySQL master推送的binlog文件，最后再进行redis数据的同步（使用canal算是Cache Aside Pattern策略的加强，但使用Canal要引入Java技术栈，故暂不引入，后续可根据需要再做考虑）
 
 ![Cache Aside](https://img.ryoma.top/Redis/cache_aside_1.png)
 
@@ -45,7 +45,7 @@ categories: Redis
 - 频写且数据不太重要
 
 流程：
-更新数据的时候，只更新缓存，不同步更新数据库，能够让更新操作不受Mysql的限制。
+更新数据的时候，只更新缓存，不同步更新数据库，能够让更新操作不受MySQL的限制。
 
 - 读数据
 	- 命中：从cache中取数据
@@ -79,7 +79,7 @@ categories: Redis
 在访问Redis和数据库之前，将存在的key用[布隆过滤器](https://en.wikipedia.org/wiki/Bloom_filter)提前保存，做第一层的过滤——适合数据相对固定的场景
 
 ### 缓存雪崩问题
-Redis缓存的存在，有效的保护了数据库。但是如果Redis由于某些原因不能提供服务，所有的请求都会到达数据库，可能会造成Mysql宕机。
+Redis缓存的存在，有效的保护了数据库。但是如果Redis由于某些原因不能提供服务，所有的请求都会到达数据库，可能会造成MySQL宕机。
 我们即将使用的是腾讯云的Redis服务，高可用性有一定的保障，我们可以做的：
 - 保持对Redis实例使用情况的监控
 - 一定的降级策略（如有需要，提前做演练）

@@ -4,7 +4,7 @@ date: 2017/12/10 12:00:00
 tags:
   - WordPress
   - 个人博客
-  - Mysql
+  - MySQL
 categories: 搭建博客
 ---
 
@@ -32,7 +32,7 @@ yum install php php-fpm php-mysql mysql-server -y
    从 CentOS 7 系统开始，MariaDB 成为 yum 源中默认的数据库安装包。在 CentOS 7 及以上的系统中使用 yum 安装 MySQL 包将无法使用 MySQL。您可以选择使用完全兼容的 MariaDB，或点击 参阅此处 进行较低版本的 MySQL 的安装。
 ```
 
-#### 安装mysql(我的服务器是CentOS 7.2)
+#### 安装MySQL(我的服务器是CentOS 7.2)
 根据这个[链接](https://www.linode.com/docs/databases/mysql/how-to-install-mysql-on-centos-7/)进行安装。安装花费了很长时间，很多源码包下载的速度从几KB降到几B，重复换源下载，这个过程浪费了很多时间。
 
 ### 软件配置
@@ -40,7 +40,7 @@ yum install php php-fpm php-mysql mysql-server -y
 #### 配置Nginx
 按照我的习惯，我在conf/vhost目录下，建立了对应的配置文件**xx.conf**，然后重启nginx
 
-#### 配置mysql
+#### 配置MySQL
 
 - 启动msyql
 ```
@@ -101,7 +101,7 @@ GRANT ALL PRIVILEGES ON wordpress.* TO user@localhost IDENTIFIED BY 'wordpresspa
 ```
 FLUSH PRIVILEGES;
 ```
-- 退出mysql
+- 退出MySQL
 
 ### 写入数据库信息
 - 创建新配置文件

@@ -1,12 +1,12 @@
 ---
-title: Mysql（剔除冗余数据）
+title: MySQL（剔除冗余数据）
 date: 2017/9/20 12:00:00
 tags:
-  - Mysql
-categories: Mysql
+  - MySQL
+categories: MySQL
 ---
 
-## Mysql 剔除冗余数据
+## MySQL 剔除冗余数据
 >事出有因，解释起来太麻烦了，举个例子，简化说下问题。
 
 | user\_id| passport\_id |

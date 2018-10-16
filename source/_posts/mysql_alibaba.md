@@ -1,9 +1,9 @@
 ---
-title: Mysql使用规范
+title: MySQL使用规范
 date: 2018/05/30 19:00:00
 tags:
-  - Mysql
-categories: Mysql
+  - MySQL
+categories: MySQL
 ---
 
 > 阅读《阿里巴巴Java开发手册》中的MySQL数据库部分，主要部分是书中的规范以及自己的一些理解
@@ -269,7 +269,9 @@ TRUNCATE TABLE在功能上与不带WHERE子句的DELETE语句相同
 ## 资料
 
 * [https://github.com/alibaba/p3c](https://github.com/alibaba/p3c)
-* [https://dev.mysql.com/doc/refman/8.0/en/identifier-case-sensitivity.html](https://dev.mysql.com/doc/refman/8.0/en/identifier-case-sensitivity.html)
-* [https://dev.mysql.com/doc/refman/8.0/en/keywords.html#keywords-in-current-series](https://dev.mysql.com/doc/refman/8.0/en/keywords.html#keywords-in-current-series)
+* [标识符大小写](https://dev.mysql.com/doc/refman/8.0/en/identifier-case-sensitivity.html)
+* [关键词和保留词](https://dev.mysql.com/doc/refman/8.0/en/keywords.html#keywords-in-current-series)
 * [墨菲定律](https://zh.wikipedia.org/wiki/%E6%91%A9%E8%8F%B2%E5%AE%9A%E7%90%86)
-* [https://tech.meituan.com/mysql\_index.html](https://tech.meituan.com/mysql_index.html)
+* [MySQL索引原理及慢查询优化](https://tech.meituan.com/mysql_index.html)
+* [数据库内核月报](http://mysql.taobao.org/monthly/)
+* [官方优化文档](https://dev.mysql.com/doc/refman/8.0/en/optimization.html)
