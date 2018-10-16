@@ -1,0 +1,1173 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=6.3.0" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=6.3.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=6.3.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=6.3.0">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=6.3.0" color="#222">
+
+
+
+
+
+
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '6.3.0',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="阅读《阿里巴巴Java开发手册》中的MySQL数据库部分，主要部分是书中的规范以及自己的一些理解  建表规约【强制】表达是与否概念的字段必须使用is_xxx的方式命名，数据类型是unsigned tinyint（ 1表示是，0表示否） 说明任何字段如果为非负数，必须是unsigned 正例表达逻辑删除的字段名is_deleted，1表示删除，0表示未删除 【强制】表名、字段名必须使用小写字母或数">
+<meta name="keywords" content="Mysql">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Mysql使用规范">
+<meta property="og:url" content="https://blog.ryoma.top/posts/mysql_alibaba/index.html">
+<meta property="og:site_name" content="Ryoma&#39;s Blog">
+<meta property="og:description" content="阅读《阿里巴巴Java开发手册》中的MySQL数据库部分，主要部分是书中的规范以及自己的一些理解  建表规约【强制】表达是与否概念的字段必须使用is_xxx的方式命名，数据类型是unsigned tinyint（ 1表示是，0表示否） 说明任何字段如果为非负数，必须是unsigned 正例表达逻辑删除的字段名is_deleted，1表示删除，0表示未删除 【强制】表名、字段名必须使用小写字母或数">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2018/png/92822/1539652542600-ce70c075-92e0-487a-bee9-a444bd90907c.png">
+<meta property="og:updated_time" content="2018-10-16T11:47:49.217Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Mysql使用规范">
+<meta name="twitter:description" content="阅读《阿里巴巴Java开发手册》中的MySQL数据库部分，主要部分是书中的规范以及自己的一些理解  建表规约【强制】表达是与否概念的字段必须使用is_xxx的方式命名，数据类型是unsigned tinyint（ 1表示是，0表示否） 说明任何字段如果为非负数，必须是unsigned 正例表达逻辑删除的字段名is_deleted，1表示删除，0表示未删除 【强制】表名、字段名必须使用小写字母或数">
+<meta name="twitter:image" content="https://cdn.nlark.com/yuque/0/2018/png/92822/1539652542600-ce70c075-92e0-487a-bee9-a444bd90907c.png">
+
+
+
+
+
+
+  <link rel="canonical" href="https://blog.ryoma.top/posts/mysql_alibaba/"/>
+
+
+
+<script type="text/javascript" id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>Mysql使用规范 | Ryoma's Blog</title>
+  
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style type="text/css">
+    .use-motion .motion-element,
+    .use-motion .brand,
+    .use-motion .menu-item,
+    .sidebar-inner,
+    .use-motion .post-block,
+    .use-motion .pagination,
+    .use-motion .comments,
+    .use-motion .post-header,
+    .use-motion .post-body,
+    .use-motion .collection-title { opacity: initial; }
+
+    .use-motion .logo,
+    .use-motion .site-title,
+    .use-motion .site-subtitle {
+      opacity: initial;
+      top: initial;
+    }
+
+    .use-motion {
+      .logo-line-before i { left: initial; }
+      .logo-line-after i { right: initial; }
+    }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Ryoma's Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+      
+        <p class="site-subtitle">纸上得来终觉浅</p>
+      
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+    <a href="/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-home"></i> <br />首页</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+    <a href="/tags/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />标签</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+    <a href="/categories/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-th"></i> <br />分类</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+    <a href="/archives/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />归档</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+    <a href="/about/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-user"></i> <br />关于我</a>
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.ryoma.top/posts/mysql_alibaba/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Ryoma">
+      <meta itemprop="description" content="Ryoma's Blog">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Ryoma's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Mysql使用规范
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2018-05-30 19:00:00" itemprop="dateCreated datePublished" datetime="2018-05-30T19:00:00+08:00">2018-05-30</time>
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/Mysql/" itemprop="url" rel="index"><span itemprop="name">Mysql</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/posts/mysql_alibaba/#comments" itemprop="discussionUrl">
+                
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="posts/mysql_alibaba/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <blockquote>
+<p>阅读《阿里巴巴Java开发手册》中的MySQL数据库部分，主要部分是书中的规范以及自己的一些理解</p>
+</blockquote>
+<h2 id="建表规约"><a href="#建表规约" class="headerlink" title="建表规约"></a>建表规约</h2><h3 id="【强制】表达是与否概念的字段"><a href="#【强制】表达是与否概念的字段" class="headerlink" title="【强制】表达是与否概念的字段"></a>【强制】表达是与否概念的字段</h3><p>必须使用is_xxx的方式命名，数据类型是unsigned tinyint（ 1表示是，0表示否）</p>
+<h4 id="说明"><a href="#说明" class="headerlink" title="说明"></a>说明</h4><p>任何字段如果为非负数，必须是<code>unsigned</code></p>
+<h4 id="正例"><a href="#正例" class="headerlink" title="正例"></a>正例</h4><p>表达逻辑删除的字段名<code>is_deleted</code>，1表示删除，0表示未删除</p>
+<h3 id="【强制】表名、字段名"><a href="#【强制】表名、字段名" class="headerlink" title="【强制】表名、字段名"></a>【强制】表名、字段名</h3><p>必须使用小写字母或数字，禁止出现数字开头，禁止两个下划线中间只出现数字<br>数据库字段名的修改代价很大，因为无法进行预发布，所以字段名称需要慎重考虑<br><a id="more"></a></p>
+<h4 id="说明-1"><a href="#说明-1" class="headerlink" title="说明"></a>说明</h4><p>MySQL在Windows下不区分大小写，但在Linux下默认是区分大小写。因此，数据库名、表名、字段名，都不允许出现任何大写字母，避免节外生枝。</p>
+<h4 id="正例-1"><a href="#正例-1" class="headerlink" title="正例"></a>正例</h4><ul>
+<li>aliyun_admin</li>
+<li>rdc_config</li>
+<li>level3_name</li>
+</ul>
+<h4 id="反例"><a href="#反例" class="headerlink" title="反例"></a>反例</h4><ul>
+<li>AliyunAdmin</li>
+<li>rdcConfig</li>
+<li>level_3_name</li>
+</ul>
+<h3 id="【强制】表名不使用复数名词"><a href="#【强制】表名不使用复数名词" class="headerlink" title="【强制】表名不使用复数名词"></a>【强制】表名不使用复数名词</h3><p>表名应该仅仅表示表里面的实体内容，不应该表示实体数量，可<a href="https://dev.mysql.com/doc/refman/8.0/en/identifier-case-sensitivity.html" target="_blank" rel="noopener">参考文档</a></p>
+<h3 id="【强制】禁用保留字"><a href="#【强制】禁用保留字" class="headerlink" title="【强制】禁用保留字"></a>【强制】禁用保留字</h3><p>如<code>desc</code>、<code>range</code>、<code>match</code>、<code>delayed</code>等，可<a href="https://dev.mysql.com/doc/refman/8.0/en/keywords.html#keywords-in-current-series" target="_blank" rel="noopener">参考文档</a></p>
+<h3 id="【强制】索引名称"><a href="#【强制】索引名称" class="headerlink" title="【强制】索引名称"></a>【强制】索引名称</h3><p>主键索引名为pk_字段名；唯一索引名为uk_字段名；普通索引名则为idx_字段名</p>
+<h4 id="说明-2"><a href="#说明-2" class="headerlink" title="说明"></a>说明</h4><ul>
+<li>pk_ 即primary key</li>
+<li>uk_ 即 unique key</li>
+<li>idx_ 即index</li>
+</ul>
+<h3 id="【强制】小数类型"><a href="#【强制】小数类型" class="headerlink" title="【强制】小数类型"></a>【强制】小数类型</h3><p>小数类型为decimal，禁止使用float和double</p>
+<h4 id="说明-3"><a href="#说明-3" class="headerlink" title="说明"></a>说明</h4><p>float和double在存储的时候，存在精度损失的问题，很可能在值的比较时，得到不正确的结果<br>如果存储的数据范围超过decimal的范围，建议将数据拆成整数和小数分开存储</p>
+<h4 id="个人观点"><a href="#个人观点" class="headerlink" title="个人观点"></a>个人观点</h4><p>如果对数据精度要求不高，可以使用float/double，需要判断时可以考虑引入EPSILON</p>
+<h3 id="【强制】存储的字符串长度几乎相等"><a href="#【强制】存储的字符串长度几乎相等" class="headerlink" title="【强制】存储的字符串长度几乎相等"></a>【强制】存储的字符串长度几乎相等</h3><p>使用char定长字符串类型，如身份证号这类</p>
+<h3 id="【强制】存储的可变字符串"><a href="#【强制】存储的可变字符串" class="headerlink" title="【强制】存储的可变字符串"></a>【强制】存储的可变字符串</h3><ul>
+<li>varchar是可变长字符串，不预先分配存储空间，长度不要超过5000</li>
+<li>存储长度大于此值，定义字段类型为text</li>
+</ul>
+<p>此时可以考虑分表，用主键来对应，避免影响其它字段索引效率</p>
+<h3 id="【强制】表必备三字段：id-gmt-create-gmt-modified"><a href="#【强制】表必备三字段：id-gmt-create-gmt-modified" class="headerlink" title="【强制】表必备三字段：id, gmt_create, gmt_modified"></a>【强制】表必备三字段：id, gmt_create, gmt_modified</h3><h4 id="说明-4"><a href="#说明-4" class="headerlink" title="说明"></a>说明</h4><p>其中id必为主键，类型为unsigned bigint、单表时自增、步长为1<br>gmt_create, gmt_modified的类型均为datetime类型，前者现在时表示主动创建，后者过去分词表示被动更新</p>
+<h4 id="个人观点-1"><a href="#个人观点-1" class="headerlink" title="个人观点"></a>个人观点</h4><ul>
+<li>主键：业务量大之后，单表自增ID这种就不太适用了</li>
+<li>存储时间：有的团队喜欢使用unsigned int或unsigned bigint来存储时间戳，这块目前还没有进行比较</li>
+</ul>
+<h3 id="【推荐】表的命名"><a href="#【推荐】表的命名" class="headerlink" title="【推荐】表的命名"></a>【推荐】表的命名</h3><p>表的命名最好是加上“业务名称_表的作用”</p>
+<h4 id="正例-2"><a href="#正例-2" class="headerlink" title="正例"></a>正例</h4><ul>
+<li>alipay_task</li>
+<li>force_project</li>
+<li>trade_config</li>
+</ul>
+<h3 id="【推荐】库名与应用名称尽量一致"><a href="#【推荐】库名与应用名称尽量一致" class="headerlink" title="【推荐】库名与应用名称尽量一致"></a>【推荐】库名与应用名称尽量一致</h3><h3 id="【强制】字段更新策略"><a href="#【强制】字段更新策略" class="headerlink" title="【强制】字段更新策略"></a>【强制】字段更新策略</h3><p>如果修改字段含义或对字段表示的状态追加时，需要及时更新字段注释</p>
+<h4 id="个人理解"><a href="#个人理解" class="headerlink" title="个人理解"></a>个人理解</h4><p>在原文中，这是一个【推荐】，但是个人感觉，及时同步是一件很重要的事，否则后来者只能在代码中去寻找答案了</p>
+<h3 id="【推荐】允许适当字段冗余"><a href="#【推荐】允许适当字段冗余" class="headerlink" title="【推荐】允许适当字段冗余"></a>【推荐】允许适当字段冗余</h3><p>为了提高查询性能，允许适当冗余，但需要考虑数据一致。<br>冗余字段应遵循：</p>
+<ul>
+<li>不是频繁修改的字段</li>
+<li>不是varchar超长字段，更不能是text字段</li>
+<li>冗余字段名称保持一致，不能出现相同含义不同字段名称</li>
+</ul>
+<h4 id="正例-3"><a href="#正例-3" class="headerlink" title="正例"></a>正例</h4><p>商品类目名称使用频率高，字段长度短，名称基本一成不变</p>
+<h3 id="【推荐】单表行数超过500万行或单表容量超过2GB，才推荐分库分表"><a href="#【推荐】单表行数超过500万行或单表容量超过2GB，才推荐分库分表" class="headerlink" title="【推荐】单表行数超过500万行或单表容量超过2GB，才推荐分库分表"></a>【推荐】单表行数超过500万行或单表容量超过2GB，才推荐分库分表</h3><p>如果预计三年内的数据量根本达不到这个级别，请不要在创建表时就分库分表</p>
+<h4 id="个人理解-1"><a href="#个人理解-1" class="headerlink" title="个人理解"></a>个人理解</h4><p>分库分表并不是说分就分的，还需要考虑后续的数据表操作，比如查询这类。如果没有想好分库分表的策略，联表查询会是一个痛点</p>
+<h3 id="【参考】合适的字符存储长度"><a href="#【参考】合适的字符存储长度" class="headerlink" title="【参考】合适的字符存储长度"></a>【参考】合适的字符存储长度</h3><p>不但节约数据库表空间、节约索引存储，更重要的是提升检索速度</p>
+<h4 id="正例-4"><a href="#正例-4" class="headerlink" title="正例"></a>正例</h4><p>如下，其中无符号数可以避免误存负数，且扩大了表示范围：</p>
+<p><img src="https://cdn.nlark.com/yuque/0/2018/png/92822/1539652542600-ce70c075-92e0-487a-bee9-a444bd90907c.png" alt="image.png | left | 827x308"></p>
+<h2 id="索引规约"><a href="#索引规约" class="headerlink" title="索引规约"></a>索引规约</h2><h3 id="【强制】业务上具有唯一特性的字段，必须建成唯一索引（即使是多个字段的组合）"><a href="#【强制】业务上具有唯一特性的字段，必须建成唯一索引（即使是多个字段的组合）" class="headerlink" title="【强制】业务上具有唯一特性的字段，必须建成唯一索引（即使是多个字段的组合）"></a>【强制】业务上具有唯一特性的字段，必须建成唯一索引（即使是多个字段的组合）</h3><ul>
+<li>不要以为唯一索引影响了Insert速度，这个速度的损耗可以忽略，但提高查找速度是明显的</li>
+<li>即使在应用层做了非常完善的校验控制，只要没有唯一索引，根据墨菲定律，必然会有脏数据产生</li>
+</ul>
+<h3 id="【强制】超过三个表禁止join"><a href="#【强制】超过三个表禁止join" class="headerlink" title="【强制】超过三个表禁止join"></a>【强制】超过三个表禁止join</h3><ul>
+<li>需要join的字段，数据类型必须绝对一致</li>
+<li>多表关联查询时，保证被关联的字段需要有索引</li>
+</ul>
+<h4 id="说明-5"><a href="#说明-5" class="headerlink" title="说明"></a>说明</h4><p>即使双表join也要注意表索引、SQL性能</p>
+<h3 id="【强制】在varchar字段上建立索引时，必须指定索引长度"><a href="#【强制】在varchar字段上建立索引时，必须指定索引长度" class="headerlink" title="【强制】在varchar字段上建立索引时，必须指定索引长度"></a>【强制】在varchar字段上建立索引时，必须指定索引长度</h3><p>没必要对全字段建立索引，根据实际文本区长度决定索引长度即可</p>
+<h4 id="说明-6"><a href="#说明-6" class="headerlink" title="说明"></a>说明</h4><p>索引的长度和区分度是一对矛盾体，一般对字符串类型数据，长度为20的索引，区分度会高达90%以上，可以使用count(distinct left(列名, 索引长度)) / count(*)的区分度来确定</p>
+<h3 id="【强制】页面搜索严禁左模糊或全模糊"><a href="#【强制】页面搜索严禁左模糊或全模糊" class="headerlink" title="【强制】页面搜索严禁左模糊或全模糊"></a>【强制】页面搜索严禁左模糊或全模糊</h3><p>如果需要，请走搜索引擎</p>
+<h4 id="说明-7"><a href="#说明-7" class="headerlink" title="说明"></a>说明</h4><p>索引文件具有B-Tree的最左前缀匹配特性，如果左边的值未确定，那么无法使用此索引</p>
+<h3 id="【推荐】如果有order-by的场景，请注意利用索引的有序性"><a href="#【推荐】如果有order-by的场景，请注意利用索引的有序性" class="headerlink" title="【推荐】如果有order by的场景，请注意利用索引的有序性"></a>【推荐】如果有order by的场景，请注意利用索引的有序性</h3><p>order by 最后的字段是组合索引的一部分，并且放在索引组合顺序的最后，避免出现file_sort的情况，影响查询性能</p>
+<h4 id="正例-5"><a href="#正例-5" class="headerlink" title="正例"></a>正例</h4><ul>
+<li>where a = ? and b = ? order by c<br>  索引：a_b_c</li>
+</ul>
+<h4 id="反例-1"><a href="#反例-1" class="headerlink" title="反例"></a>反例</h4><p>索引中有范围查找，那么索引的有序性无法利用，如：</p>
+<ul>
+<li>where a &gt; 10 order by b<br>  索引a_b无法排序</li>
+</ul>
+<h3 id="【推荐】利用覆盖索引来进行查询操作，避免回表"><a href="#【推荐】利用覆盖索引来进行查询操作，避免回表" class="headerlink" title="【推荐】利用覆盖索引来进行查询操作，避免回表"></a>【推荐】利用覆盖索引来进行查询操作，避免回表</h3><p>如果一本书需要知道第11章是什么标题，需要翻开第11章那一页么？<br>目前浏览一下就好，这个目录就是覆盖索引的作用</p>
+<h4 id="正例-6"><a href="#正例-6" class="headerlink" title="正例"></a>正例</h4><p>能够建立索引的种类分为主键索引、唯一索引、普通索引，而覆盖索引只是查询的一种效果，用explain效果，extra列会出现：using index</p>
+<h3 id="【推荐】利用延迟关联或者子查询优化超多分页场景"><a href="#【推荐】利用延迟关联或者子查询优化超多分页场景" class="headerlink" title="【推荐】利用延迟关联或者子查询优化超多分页场景"></a>【推荐】利用延迟关联或者子查询优化超多分页场景</h3><p>MySQL并不是跳过offset行，而是取offset+N行，然后放弃前offset行，返回N行<br>当offset特别大的时候，效率就非常的低下，要么控制返回的总页数，要么对超过特定阈值的页数进行SQL改写</p>
+<h4 id="正例-7"><a href="#正例-7" class="headerlink" title="正例"></a>正例</h4><p>先快速定位需要获取的id段，然后再关联：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">select a.* from 表1 a, (select id from 表1 where 条件 limit 100000, 20) b where a.id = b.id</span><br></pre></td></tr></table></figure>
+<h3 id="【强制】SQL性能优化的目标"><a href="#【强制】SQL性能优化的目标" class="headerlink" title="【强制】SQL性能优化的目标"></a>【强制】SQL性能优化的目标</h3><ul>
+<li>至少要达到range级别</li>
+<li>要求是ref级别</li>
+<li>consts最好</li>
+</ul>
+<h4 id="说明-8"><a href="#说明-8" class="headerlink" title="说明"></a>说明</h4><ul>
+<li>consts单表中最多只有一个匹配行（主键或是唯一索引），在优化阶段即可读取到数据</li>
+<li>ref指的是使用普通的索引</li>
+<li>range对索引进行范围检索</li>
+</ul>
+<h4 id="反例-2"><a href="#反例-2" class="headerlink" title="反例"></a>反例</h4><p>explain表的结果，type=index，索引物理文件全扫描，速度非常慢，这个index级别比range低，当然，与全表扫描相比是小巫见大巫</p>
+<h4 id="个人理解-2"><a href="#个人理解-2" class="headerlink" title="个人理解"></a>个人理解</h4><p>在原文中，这是一个【推荐】，SQL性能优化还是值得关注的，而且在微服务化的今天，更多的瓶颈实际上是在最终落地部分</p>
+<h3 id="【推荐】建组合索引时，区分度最高的在最左边"><a href="#【推荐】建组合索引时，区分度最高的在最左边" class="headerlink" title="【推荐】建组合索引时，区分度最高的在最左边"></a>【推荐】建组合索引时，区分度最高的在最左边</h3><p>存在非等号和等号混合时，在建索引时，请把等号条件的列前置<br>如：</p>
+<ul>
+<li>where c &gt; ? and d = ?：即使c的区分度更高，也需要把d放在索引的最前列，即idx_d_c</li>
+</ul>
+<h4 id="正例-8"><a href="#正例-8" class="headerlink" title="正例"></a>正例</h4><p>如果where a = ? and b = ?：如果a列近乎唯一值，只需要单建idx_a索引即可</p>
+<h3 id="【推荐】防止因字段类型不同造成的隐式转换，导致索引失效"><a href="#【推荐】防止因字段类型不同造成的隐式转换，导致索引失效" class="headerlink" title="【推荐】防止因字段类型不同造成的隐式转换，导致索引失效"></a>【推荐】防止因字段类型不同造成的隐式转换，导致索引失效</h3><h3 id="【参考】创建索引时避免有极端误解"><a href="#【参考】创建索引时避免有极端误解" class="headerlink" title="【参考】创建索引时避免有极端误解"></a>【参考】创建索引时避免有极端误解</h3><ul>
+<li>宁滥勿缺：一个查询就需要一个索引</li>
+<li>宁缺毋滥：认为所以会消耗空间，严重拖慢更新和新增速度</li>
+<li>抵制唯一索引：认为业务的唯一性需要靠应用层解决</li>
+</ul>
+<h2 id="SQL语句"><a href="#SQL语句" class="headerlink" title="SQL语句"></a>SQL语句</h2><h3 id="【强制】不要使用count-列名-或count-常量-来替代count"><a href="#【强制】不要使用count-列名-或count-常量-来替代count" class="headerlink" title="【强制】不要使用count(列名)或count(常量)来替代count(*)"></a>【强制】不要使用count(列名)或count(常量)来替代count(*)</h3><p>count(*)是SQL92定义的标准统计行数的语法，与数据库无关，跟NULL和非NULL无关</p>
+<h4 id="说明-9"><a href="#说明-9" class="headerlink" title="说明"></a>说明</h4><p>count(*)会统计值为NULL的行，而count(列名)不会统计此列为NULL值的行</p>
+<h3 id="【强制】count-distinct-col-计算该列除NULL之外的不重复行数"><a href="#【强制】count-distinct-col-计算该列除NULL之外的不重复行数" class="headerlink" title="【强制】count(distinct col)计算该列除NULL之外的不重复行数"></a>【强制】count(distinct col)计算该列除NULL之外的不重复行数</h3><p>注意count(distinct col1, col2)如果一列为NULL，也返回为0</p>
+<h3 id="【强制】当某一列值全是NULL时，count-col-的返回结果为0，但sum-col-的返回结果是NULL"><a href="#【强制】当某一列值全是NULL时，count-col-的返回结果为0，但sum-col-的返回结果是NULL" class="headerlink" title="【强制】当某一列值全是NULL时，count(col)的返回结果为0，但sum(col)的返回结果是NULL"></a>【强制】当某一列值全是NULL时，count(col)的返回结果为0，但sum(col)的返回结果是NULL</h3><p>使用sum()时需注意NPE问题</p>
+<h4 id="正例-9"><a href="#正例-9" class="headerlink" title="正例"></a>正例</h4><p>使用如下方式避免sum的NPE问题：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">select IF(isnull(sum(col1)), 0, sum(col1)) from test</span><br></pre></td></tr></table></figure>
+<h3 id="【强制】使用ISNULL来判断是否为NULL值"><a href="#【强制】使用ISNULL来判断是否为NULL值" class="headerlink" title="【强制】使用ISNULL来判断是否为NULL值"></a>【强制】使用ISNULL来判断是否为NULL值</h3><p>NULL与任何值的直接比较都为NULL</p>
+<ul>
+<li>NULL &lt;&gt; NULL</li>
+<li>NULL = NULL</li>
+<li>NULL &lt;&gt; 1</li>
+</ul>
+<h3 id="【强制】分页查询逻辑时，若count为0应直接返回，避免执行后面的分页语句"><a href="#【强制】分页查询逻辑时，若count为0应直接返回，避免执行后面的分页语句" class="headerlink" title="【强制】分页查询逻辑时，若count为0应直接返回，避免执行后面的分页语句"></a>【强制】分页查询逻辑时，若count为0应直接返回，避免执行后面的分页语句</h3><h3 id="【强制】不得使用外键与级联，一切外键概念必须在应用层解决"><a href="#【强制】不得使用外键与级联，一切外键概念必须在应用层解决" class="headerlink" title="【强制】不得使用外键与级联，一切外键概念必须在应用层解决"></a>【强制】不得使用外键与级联，一切外键概念必须在应用层解决</h3><p>以学生和成绩为例，学生表中student_id是主键，成绩表中student_id为外键。如果更新学生表中的student_id，同时触发成绩表中的student_id更新，即为级联更新。</p>
+<ul>
+<li>外键与级联更新适用于单机低并发，不适合分布式、高并发集群</li>
+<li>级联更新是强阻塞，存在数据库更新风暴的风险</li>
+<li>外键影响数据库的插入速度</li>
+</ul>
+<h3 id="【强制】禁止使用存储过程"><a href="#【强制】禁止使用存储过程" class="headerlink" title="【强制】禁止使用存储过程"></a>【强制】禁止使用存储过程</h3><p>存储过程难以调试和扩展，更没有移植性</p>
+<h3 id="【强制】数据订正（删除、修改）时，需要先select，避免出现误删除"><a href="#【强制】数据订正（删除、修改）时，需要先select，避免出现误删除" class="headerlink" title="【强制】数据订正（删除、修改）时，需要先select，避免出现误删除"></a>【强制】数据订正（删除、修改）时，需要先select，避免出现误删除</h3><p>确认无误后，才能执行更新语句</p>
+<h3 id="【推荐】in操作能避免则避免"><a href="#【推荐】in操作能避免则避免" class="headerlink" title="【推荐】in操作能避免则避免"></a>【推荐】in操作能避免则避免</h3><p>若实在无法避免，需要评估in中集合元素数量，控制在1000个以内</p>
+<h3 id="【参考】如果有国际化需要，所有的字符存储于表示，均以utf-8编码"><a href="#【参考】如果有国际化需要，所有的字符存储于表示，均以utf-8编码" class="headerlink" title="【参考】如果有国际化需要，所有的字符存储于表示，均以utf-8编码"></a>【参考】如果有国际化需要，所有的字符存储于表示，均以utf-8编码</h3><p>注意字符统计函数的区别</p>
+<h4 id="说明-10"><a href="#说明-10" class="headerlink" title="说明"></a>说明</h4><ul>
+<li>select length(“轻松工作”)：12</li>
+<li>select character_length(“轻松工作”)：4<br>如果需要存储表情，选择utf8mb4来进行存储，注意与utf-8的区别</li>
+</ul>
+<h3 id="【参考】TRUNCATE-TABLE"><a href="#【参考】TRUNCATE-TABLE" class="headerlink" title="【参考】TRUNCATE TABLE"></a>【参考】TRUNCATE TABLE</h3><p>TRUNCATE TABLE 比 DELETE速度快，且使用的系统和事务日志资源少，但TRUNCATE无事务且不触发trigger，有可能造成事故</p>
+<h4 id="说明-11"><a href="#说明-11" class="headerlink" title="说明"></a>说明</h4><p>TRUNCATE TABLE在功能上与不带WHERE子句的DELETE语句相同</p>
+<h2 id="ORM映射"><a href="#ORM映射" class="headerlink" title="ORM映射"></a>ORM映射</h2><p>未总结</p>
+<h2 id="资料"><a href="#资料" class="headerlink" title="资料"></a>资料</h2><ul>
+<li><a href="https://github.com/alibaba/p3c" target="_blank" rel="noopener">https://github.com/alibaba/p3c</a></li>
+<li><a href="https://dev.mysql.com/doc/refman/8.0/en/identifier-case-sensitivity.html" target="_blank" rel="noopener">https://dev.mysql.com/doc/refman/8.0/en/identifier-case-sensitivity.html</a></li>
+<li><a href="https://dev.mysql.com/doc/refman/8.0/en/keywords.html#keywords-in-current-series" target="_blank" rel="noopener">https://dev.mysql.com/doc/refman/8.0/en/keywords.html#keywords-in-current-series</a></li>
+<li><a href="https://zh.wikipedia.org/wiki/%E6%91%A9%E8%8F%B2%E5%AE%9A%E7%90%86" target="_blank" rel="noopener">墨菲定律</a></li>
+<li><a href="https://tech.meituan.com/mysql_index.html" target="_blank" rel="noopener">https://tech.meituan.com/mysql_index.html</a></li>
+</ul>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Mysql/" rel="tag"># Mysql</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/posts/cocos2d-html5_plist/" rel="next" title="Cocos2d-html5 plist优化 & plist文件加载解析">
+                <i class="fa fa-chevron-left"></i> Cocos2d-html5 plist优化 & plist文件加载解析
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/posts/redis_analysis/" rel="prev" title="Redis 引入分析">
+                Redis 引入分析 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+    <div class="comments" id="comments">
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/avatar.jpg"
+                alt="Ryoma" />
+            
+              <p class="site-author-name" itemprop="name">Ryoma</p>
+              <p class="site-description motion-element" itemprop="description">Ryoma's Blog</p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">63</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  <a href="/categories/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">18</span>
+                    <span class="site-state-item-name">分类</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  <a href="/tags/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">61</span>
+                    <span class="site-state-item-name">标签</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+            <div class="links-of-author motion-element">
+              
+                <span class="links-of-author-item">
+                  <a href="https://github.com/JianmingXia" target="_blank" title="GitHub"><i class="fa fa-fw fa-github"></i>GitHub</a>
+                  
+                </span>
+              
+                <span class="links-of-author-item">
+                  <a href="mailto:xiajianming_xjm@163.com" target="_blank" title="E-Mail"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                  
+                </span>
+              
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#建表规约"><span class="nav-number">1.</span> <span class="nav-text">建表规约</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#【强制】表达是与否概念的字段"><span class="nav-number">1.1.</span> <span class="nav-text">【强制】表达是与否概念的字段</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#说明"><span class="nav-number">1.1.1.</span> <span class="nav-text">说明</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#正例"><span class="nav-number">1.1.2.</span> <span class="nav-text">正例</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#【强制】表名、字段名"><span class="nav-number">1.2.</span> <span class="nav-text">【强制】表名、字段名</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#说明-1"><span class="nav-number">1.2.1.</span> <span class="nav-text">说明</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#正例-1"><span class="nav-number">1.2.2.</span> <span class="nav-text">正例</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#反例"><span class="nav-number">1.2.3.</span> <span class="nav-text">反例</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#【强制】表名不使用复数名词"><span class="nav-number">1.3.</span> <span class="nav-text">【强制】表名不使用复数名词</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#【强制】禁用保留字"><span class="nav-number">1.4.</span> <span class="nav-text">【强制】禁用保留字</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#【强制】索引名称"><span class="nav-number">1.5.</span> <span class="nav-text">【强制】索引名称</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#说明-2"><span class="nav-number">1.5.1.</span> <span class="nav-text">说明</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#【强制】小数类型"><span class="nav-number">1.6.</span> <span class="nav-text">【强制】小数类型</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#说明-3"><span class="nav-number">1.6.1.</span> <span class="nav-text">说明</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#个人观点"><span class="nav-number">1.6.2.</span> <span class="nav-text">个人观点</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#【强制】存储的字符串长度几乎相等"><span class="nav-number">1.7.</span> <span class="nav-text">【强制】存储的字符串长度几乎相等</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#【强制】存储的可变字符串"><span class="nav-number">1.8.</span> <span class="nav-text">【强制】存储的可变字符串</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#【强制】表必备三字段：id-gmt-create-gmt-modified"><span class="nav-number">1.9.</span> <span class="nav-text">【强制】表必备三字段：id, gmt_create, gmt_modified</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#说明-4"><span class="nav-number">1.9.1.</span> <span class="nav-text">说明</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#个人观点-1"><span class="nav-number">1.9.2.</span> <span class="nav-text">个人观点</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#【推荐】表的命名"><span class="nav-number">1.10.</span> <span class="nav-text">【推荐】表的命名</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#正例-2"><span class="nav-number">1.10.1.</span> <span class="nav-text">正例</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#【推荐】库名与应用名称尽量一致"><span class="nav-number">1.11.</span> <span class="nav-text">【推荐】库名与应用名称尽量一致</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#【强制】字段更新策略"><span class="nav-number">1.12.</span> <span class="nav-text">【强制】字段更新策略</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#个人理解"><span class="nav-number">1.12.1.</span> <span class="nav-text">个人理解</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#【推荐】允许适当字段冗余"><span class="nav-number">1.13.</span> <span class="nav-text">【推荐】允许适当字段冗余</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#正例-3"><span class="nav-number">1.13.1.</span> <span class="nav-text">正例</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#【推荐】单表行数超过500万行或单表容量超过2GB，才推荐分库分表"><span class="nav-number">1.14.</span> <span class="nav-text">【推荐】单表行数超过500万行或单表容量超过2GB，才推荐分库分表</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#个人理解-1"><span class="nav-number">1.14.1.</span> <span class="nav-text">个人理解</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#【参考】合适的字符存储长度"><span class="nav-number">1.15.</span> <span class="nav-text">【参考】合适的字符存储长度</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#正例-4"><span class="nav-number">1.15.1.</span> <span class="nav-text">正例</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#索引规约"><span class="nav-number">2.</span> <span class="nav-text">索引规约</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#【强制】业务上具有唯一特性的字段，必须建成唯一索引（即使是多个字段的组合）"><span class="nav-number">2.1.</span> <span class="nav-text">【强制】业务上具有唯一特性的字段，必须建成唯一索引（即使是多个字段的组合）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#【强制】超过三个表禁止join"><span class="nav-number">2.2.</span> <span class="nav-text">【强制】超过三个表禁止join</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#说明-5"><span class="nav-number">2.2.1.</span> <span class="nav-text">说明</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#【强制】在varchar字段上建立索引时，必须指定索引长度"><span class="nav-number">2.3.</span> <span class="nav-text">【强制】在varchar字段上建立索引时，必须指定索引长度</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#说明-6"><span class="nav-number">2.3.1.</span> <span class="nav-text">说明</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#【强制】页面搜索严禁左模糊或全模糊"><span class="nav-number">2.4.</span> <span class="nav-text">【强制】页面搜索严禁左模糊或全模糊</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#说明-7"><span class="nav-number">2.4.1.</span> <span class="nav-text">说明</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#【推荐】如果有order-by的场景，请注意利用索引的有序性"><span class="nav-number">2.5.</span> <span class="nav-text">【推荐】如果有order by的场景，请注意利用索引的有序性</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#正例-5"><span class="nav-number">2.5.1.</span> <span class="nav-text">正例</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#反例-1"><span class="nav-number">2.5.2.</span> <span class="nav-text">反例</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#【推荐】利用覆盖索引来进行查询操作，避免回表"><span class="nav-number">2.6.</span> <span class="nav-text">【推荐】利用覆盖索引来进行查询操作，避免回表</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#正例-6"><span class="nav-number">2.6.1.</span> <span class="nav-text">正例</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#【推荐】利用延迟关联或者子查询优化超多分页场景"><span class="nav-number">2.7.</span> <span class="nav-text">【推荐】利用延迟关联或者子查询优化超多分页场景</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#正例-7"><span class="nav-number">2.7.1.</span> <span class="nav-text">正例</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#【强制】SQL性能优化的目标"><span class="nav-number">2.8.</span> <span class="nav-text">【强制】SQL性能优化的目标</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#说明-8"><span class="nav-number">2.8.1.</span> <span class="nav-text">说明</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#反例-2"><span class="nav-number">2.8.2.</span> <span class="nav-text">反例</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#个人理解-2"><span class="nav-number">2.8.3.</span> <span class="nav-text">个人理解</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#【推荐】建组合索引时，区分度最高的在最左边"><span class="nav-number">2.9.</span> <span class="nav-text">【推荐】建组合索引时，区分度最高的在最左边</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#正例-8"><span class="nav-number">2.9.1.</span> <span class="nav-text">正例</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#【推荐】防止因字段类型不同造成的隐式转换，导致索引失效"><span class="nav-number">2.10.</span> <span class="nav-text">【推荐】防止因字段类型不同造成的隐式转换，导致索引失效</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#【参考】创建索引时避免有极端误解"><span class="nav-number">2.11.</span> <span class="nav-text">【参考】创建索引时避免有极端误解</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#SQL语句"><span class="nav-number">3.</span> <span class="nav-text">SQL语句</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#【强制】不要使用count-列名-或count-常量-来替代count"><span class="nav-number">3.1.</span> <span class="nav-text">【强制】不要使用count(列名)或count(常量)来替代count(*)</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#说明-9"><span class="nav-number">3.1.1.</span> <span class="nav-text">说明</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#【强制】count-distinct-col-计算该列除NULL之外的不重复行数"><span class="nav-number">3.2.</span> <span class="nav-text">【强制】count(distinct col)计算该列除NULL之外的不重复行数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#【强制】当某一列值全是NULL时，count-col-的返回结果为0，但sum-col-的返回结果是NULL"><span class="nav-number">3.3.</span> <span class="nav-text">【强制】当某一列值全是NULL时，count(col)的返回结果为0，但sum(col)的返回结果是NULL</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#正例-9"><span class="nav-number">3.3.1.</span> <span class="nav-text">正例</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#【强制】使用ISNULL来判断是否为NULL值"><span class="nav-number">3.4.</span> <span class="nav-text">【强制】使用ISNULL来判断是否为NULL值</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#【强制】分页查询逻辑时，若count为0应直接返回，避免执行后面的分页语句"><span class="nav-number">3.5.</span> <span class="nav-text">【强制】分页查询逻辑时，若count为0应直接返回，避免执行后面的分页语句</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#【强制】不得使用外键与级联，一切外键概念必须在应用层解决"><span class="nav-number">3.6.</span> <span class="nav-text">【强制】不得使用外键与级联，一切外键概念必须在应用层解决</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#【强制】禁止使用存储过程"><span class="nav-number">3.7.</span> <span class="nav-text">【强制】禁止使用存储过程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#【强制】数据订正（删除、修改）时，需要先select，避免出现误删除"><span class="nav-number">3.8.</span> <span class="nav-text">【强制】数据订正（删除、修改）时，需要先select，避免出现误删除</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#【推荐】in操作能避免则避免"><span class="nav-number">3.9.</span> <span class="nav-text">【推荐】in操作能避免则避免</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#【参考】如果有国际化需要，所有的字符存储于表示，均以utf-8编码"><span class="nav-number">3.10.</span> <span class="nav-text">【参考】如果有国际化需要，所有的字符存储于表示，均以utf-8编码</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#说明-10"><span class="nav-number">3.10.1.</span> <span class="nav-text">说明</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#【参考】TRUNCATE-TABLE"><span class="nav-number">3.11.</span> <span class="nav-text">【参考】TRUNCATE TABLE</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#说明-11"><span class="nav-number">3.11.1.</span> <span class="nav-text">说明</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ORM映射"><span class="nav-number">4.</span> <span class="nav-text">ORM映射</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#资料"><span class="nav-number">5.</span> <span class="nav-text">资料</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2017 &mdash; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Ryoma</span>
+
+  
+
+  
+</div>
+
+
+
+
+  <div class="powered-by"><a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> v3.7.1</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://theme-next.org">NexT.Gemini</a> v6.3.0</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+	
+    
+
+    
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/three/three.min.js"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/three/canvas_sphere.min.js"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=6.3.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=6.3.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=6.3.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=6.3.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=6.3.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=6.3.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=6.3.0"></script>
+
+
+
+  
+
+  
+    <script id="dsq-count-scr" src="https://ryoma-blog.disqus.com/count.js" async></script>
+  
+
+  
+    <script type="text/javascript">
+      var disqus_config = function () {
+        this.page.url = 'https://blog.ryoma.top/posts/mysql_alibaba/';
+        this.page.identifier = 'posts/mysql_alibaba/';
+        this.page.title = 'Mysql使用规范';
+        };
+      function loadComments () {
+        var d = document, s = d.createElement('script');
+        s.src = 'https://ryoma-blog.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', '' + +new Date());
+        (d.head || d.body).appendChild(s);
+      }
+      
+        $(function () {
+          var offsetTop = $('#comments').offset().top - $(window).height();
+          if (offsetTop <= 0) {
+            // load directly when there's no a scrollbar
+            loadComments();
+          } else {
+            $(window).on('scroll.disqus_scroll', function () {
+              var scrollTop = document.documentElement.scrollTop;
+              if (scrollTop >= offsetTop) {
+                $(window).off('.disqus_scroll');
+                loadComments();
+              }
+            });
+          }
+        });
+      
+    </script>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
