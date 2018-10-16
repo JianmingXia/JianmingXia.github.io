@@ -109,14 +109,14 @@
 
 
   <meta name="description" content="说在前面 数据库：database 数据表：table 分库分表：sharding  关系型数据库本身比较容易成为系统性能瓶颈，单机存储容量、连接数、处理能力等都很有限，数据库本身的“有状态性”导致它并不能像Web和应用服务器那么容易扩展。">
-<meta name="keywords" content="Mysql,分库分表">
+<meta name="keywords" content="MySQL,分库分表">
 <meta property="og:type" content="article">
 <meta property="og:title" content="分库分表分析">
 <meta property="og:url" content="https://blog.ryoma.top/posts/sharding_analysis/index.html">
 <meta property="og:site_name" content="Ryoma&#39;s Blog">
 <meta property="og:description" content="说在前面 数据库：database 数据表：table 分库分表：sharding  关系型数据库本身比较容易成为系统性能瓶颈，单机存储容量、连接数、处理能力等都很有限，数据库本身的“有状态性”导致它并不能像Web和应用服务器那么容易扩展。">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2018-10-16T11:47:49.217Z">
+<meta property="og:updated_time" content="2018-10-16T12:01:16.976Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="分库分表分析">
 <meta name="twitter:description" content="说在前面 数据库：database 数据表：table 分库分表：sharding  关系型数据库本身比较容易成为系统性能瓶颈，单机存储容量、连接数、处理能力等都很有限，数据库本身的“有状态性”导致它并不能像Web和应用服务器那么容易扩展。">
@@ -369,7 +369,7 @@
                 <span class="post-meta-item-text">分类于</span>
               
               
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/Mysql/" itemprop="url" rel="index"><span itemprop="name">Mysql</span></a></span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/MySQL/" itemprop="url" rel="index"><span itemprop="name">MySQL</span></a></span>
 
                 
                 
@@ -493,7 +493,7 @@
 <h3 id="后台报表系统中join的表都n个了，分库后该怎么查？"><a href="#后台报表系统中join的表都n个了，分库后该怎么查？" class="headerlink" title="后台报表系统中join的表都n个了，分库后该怎么查？"></a>后台报表系统中join的表都n个了，分库后该怎么查？</h3><p>在互联网的业务系统中，本来应该尽量避免join，如果有多个join，要么是设计不合理，或是技术选型有误。</p>
 <h2 id="关键字"><a href="#关键字" class="headerlink" title="关键字"></a>关键字</h2><p>以下是一些需要了解的关键字：</p>
 <ul>
-<li>跨页——mysql底层通过“数据页”来存储，“跨页”可能会导致额外的性能开销</li>
+<li>跨页——MySQL底层通过“数据页”来存储，“跨页”可能会导致额外的性能开销</li>
 <li>OLAP——On-Line Analytical Processing：强调数据库内存效率，强调内存各种指标的命令率，强调绑定变量，强调并发操作</li>
 <li>OLTP——On-Line Transaction Processing：强调数据分析，强调SQL执行市场，强调磁盘I/O，强调分区等</li>
 <li>一致性Hash算法</li>
@@ -523,7 +523,7 @@
       
         <div class="post-tags">
           
-            <a href="/tags/Mysql/" rel="tag"># Mysql</a>
+            <a href="/tags/MySQL/" rel="tag"># MySQL</a>
           
             <a href="/tags/分库分表/" rel="tag"># 分库分表</a>
           

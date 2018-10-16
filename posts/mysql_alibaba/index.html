@@ -109,17 +109,17 @@
 
 
   <meta name="description" content="阅读《阿里巴巴Java开发手册》中的MySQL数据库部分，主要部分是书中的规范以及自己的一些理解  建表规约【强制】表达是与否概念的字段必须使用is_xxx的方式命名，数据类型是unsigned tinyint（ 1表示是，0表示否） 说明任何字段如果为非负数，必须是unsigned 正例表达逻辑删除的字段名is_deleted，1表示删除，0表示未删除 【强制】表名、字段名必须使用小写字母或数">
-<meta name="keywords" content="Mysql">
+<meta name="keywords" content="MySQL">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Mysql使用规范">
+<meta property="og:title" content="MySQL使用规范">
 <meta property="og:url" content="https://blog.ryoma.top/posts/mysql_alibaba/index.html">
 <meta property="og:site_name" content="Ryoma&#39;s Blog">
 <meta property="og:description" content="阅读《阿里巴巴Java开发手册》中的MySQL数据库部分，主要部分是书中的规范以及自己的一些理解  建表规约【强制】表达是与否概念的字段必须使用is_xxx的方式命名，数据类型是unsigned tinyint（ 1表示是，0表示否） 说明任何字段如果为非负数，必须是unsigned 正例表达逻辑删除的字段名is_deleted，1表示删除，0表示未删除 【强制】表名、字段名必须使用小写字母或数">
 <meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="https://cdn.nlark.com/yuque/0/2018/png/92822/1539652542600-ce70c075-92e0-487a-bee9-a444bd90907c.png">
-<meta property="og:updated_time" content="2018-10-16T11:47:49.217Z">
+<meta property="og:updated_time" content="2018-10-16T12:01:16.976Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Mysql使用规范">
+<meta name="twitter:title" content="MySQL使用规范">
 <meta name="twitter:description" content="阅读《阿里巴巴Java开发手册》中的MySQL数据库部分，主要部分是书中的规范以及自己的一些理解  建表规约【强制】表达是与否概念的字段必须使用is_xxx的方式命名，数据类型是unsigned tinyint（ 1表示是，0表示否） 说明任何字段如果为非负数，必须是unsigned 正例表达逻辑删除的字段名is_deleted，1表示删除，0表示未删除 【强制】表名、字段名必须使用小写字母或数">
 <meta name="twitter:image" content="https://cdn.nlark.com/yuque/0/2018/png/92822/1539652542600-ce70c075-92e0-487a-bee9-a444bd90907c.png">
 
@@ -138,7 +138,7 @@
   };
 </script>
 
-  <title>Mysql使用规范 | Ryoma's Blog</title>
+  <title>MySQL使用规范 | Ryoma's Blog</title>
   
 
 
@@ -328,7 +328,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">Mysql使用规范
+          <h1 class="post-title" itemprop="name headline">MySQL使用规范
               
             
           </h1>
@@ -371,7 +371,7 @@
                 <span class="post-meta-item-text">分类于</span>
               
               
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/Mysql/" itemprop="url" rel="index"><span itemprop="name">Mysql</span></a></span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/MySQL/" itemprop="url" rel="index"><span itemprop="name">MySQL</span></a></span>
 
                 
                 
@@ -556,10 +556,12 @@
 <h2 id="ORM映射"><a href="#ORM映射" class="headerlink" title="ORM映射"></a>ORM映射</h2><p>未总结</p>
 <h2 id="资料"><a href="#资料" class="headerlink" title="资料"></a>资料</h2><ul>
 <li><a href="https://github.com/alibaba/p3c" target="_blank" rel="noopener">https://github.com/alibaba/p3c</a></li>
-<li><a href="https://dev.mysql.com/doc/refman/8.0/en/identifier-case-sensitivity.html" target="_blank" rel="noopener">https://dev.mysql.com/doc/refman/8.0/en/identifier-case-sensitivity.html</a></li>
-<li><a href="https://dev.mysql.com/doc/refman/8.0/en/keywords.html#keywords-in-current-series" target="_blank" rel="noopener">https://dev.mysql.com/doc/refman/8.0/en/keywords.html#keywords-in-current-series</a></li>
+<li><a href="https://dev.mysql.com/doc/refman/8.0/en/identifier-case-sensitivity.html" target="_blank" rel="noopener">标识符大小写</a></li>
+<li><a href="https://dev.mysql.com/doc/refman/8.0/en/keywords.html#keywords-in-current-series" target="_blank" rel="noopener">关键词和保留词</a></li>
 <li><a href="https://zh.wikipedia.org/wiki/%E6%91%A9%E8%8F%B2%E5%AE%9A%E7%90%86" target="_blank" rel="noopener">墨菲定律</a></li>
-<li><a href="https://tech.meituan.com/mysql_index.html" target="_blank" rel="noopener">https://tech.meituan.com/mysql_index.html</a></li>
+<li><a href="https://tech.meituan.com/mysql_index.html" target="_blank" rel="noopener">MySQL索引原理及慢查询优化</a></li>
+<li><a href="http://mysql.taobao.org/monthly/" target="_blank" rel="noopener">数据库内核月报</a></li>
+<li><a href="https://dev.mysql.com/doc/refman/8.0/en/optimization.html" target="_blank" rel="noopener">官方优化文档</a></li>
 </ul>
 
       
@@ -581,7 +583,7 @@
       
         <div class="post-tags">
           
-            <a href="/tags/Mysql/" rel="tag"># Mysql</a>
+            <a href="/tags/MySQL/" rel="tag"># MySQL</a>
           
         </div>
       
@@ -1103,7 +1105,7 @@
       var disqus_config = function () {
         this.page.url = 'https://blog.ryoma.top/posts/mysql_alibaba/';
         this.page.identifier = 'posts/mysql_alibaba/';
-        this.page.title = 'Mysql使用规范';
+        this.page.title = 'MySQL使用规范';
         };
       function loadComments () {
         var d = document, s = d.createElement('script');
