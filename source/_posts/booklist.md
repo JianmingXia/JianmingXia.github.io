@@ -13,7 +13,7 @@ categories: 书单
 - 黑客与画家 √
 - 大型网站技术架构 √
 - 你不知道的javascript（上） √
-- 你不知道的javascript（中、下） ing
+- 你不知道的javascript（中、下） √
 - JS 函数式编程指南 ing
 
 <!-- more -->
