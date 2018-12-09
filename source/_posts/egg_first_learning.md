@@ -8,6 +8,8 @@ categories: Egg
 
 > [https://eggjs.org/en/](https://eggjs.org/en/)
 
+
+
 ![image.png | left | 525x728](https://cdn.nlark.com/yuque/0/2018/png/92822/1540284905297-5632fc2b-24c8-4aa7-90f7-647f22ad0fca.png "")
 
 
@@ -167,7 +169,7 @@ Context是一个__请求级别的对象__，继承自Koa.Context。
 #### 获取方式
 * 在Context实例上获取当前请求的Request及Response实例
 
-另外，Koa会在Context实例上代理一部分Request和Response上的方法和属性
+另外，Koa会在Context实例上代理一部分Request和Response上的方法和属性（[参考文档](https://koajs.com/#context)）
 
 ### Controller
 框架提供了一个Controller基类，并推荐所有的Controller都继承该基类实现。Controller基类的属性：
@@ -181,10 +183,51 @@ Context是一个__请求级别的对象__，继承自Koa.Context。
 * 从egg上获取（推荐）
 * 从app实例上获取
 
+```plain
+// app/controller/user.js
+
+// 从 egg 上获取（推荐）
+const Controller = require('egg').Controller;
+class UserController extends Controller {
+  // implement
+}
+module.exports = UserController;
+
+// 从 app 实例上获取
+module.exports = app => {
+  return class UserController extends app.Controller {
+    // implement
+  };
+};
+```
+
 ### Service
 框架提供了一个Service基类，并推荐所有Service都继承该基类实现。
 
-Service基类的属性与Controller基类的属性一致，引用方式也一致
+Service基类的属性与Controller基类的属性一致，引用方式也一致：
+* ctx：当前请求的Context实例
+* app：应用的Application实例
+* config：应用的配置
+* service：应用所有的service
+* logger：为当前controller封装的logger对象
+
+```plain
+// app/service/user.js
+
+// 从 egg 上获取（推荐）
+const Service = require('egg').Service;
+class UserService extends Service {
+  // implement
+}
+module.exports = UserService;
+
+// 从 app 实例上获取
+module.exports = app => {
+  return class UserService extends app.Service {
+    // implement
+  };
+};
+```
 
 ### Helper
 用来提供一些实用函数——将常用的动作抽离在helper.js中成为一个独立的函数
@@ -213,6 +256,13 @@ Helper自身也是一个类，有和Controller基类一样的属性，也会在�
 
 config.default.js为默认的配置文件，所有环境都会加载这个配置文件，一般也会作为开发环境的默认配置文件。
 当指定env时会同时加载对应的配置文件，并覆盖默认配置文件的同名配置
+
+#### 内置的appInfo
+
+
+
+![image.png | left | 669x280](https://cdn.nlark.com/yuque/0/2018/png/92822/1544099004881-119f6811-b0c0-4ddc-9d41-799076584539.png "")
+
 
 #### 配置加载顺序
 应用 > 框架 > 插件
@@ -301,6 +351,19 @@ app/route.js：
 ![image.png | left | 508x91](https://cdn.nlark.com/yuque/0/2018/png/92822/1540292768853-514f5e2f-dc1f-4e37-9939-7ac3dafeb491.png "")
 
 
+#### 框架默认中间件
+除了应用层加载中间件之外，框架自身及其他插件也会加载插件——所有自带中间件的配置都可以通过在配置中修改中间件同名配置进行修改，如bodyParser：
+
+```plain
+module.exports = {
+  bodyParser: {
+    jsonLimit: '10mb',
+  },
+};
+```
+
+Note：__框架和插件加载的中间件会在应用层配置的中间件之前，框架默认中间件不能被应用层中间件覆盖，如果应用层有自定义同名中间件，在启动时会报错。__
+
 ### 通用配置
 * enable：控制中间件是否开启
 * match：设置只有符合某些规则的请求才会经过这个中间件
@@ -327,6 +390,15 @@ router.verb('router-name', 'path-match', middleware1, ..., middlewareN, app.cont
 ```
 
 ### RESTful风格的URL定义
+
+```plain
+// app/router.js
+module.exports = app => {
+  const { router, controller } = app;
+  router.resources('posts', '/api/posts', controller.posts);
+  router.resources('users', '/api/v1/users', controller.v1.users); // app/controller/v1/users.js
+};
+```
 
 
 
@@ -385,4 +457,6 @@ router.verb('router-name', 'path-match', middleware1, ..., middlewareN, app.cont
 * Application：在一个应用中只会实例化一个
 * Context：是一个请求级别的对象，每个请求都会实例化一个
 * Request & Response：同样也是一个请求级别的对象，而且Context实例对象中也会代理一部分
+
+
 
