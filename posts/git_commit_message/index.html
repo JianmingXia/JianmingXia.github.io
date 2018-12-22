@@ -1,0 +1,1187 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=6.3.0" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=6.3.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=6.3.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=6.3.0">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=6.3.0" color="#222">
+
+
+
+
+
+
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '6.3.0',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="原作者已授权，原文链接：https://chris.beams.io/posts/git-commit/以下第一人称皆为原作者   前言：为什么好的commit message 很重要如果你随机浏览Git仓库中的日志，你可能会发现它的提交消息或多或少有些混乱。例如，看看我早期向Spring commit的那些宝贵经验：">
+<meta name="keywords" content="Git,commit message">
+<meta property="og:type" content="article">
+<meta property="og:title" content="如何书写Git Commit Message">
+<meta property="og:url" content="https://blog.ryoma.top/posts/git_commit_message/index.html">
+<meta property="og:site_name" content="Ryoma&#39;s Blog">
+<meta property="og:description" content="原作者已授权，原文链接：https://chris.beams.io/posts/git-commit/以下第一人称皆为原作者   前言：为什么好的commit message 很重要如果你随机浏览Git仓库中的日志，你可能会发现它的提交消息或多或少有些混乱。例如，看看我早期向Spring commit的那些宝贵经验：">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https://imgs.xkcd.com/comics/git_commit_2x.png">
+<meta property="og:image" content="https://i.imgur.com/zyBU2l6.png">
+<meta property="og:image" content="https://i.imgur.com/27n9O8y.png">
+<meta property="og:updated_time" content="2018-12-22T13:12:39.268Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="如何书写Git Commit Message">
+<meta name="twitter:description" content="原作者已授权，原文链接：https://chris.beams.io/posts/git-commit/以下第一人称皆为原作者   前言：为什么好的commit message 很重要如果你随机浏览Git仓库中的日志，你可能会发现它的提交消息或多或少有些混乱。例如，看看我早期向Spring commit的那些宝贵经验：">
+<meta name="twitter:image" content="https://imgs.xkcd.com/comics/git_commit_2x.png">
+
+
+
+
+
+
+  <link rel="canonical" href="https://blog.ryoma.top/posts/git_commit_message/"/>
+
+
+
+<script type="text/javascript" id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>如何书写Git Commit Message | Ryoma's Blog</title>
+  
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style type="text/css">
+    .use-motion .motion-element,
+    .use-motion .brand,
+    .use-motion .menu-item,
+    .sidebar-inner,
+    .use-motion .post-block,
+    .use-motion .pagination,
+    .use-motion .comments,
+    .use-motion .post-header,
+    .use-motion .post-body,
+    .use-motion .collection-title { opacity: initial; }
+
+    .use-motion .logo,
+    .use-motion .site-title,
+    .use-motion .site-subtitle {
+      opacity: initial;
+      top: initial;
+    }
+
+    .use-motion {
+      .logo-line-before i { left: initial; }
+      .logo-line-after i { right: initial; }
+    }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Ryoma's Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+      
+        <p class="site-subtitle">纸上得来终觉浅</p>
+      
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+    <a href="/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-home"></i> <br />首页</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+    <a href="/tags/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />标签</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+    <a href="/categories/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-th"></i> <br />分类</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+    <a href="/archives/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />归档</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+    <a href="/about/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-user"></i> <br />关于我</a>
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.ryoma.top/posts/git_commit_message/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Ryoma">
+      <meta itemprop="description" content="Ryoma's Blog">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Ryoma's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">如何书写Git Commit Message
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2018-12-22 21:00:00" itemprop="dateCreated datePublished" datetime="2018-12-22T21:00:00+08:00">2018-12-22</time>
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/Git/" itemprop="url" rel="index"><span itemprop="name">Git</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/posts/git_commit_message/#comments" itemprop="discussionUrl">
+                
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="posts/git_commit_message/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <blockquote>
+<p>原作者已授权，原文链接：<a href="https://chris.beams.io/posts/git-commit/" target="_blank" rel="noopener">https://chris.beams.io/posts/git-commit/</a><br>以下第一人称皆为原作者</p>
+</blockquote>
+<p><a href="https://xkcd.com/1296/" target="_blank" rel="noopener"><img src="https://imgs.xkcd.com/comics/git_commit_2x.png" alt="image | left | 439x250"></a></p>
+<h2 id="前言：为什么好的commit-message-很重要"><a href="#前言：为什么好的commit-message-很重要" class="headerlink" title="前言：为什么好的commit message 很重要"></a>前言：为什么好的commit message 很重要</h2><p>如果你随机浏览Git仓库中的日志，你可能会发现它的提交消息或多或少有些混乱。例如，看看我早期向<a href="https://github.com/spring-projects/spring-framework/commits/e5f4b49?author=cbeams" target="_blank" rel="noopener">Spring commit</a>的那些宝贵经验：<br><a id="more"></a></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">$ git log --oneline -5 --author cbeams --before &quot;Fri Mar 26 2009&quot;</span><br><span class="line"></span><br><span class="line">e5f4b49 Re-adding ConfigurationPostProcessorTests after its brief removal in r814. @Ignore-ing the testCglibClassesAreLoadedJustInTimeForEnhancement() method as it turns out this was one of the culprits in the recent build breakage. The classloader hacking causes subtle downstream effects, breaking unrelated tests. The test method is still useful, but should only be run on a manual basis to ensure CGLIB is not prematurely classloaded, and should not be run as part of the automated build.</span><br><span class="line">2db0f12 fixed two build-breaking issues: + reverted ClassMetadataReadingVisitor to revision 794 + eliminated ConfigurationPostProcessorTests until further investigation determines why it causes downstream tests to fail (such as the seemingly unrelated ClassPathXmlApplicationContextTests)</span><br><span class="line">147709f Tweaks to package-info.java files</span><br><span class="line">22b25e0 Consolidated Util and MutableAnnotationUtils classes into existing AsmUtils</span><br><span class="line">7f96f57 polishing</span><br></pre></td></tr></table></figure>
+<p>再来看看最近向这个仓库的<a href="https://github.com/spring-projects/spring-framework/commits/5ba3db?author=philwebb" target="_blank" rel="noopener">提交</a>：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">$ git log --oneline -5 --author pwebb --before &quot;Sat Aug 30 2014&quot;</span><br><span class="line"></span><br><span class="line">5ba3db6 Fix failing CompositePropertySourceTests</span><br><span class="line">84564a0 Rework @PropertySource early parsing logic</span><br><span class="line">e142fd1 Add tests for ImportSelector meta-data</span><br><span class="line">887815f Update docbook dependency and generate epub</span><br><span class="line">ac8326d Polish mockito usage</span><br></pre></td></tr></table></figure>
+<p>你更愿意读哪一个？</p>
+<ul>
+<li>前者在长度和形式上有所不同；而后者简洁而一致</li>
+<li>前者是默认情况；后者绝不是偶然发生的</li>
+</ul>
+<p>虽然许多Git 仓库的日志与前者类似，但也有例外。<a href="https://github.com/torvalds/linux/commits/master" target="_blank" rel="noopener">Linux内核</a>和<a href="https://github.com/torvalds/linux/commits/master" target="_blank" rel="noopener">Git本身</a>就是很好的例子。查看<a href="https://github.com/spring-projects/spring-boot/commits/master" target="_blank" rel="noopener">Spring Boot</a>或<a href="https://github.com/tpope/vim-pathogen/commits/master" target="_blank" rel="noopener">Tim Pope</a>管理的任何仓库。</p>
+<p>这些仓库的贡献者知道，精心设计的Git commit 是向其他开发人员(和未来的自己)传递更改上下文的最佳方式。差异会告诉你修改了什么，但只有commit才能正确地告诉你原因。<a href="http://who-t.blogspot.co.at/2009/12/on-commit-messages.html" target="_blank" rel="noopener">Peter Hutterer说得很好</a>：</p>
+<blockquote>
+<p>重建一段代码的上下文是一种浪费。我们不能完全避免它，所以我们应该努力尽可能地减少它。Commit message可以做到这一点，一个commit message可以显示开发人员是否是良好的合作者。</p>
+</blockquote>
+<p>如果你没有过多地考虑如何制作一个优秀的Git commit message，那么你可能没有花太多时间使用 <strong>git log</strong> 和相关工具。这就是一个恶性循环：由于commit 历史是无结构化和不一致的，不会有人花很多时间使用或处理它。然后由于它没有得到使用或处理，它仍然是无结构的和不一致的。</p>
+<p>但一个精心照料的日志是一个好看且有用的东西。这样<strong>git blame</strong>, <strong>revert</strong>, <strong>rebase</strong>, <strong>log</strong>, <strong>shortlog</strong> 以及其他的子命令也会焕发生命。审查其他人的commits和pr成为一件值得做的事情，并且突然之间可以独立完成。理解某些事情为什么发生在几个月或几年前不仅是可能的，而且是有效的。</p>
+<p>项目的长期成功依赖于它的可维护性，而维护者几乎没有比项目日志更强大的工具了。花时间去学习如何正确地照顾是值得的。一开始可能是麻烦的，但很快就会变成习惯，最终成为所有人的骄傲和生产力的源泉。</p>
+<p>在本文中，我只讨论保持健康的commit 历史最基本元素：如何编写单个 commit message。还有其他一些重要的实践，如commit squashing，我在这里不讨论。也许我会在后续的文章中这样做。</p>
+<p>大多数编程语言都有了约定俗成的风格，如命名、格式化等等。当然，这些约定也有不同之处，但是大多数开发人员都同意，选择一种并坚持使用它，要比每个人都做自己的事情所带来的混乱要好得多。</p>
+<p>团队对commit log的处理方法应该是一致的。为了创建一个有用的修订历史，团队首先应该同意一个提交消息约定，该约定至少定义了以下三件事：</p>
+<ul>
+<li><strong>Style</strong>：标记语法，换行符，语法，大写，标点符号。把这些东西拼出来，移除猜测，让它尽可能的简单。最终的结果将是一个非常一致的日志，这不仅是一种阅读的乐趣，而且实际上是经常被阅读</li>
+<li><strong>Content</strong>：提交消息的主体(如果有的话)应该包含什么样的信息？它不应该包含什么？</li>
+<li><strong>Metadata</strong>：如何引用问题跟踪 id、pr number等?</li>
+</ul>
+<p>幸运的是，对于如何生成惯用的Git commit message已经有了完善的约定。实际上，它们中的许多都是以某些Git命令的功能进行假设的。你不需要重新发明什么。只要遵循下面的七条规则，你就能像专业人士一样。</p>
+<h2 id="Git-commit-message-的7条规则"><a href="#Git-commit-message-的7条规则" class="headerlink" title="Git commit message 的7条规则"></a>Git commit message 的7条规则</h2><blockquote>
+<p>注意：这些以前都说话</p>
+</blockquote>
+<ul>
+<li>用空行把主题和主体分开</li>
+<li>主题行不要超过50个字符</li>
+<li>主题行大写</li>
+<li>主题行不要以句号结束</li>
+<li>在主题行使用祈使句</li>
+<li>用72个字符包裹主体</li>
+<li>用主体来解释什么、为什么以及怎样做</li>
+</ul>
+<p>比如：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">Summarize changes in around 50 characters or less</span><br><span class="line"></span><br><span class="line">More detailed explanatory text, if necessary. Wrap it to about 72</span><br><span class="line">characters or so. In some contexts, the first line is treated as the</span><br><span class="line">subject of the commit and the rest of the text as the body. The</span><br><span class="line">blank line separating the summary from the body is critical (unless</span><br><span class="line">you omit the body entirely); various tools like `log`, `shortlog`</span><br><span class="line">and `rebase` can get confused if you run the two together.</span><br><span class="line"></span><br><span class="line">Explain the problem that this commit is solving. Focus on why you</span><br><span class="line">are making this change as opposed to how (the code explains that).</span><br><span class="line">Are there side effects or other unintuitive consequences of this</span><br><span class="line">change? Here&apos;s the place to explain them.</span><br><span class="line"></span><br><span class="line">Further paragraphs come after blank lines.</span><br><span class="line"></span><br><span class="line"> - Bullet points are okay, too</span><br><span class="line"></span><br><span class="line"> - Typically a hyphen or asterisk is used for the bullet, preceded</span><br><span class="line">   by a single space, with blank lines in between, but conventions</span><br><span class="line">   vary here</span><br><span class="line"></span><br><span class="line">If you use an issue tracker, put references to them at the bottom,</span><br><span class="line">like this:</span><br><span class="line"></span><br><span class="line">Resolves: #123</span><br><span class="line">See also: #456, #789</span><br></pre></td></tr></table></figure>
+<h3 id="用空行把主题和主体分开"><a href="#用空行把主题和主体分开" class="headerlink" title="用空行把主题和主体分开"></a>用空行把主题和主体分开</h3><p>源自<a href="https://mirrors.edge.kernel.org/pub/software/scm/git/docs/git-commit.html#_discussion" target="_blank" rel="noopener">git commit</a> 手册：</p>
+<blockquote>
+<p>虽然不是必需的，但是最好在commit message的开头使用一个简短的行(少于50个字符)来总结更改，然后使用空行，然后使用更全面的描述。commit message中第一个空行之前的文本被视为提交标题，该标题在整个Git中使用。例如，Git-format-patch(1)将提交转换为电子邮件，它使用主题行作为标题，commit剩下的正文中作为邮件正文。</p>
+</blockquote>
+<p>首先，并非每次提交都需要主题和主体。有时候一行就可以了，特别是当更改非常简单，不需要进一步的上下文时。例如：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Fix typo in introduction to user guide</span><br></pre></td></tr></table></figure>
+<p>无需多言；如果读者想知道typo是什么，可以简单地看看更改本身，比如使用 git show、 git diff 或 git log -p。</p>
+<p>如果在命令行提交类似的内容，使用<strong> git commit -m</strong> 即可：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ git commit -m&quot;Fix typo in introduction to user guide&quot;</span><br></pre></td></tr></table></figure>
+<p>但是，当提交需要一些解释和上下文时，需要编写一个主体。例如：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">Derezz the master control program</span><br><span class="line"></span><br><span class="line">MCP turned out to be evil and had become intent on world domination.</span><br><span class="line">This commit throws Tron&apos;s disc into MCP (causing its deresolution)</span><br><span class="line">and turns it back into a chess game.</span><br></pre></td></tr></table></figure>
+<p>使用-m选项编写带有主体的commit message并不容易。你最好用一个合适的文本编辑器来写这条消息。如果你还没有在命令行中设置用于Git的编辑器，请阅读<a href="https://git-scm.com/book/en/v2/Customizing-Git-Git-Configuration" target="_blank" rel="noopener">Pro Git</a>的这部分。</p>
+<p>无论如何，在浏览日志时，主题与主体的分离是值得的。下面是完整的日志条目：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">$ git log</span><br><span class="line">commit 42e769bdf4894310333942ffc5a15151222a87be</span><br><span class="line">Author: Kevin Flynn &lt;kevin@flynnsarcade.com&gt;</span><br><span class="line">Date:   Fri Jan 01 00:00:00 1982 -0200</span><br><span class="line"></span><br><span class="line"> Derezz the master control program</span><br><span class="line"></span><br><span class="line"> MCP turned out to be evil and had become intent on world domination.</span><br><span class="line"> This commit throws Tron&apos;s disc into MCP (causing its deresolution)</span><br><span class="line"> and turns it back into a chess game.</span><br></pre></td></tr></table></figure>
+<p>现在使用<strong>git log –oneline</strong>，只会打印出主题行：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ git log --oneline</span><br><span class="line">42e769 Derezz the master control program</span><br></pre></td></tr></table></figure>
+<p>或者使用<strong>git shortlog</strong>，哪些组由用户提交，为了简洁起见再次只显示主题行：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">$ git shortlog</span><br><span class="line">Kevin Flynn (1):</span><br><span class="line">      Derezz the master control program</span><br><span class="line"></span><br><span class="line">Alan Bradley (1):</span><br><span class="line">      Introduce security program &quot;Tron&quot;</span><br><span class="line"></span><br><span class="line">Ed Dillinger (3):</span><br><span class="line">      Rename chess program to &quot;MCP&quot;</span><br><span class="line">      Modify chess program</span><br><span class="line">      Upgrade chess program</span><br><span class="line"></span><br><span class="line">Walter Gibbs (1):</span><br><span class="line">      Introduce protoype chess program</span><br></pre></td></tr></table></figure>
+<p>在Git中还有许多其他的语境，主题行和主体的区别是存在的——但是如果没有中间的空白行，它们都不能正常工作。</p>
+<h3 id="主题行不要超过50个字符"><a href="#主题行不要超过50个字符" class="headerlink" title="主题行不要超过50个字符"></a>主题行不要超过50个字符</h3><p>50个字符不是一个硬性限制，只是一个经验法则。保持主题行在这个长度可以确保它们是可读的，并迫使作者思考一下如何用最简洁的方式来解释正在发生的事情。</p>
+<blockquote>
+<p>提示：如果你很难总结，你可能一次提交了太多的更改。争取<a href="https://www.freshconsulting.com/atomic-commits/" target="_blank" rel="noopener">原子提交</a>(一个提交一个主题)</p>
+</blockquote>
+<p>GitHub的UI完全了解这些约定。如果你超过了50个字符的限制，它会警告你：</p>
+<p><img src="https://i.imgur.com/zyBU2l6.png" alt="gh1 | left"></p>
+<p>并以省略号截断任何超过72个字符的主题行：</p>
+<p><img src="https://i.imgur.com/27n9O8y.png" alt="gh2 | left"></p>
+<p>所以争取50个字符，但是72个字符是硬界限</p>
+<h3 id="主题行大写"><a href="#主题行大写" class="headerlink" title="主题行大写"></a>主题行大写</h3><p>这听起来很简单。所有的主题行以大写字母开始。</p>
+<p>比如：</p>
+<ul>
+<li>Accelerate to 88 miles per hour</li>
+</ul>
+<p>而不是：</p>
+<ul>
+<li>accelerate to 88 miles per hour</li>
+</ul>
+<h3 id="主题行不要以句号结束"><a href="#主题行不要以句号结束" class="headerlink" title="主题行不要以句号结束"></a>主题行不要以句号结束</h3><p>在标题行中没有必要使用结尾标点。此外，当你试图将它们控制在50字符以内时，空间是宝贵的</p>
+<p>比如：</p>
+<ul>
+<li>Open the pod bay doors</li>
+</ul>
+<p>而不是：</p>
+<ul>
+<li>Open the pod bay doors.</li>
+</ul>
+<h3 id="在主题行使用祈使句"><a href="#在主题行使用祈使句" class="headerlink" title="在主题行使用祈使句"></a>在主题行使用祈使句</h3><p>祈使句的意思是“说或写就像下达命令或指示一样”，比如：</p>
+<ul>
+<li>Clean your room</li>
+<li>Close the door</li>
+<li>Take out the trash<br>你现在读到的七条规则都是命令式的。</li>
+</ul>
+<p>这个命令听起来有点粗鲁；这就是为什么我们不经常使用它。但是它非常适合Git commit主题行。原因之一是Git本身在为创建提交时使用了命令式。</p>
+<p>比如，当使用 <strong>git merge</strong> 时默认的message是：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Merge branch &apos;myfeature&apos;</span><br></pre></td></tr></table></figure>
+<p>当使用 <strong>git revert</strong> 时：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Revert &quot;Add the thing with the stuff&quot;</span><br><span class="line"></span><br><span class="line">This reverts commit cc87791524aedd593cff5a74532befe7ab69ce9d.</span><br></pre></td></tr></table></figure>
+<p>或者在GitHub pull request上点击“Merge”按钮：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Merge pull request #123 from someuser/somebranch</span><br></pre></td></tr></table></figure></p>
+<p>因此，当你使用祈使句编写commit message时，你正在遵循Git的内置约定。比如：</p>
+<ul>
+<li>Refactor subsystem X for readability</li>
+<li>Update getting started documentation</li>
+<li>Remove deprecated methods</li>
+<li>Release version 1.0.0</li>
+</ul>
+<p>一开始写可能会有点笨拙。我们更习惯用陈述性语气说话，也就是报道事实。这就是为什么commit message通常以这样的方式结束：</p>
+<ul>
+<li>Fixed bug with Y</li>
+<li>Changing behavior of X</li>
+</ul>
+<p>有时commit message 被写成对其内容的描述：</p>
+<ul>
+<li>More fixes for broken stuff</li>
+<li>Sweet new API methods</li>
+</ul>
+<p>为了消除任何困惑，有个简单的规则每次都能正确处理——一个格式正确的Git commit主题行应该始终能够完成以下句子（这里是指 commit message 可以替换下面加粗的部分）：</p>
+<ul>
+<li>If applied, this commit will ++<strong>your subject line here</strong>++</li>
+</ul>
+<p>比如：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">If applied, this commit will refactor subsystem X for readability</span><br><span class="line">If applied, this commit will update getting started documentation</span><br><span class="line">If applied, this commit will remove deprecated methods</span><br><span class="line">If applied, this commit will release version 1.0.0</span><br><span class="line">If applied, this commit will merge pull request #123 from user/branch</span><br></pre></td></tr></table></figure></p>
+<p>注意，这对其他非祈使句格式不起作用：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">If applied, this commit will fixed bug with Y</span><br><span class="line">If applied, this commit will changing behavior of X</span><br><span class="line">If applied, this commit will more fixes for broken stuff</span><br><span class="line">If applied, this commit will sweet new API methods</span><br></pre></td></tr></table></figure></p>
+<blockquote>
+<p>记住：祈使句的在主题行中是重要的。在写主题中可以放松这个限制</p>
+</blockquote>
+<h3 id="用72个字符包裹主体"><a href="#用72个字符包裹主体" class="headerlink" title="用72个字符包裹主体"></a>用72个字符包裹主体</h3><p>Git从不自动换行。在编写commit message主体时，必须注意它的右边界，并手动换行。</p>
+<p>建议将其设置为72个字符，这样Git就有足够的空间缩进文本，同时仍然将所有内容保持在80个字符以下。</p>
+<p>一个好的文本编辑器可以在这里提供帮助。例如，在编写Git提交时，很容易配置Vim将文本包装为72个字符。然而，传统上，IDEs在为提交消息中的文本包装提供智能支持方面一直很糟糕（尽管在最近的版本中，IntelliJ IDEA终于在这方面做得更好了）</p>
+<h3 id="用主体来解释什么、为什么以及怎样做"><a href="#用主体来解释什么、为什么以及怎样做" class="headerlink" title="用主体来解释什么、为什么以及怎样做"></a>用主体来解释什么、为什么以及怎样做</h3><p>这是一个<a href="https://github.com/bitcoin/bitcoin/commit/eb0b56b19017ab5c16c745e6da39c53126924ed6" target="_blank" rel="noopener">很好的例子</a>，说明了修改了什么以及为什么：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">commit eb0b56b19017ab5c16c745e6da39c53126924ed6</span><br><span class="line">Author: Pieter Wuille &lt;pieter.wuille@gmail.com&gt;</span><br><span class="line">Date:   Fri Aug 1 22:57:55 2014 +0200</span><br><span class="line"></span><br><span class="line">   Simplify serialize.h&apos;s exception handling</span><br><span class="line"></span><br><span class="line">   Remove the &apos;state&apos; and &apos;exceptmask&apos; from serialize.h&apos;s stream</span><br><span class="line">   implementations, as well as related methods.</span><br><span class="line"></span><br><span class="line">   As exceptmask always included &apos;failbit&apos;, and setstate was always</span><br><span class="line">   called with bits = failbit, all it did was immediately raise an</span><br><span class="line">   exception. Get rid of those variables, and replace the setstate</span><br><span class="line">   with direct exception throwing (which also removes some dead</span><br><span class="line">   code).</span><br><span class="line"></span><br><span class="line">   As a result, good() is never reached after a failure (there are</span><br><span class="line">   only 2 calls, one of which is in tests), and can just be replaced</span><br><span class="line">   by !eof().</span><br><span class="line"></span><br><span class="line">   fail(), clear(n) and exceptions() are just never called. Delete</span><br><span class="line">   them.</span><br></pre></td></tr></table></figure>
+<p>看看<a href="https://github.com/bitcoin/bitcoin/commit/eb0b56b19017ab5c16c745e6da39c53126924ed6" target="_blank" rel="noopener">完整的差异</a>，想一想作者花了多少时间来提供此时此地的上下文，从而为同行和未来的提交者节省了多少时间。如果他不这样做，它可能会永远消失。</p>
+<p>在大多数情况下，你可以省略更改的细节。在这方面，因为代码通常是自解释的（如果代码非常复杂，需要用散文来解释，那么源注释就是用于此）。只需要清楚地说明为什么你一开始就做出了改变——改变之前的工作方式（以及它有什么问题），它们现在的工作方式，以及为什么你决定用这种方式解决。</p>
+<p>未来的维护者可能会感谢你！</p>
+<h2 id="Tips"><a href="#Tips" class="headerlink" title="Tips"></a>Tips</h2><h3 id="学会爱上命令行，将IDE丢掉"><a href="#学会爱上命令行，将IDE丢掉" class="headerlink" title="学会爱上命令行，将IDE丢掉"></a>学会爱上命令行，将IDE丢掉</h3><p>原因和Git子命令一样多，使用命令行是明智的。Git非常强大；IDE也是，但是它们的方式不同。我每天都使用IDE (IntelliJ IDEA)，也广泛地使用过其他IDE (Eclipse)，但我从没有见过集成Git的IDE能与命令行的易用性和功能相匹配(一旦你了解它)</p>
+<p>某些与git相关的IDE功能是非常宝贵的，比如删除文件时调用git rm，重命名文件时使用git执行正确的操作。当你开始尝试通过IDE提交、合并、重新建立基础或进行复杂的历史分析时，一切都崩溃了。</p>
+<p>在使用Git的全部功能时，始终是命令行。</p>
+<p>请记住无论使用Bash、Zsh还是Powershell，都有<a href="https://git-scm.com/book/en/v2/Appendix-A%3A-Git-in-Other-Environments-Git-in-Powershell" target="_blank" rel="noopener">tab</a>大大减轻记住子命令和开关的痛苦。</p>
+<h3 id="阅读Pro-Git"><a href="#阅读Pro-Git" class="headerlink" title="阅读Pro Git"></a>阅读Pro Git</h3><p><a href="https://git-scm.com/book/en/v2" target="_blank" rel="noopener">Pro Git</a>的在线图书是免费的，非常棒。</p>
+<h2 id="资料"><a href="#资料" class="headerlink" title="资料"></a>资料</h2><ul>
+<li><a href="https://chris.beams.io/posts/git-commit/" target="_blank" rel="noopener">https://chris.beams.io/posts/git-commit/</a></li>
+<li><a href="https://tbaggery.com/2008/04/19/a-note-about-git-commit-messages.html" target="_blank" rel="noopener">https://tbaggery.com/2008/04/19/a-note-about-git-commit-messages.html</a></li>
+<li><a href="https://www.git-scm.com/book/en/v2/Distributed-Git-Contributing-to-a-Project#_commit_guidelines" target="_blank" rel="noopener">https://www.git-scm.com/book/en/v2/Distributed-Git-Contributing-to-a-Project#_commit_guidelines</a></li>
+<li><a href="https://github.com/torvalds/subsurface-for-dirk/blob/master/README.md#contributing" target="_blank" rel="noopener">https://github.com/torvalds/subsurface-for-dirk/blob/master/README.md#contributing</a></li>
+<li><a href="http://who-t.blogspot.co.at/2009/12/on-commit-messages.html" target="_blank" rel="noopener">http://who-t.blogspot.co.at/2009/12/on-commit-messages.html</a></li>
+<li><a href="https://github.com/erlang/otp/wiki/writing-good-commit-messages" target="_blank" rel="noopener">https://github.com/erlang/otp/wiki/writing-good-commit-messages</a></li>
+<li><a href="https://github.com/spring-projects/spring-framework/blob/30bce7/CONTRIBUTING.md#format-commit-messages" target="_blank" rel="noopener">https://github.com/spring-projects/spring-framework/blob/30bce7/CONTRIBUTING.md#format-commit-messages</a></li>
+</ul>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Git/" rel="tag"># Git</a>
+          
+            <a href="/tags/commit-message/" rel="tag"># commit message</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/posts/api_blueprint_demo/" rel="next" title="API Blueprint教程及Demo">
+                <i class="fa fa-chevron-left"></i> API Blueprint教程及Demo
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+    <div class="comments" id="comments">
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/avatar.jpg"
+                alt="Ryoma" />
+            
+              <p class="site-author-name" itemprop="name">Ryoma</p>
+              <p class="site-description motion-element" itemprop="description">Ryoma's Blog</p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">67</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  <a href="/categories/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">19</span>
+                    <span class="site-state-item-name">分类</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  <a href="/tags/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">64</span>
+                    <span class="site-state-item-name">标签</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+            <div class="links-of-author motion-element">
+              
+                <span class="links-of-author-item">
+                  <a href="https://github.com/JianmingXia" target="_blank" title="GitHub"><i class="fa fa-fw fa-github"></i>GitHub</a>
+                  
+                </span>
+              
+                <span class="links-of-author-item">
+                  <a href="mailto:xiajianming_xjm@163.com" target="_blank" title="E-Mail"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                  
+                </span>
+              
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#前言：为什么好的commit-message-很重要"><span class="nav-number">1.</span> <span class="nav-text">前言：为什么好的commit message 很重要</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Git-commit-message-的7条规则"><span class="nav-number">2.</span> <span class="nav-text">Git commit message 的7条规则</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#用空行把主题和主体分开"><span class="nav-number">2.1.</span> <span class="nav-text">用空行把主题和主体分开</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#主题行不要超过50个字符"><span class="nav-number">2.2.</span> <span class="nav-text">主题行不要超过50个字符</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#主题行大写"><span class="nav-number">2.3.</span> <span class="nav-text">主题行大写</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#主题行不要以句号结束"><span class="nav-number">2.4.</span> <span class="nav-text">主题行不要以句号结束</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#在主题行使用祈使句"><span class="nav-number">2.5.</span> <span class="nav-text">在主题行使用祈使句</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#用72个字符包裹主体"><span class="nav-number">2.6.</span> <span class="nav-text">用72个字符包裹主体</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#用主体来解释什么、为什么以及怎样做"><span class="nav-number">2.7.</span> <span class="nav-text">用主体来解释什么、为什么以及怎样做</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Tips"><span class="nav-number">3.</span> <span class="nav-text">Tips</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#学会爱上命令行，将IDE丢掉"><span class="nav-number">3.1.</span> <span class="nav-text">学会爱上命令行，将IDE丢掉</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#阅读Pro-Git"><span class="nav-number">3.2.</span> <span class="nav-text">阅读Pro Git</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#资料"><span class="nav-number">4.</span> <span class="nav-text">资料</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2017 &mdash; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Ryoma</span>
+
+  
+
+  
+</div>
+
+
+
+
+  <div class="powered-by"><a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> v3.7.1</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://theme-next.org">NexT.Gemini</a> v6.3.0</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+	
+    
+
+    
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/three/three.min.js"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/three/canvas_sphere.min.js"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=6.3.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=6.3.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=6.3.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=6.3.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=6.3.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=6.3.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=6.3.0"></script>
+
+
+
+  
+
+  
+    <script id="dsq-count-scr" src="https://ryoma-blog.disqus.com/count.js" async></script>
+  
+
+  
+    <script type="text/javascript">
+      var disqus_config = function () {
+        this.page.url = 'https://blog.ryoma.top/posts/git_commit_message/';
+        this.page.identifier = 'posts/git_commit_message/';
+        this.page.title = '如何书写Git Commit Message';
+        };
+      function loadComments () {
+        var d = document, s = d.createElement('script');
+        s.src = 'https://ryoma-blog.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', '' + +new Date());
+        (d.head || d.body).appendChild(s);
+      }
+      
+        $(function () {
+          var offsetTop = $('#comments').offset().top - $(window).height();
+          if (offsetTop <= 0) {
+            // load directly when there's no a scrollbar
+            loadComments();
+          } else {
+            $(window).on('scroll.disqus_scroll', function () {
+              var scrollTop = document.documentElement.scrollTop;
+              if (scrollTop >= offsetTop) {
+                $(window).off('.disqus_scroll');
+                loadComments();
+              }
+            });
+          }
+        });
+      
+    </script>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
