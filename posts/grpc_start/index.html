@@ -108,19 +108,19 @@
 
 
 
-  <meta name="description" content="gRPC说在前面首先为自己的目光短浅感到羞愧，一直待在自己的舒适区过得很舒服，没有接触什么新的技术或是拓宽自己的视野。在有次出去面试介绍参与的项目中：描述服务之间通过Socket连接传输数据，而数据则是通过服务共同依赖的Server-Lib服务中定义的pack 及 unpack函数进行传输（pack及unpack当作做write 及 read操作即可）。举个例子： 1234567891011121">
+  <meta name="description" content="说在前面首先为自己的目光短浅感到羞愧，一直待在自己的舒适区过得很舒服，没有接触什么新的技术或是拓宽自己的视野。在有次出去面试介绍参与的项目中：描述服务之间通过Socket连接传输数据，而数据则是通过服务共同依赖的Server-Lib服务中定义的pack 及 unpack函数进行传输（pack及unpack当作做write 及 read操作即可）。举个例子： 12345678910111213//">
 <meta name="keywords" content="gRPC">
 <meta property="og:type" content="article">
 <meta property="og:title" content="gRPC 基础">
 <meta property="og:url" content="https://blog.ryoma.top/posts/grpc_start/index.html">
 <meta property="og:site_name" content="Ryoma&#39;s Blog">
-<meta property="og:description" content="gRPC说在前面首先为自己的目光短浅感到羞愧，一直待在自己的舒适区过得很舒服，没有接触什么新的技术或是拓宽自己的视野。在有次出去面试介绍参与的项目中：描述服务之间通过Socket连接传输数据，而数据则是通过服务共同依赖的Server-Lib服务中定义的pack 及 unpack函数进行传输（pack及unpack当作做write 及 read操作即可）。举个例子： 1234567891011121">
+<meta property="og:description" content="说在前面首先为自己的目光短浅感到羞愧，一直待在自己的舒适区过得很舒服，没有接触什么新的技术或是拓宽自己的视野。在有次出去面试介绍参与的项目中：描述服务之间通过Socket连接传输数据，而数据则是通过服务共同依赖的Server-Lib服务中定义的pack 及 unpack函数进行传输（pack及unpack当作做write 及 read操作即可）。举个例子： 12345678910111213//">
 <meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="https://cdn.nlark.com/yuque/0/2018/png/92822/1545487408776-3ea32a85-2f87-4868-b9d7-7c022af2ec69.png">
-<meta property="og:updated_time" content="2018-12-23T04:08:10.974Z">
+<meta property="og:updated_time" content="2018-12-23T07:49:23.013Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="gRPC 基础">
-<meta name="twitter:description" content="gRPC说在前面首先为自己的目光短浅感到羞愧，一直待在自己的舒适区过得很舒服，没有接触什么新的技术或是拓宽自己的视野。在有次出去面试介绍参与的项目中：描述服务之间通过Socket连接传输数据，而数据则是通过服务共同依赖的Server-Lib服务中定义的pack 及 unpack函数进行传输（pack及unpack当作做write 及 read操作即可）。举个例子： 1234567891011121">
+<meta name="twitter:description" content="说在前面首先为自己的目光短浅感到羞愧，一直待在自己的舒适区过得很舒服，没有接触什么新的技术或是拓宽自己的视野。在有次出去面试介绍参与的项目中：描述服务之间通过Socket连接传输数据，而数据则是通过服务共同依赖的Server-Lib服务中定义的pack 及 unpack函数进行传输（pack及unpack当作做write 及 read操作即可）。举个例子： 12345678910111213//">
 <meta name="twitter:image" content="https://cdn.nlark.com/yuque/0/2018/png/92822/1545487408776-3ea32a85-2f87-4868-b9d7-7c022af2ec69.png">
 
 
@@ -417,7 +417,7 @@
       
 
       
-        <h1 id="gRPC"><a href="#gRPC" class="headerlink" title="gRPC"></a>gRPC</h1><h2 id="说在前面"><a href="#说在前面" class="headerlink" title="说在前面"></a>说在前面</h2><p>首先为自己的目光短浅感到羞愧，一直待在自己的舒适区过得很舒服，没有接触什么新的技术或是拓宽自己的视野。在有次出去面试介绍参与的项目中：描述服务之间通过Socket连接传输数据，而数据则是通过服务共同依赖的Server-Lib服务中定义的pack 及 unpack函数进行传输（pack及unpack当作做write 及 read操作即可）。举个例子：</p>
+        <h2 id="说在前面"><a href="#说在前面" class="headerlink" title="说在前面"></a>说在前面</h2><p>首先为自己的目光短浅感到羞愧，一直待在自己的舒适区过得很舒服，没有接触什么新的技术或是拓宽自己的视野。在有次出去面试介绍参与的项目中：描述服务之间通过Socket连接传输数据，而数据则是通过服务共同依赖的Server-Lib服务中定义的pack 及 unpack函数进行传输（pack及unpack当作做write 及 read操作即可）。举个例子：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">// 写数据</span><br><span class="line">   reply_data-&gt;writeInt32(_company_id);</span><br><span class="line">reply_data-&gt;writeString(_company_name);</span><br><span class="line">reply_data-&gt;writeInt32(_creator_passport_id);</span><br><span class="line">reply_data-&gt;writeString(_icon_url);</span><br><span class="line">reply_data-&gt;writeInt32(_edition_type);</span><br><span class="line"></span><br><span class="line">   // 读数据</span><br><span class="line">_company_id = data-&gt;readInt32();</span><br><span class="line">_company_name = data-&gt;readString();</span><br><span class="line">_creator_passport_id = data-&gt;readInt32();</span><br><span class="line">_icon_url = data-&gt;readString();</span><br><span class="line">_edition_type = data-&gt;readInt32();</span><br></pre></td></tr></table></figure>
 <a id="more"></a>
 <p>当时的面试官get 到之后，问我为什么你们不使用Protocol Buffer 呢？当时的黑人问号脸真的是太尴尬了。。。<br>当然回去之后我就认真补了课，在接下来的工作也应用了，下面来聊一聊。</p>
@@ -513,8 +513,8 @@
 
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/posts/redis_analysis/" rel="prev" title="Redis 引入分析">
-                Redis 引入分析 <i class="fa fa-chevron-right"></i>
+              <a href="/posts/grpc_node_demo/" rel="prev" title="gRPC node demo">
+                gRPC node demo <i class="fa fa-chevron-right"></i>
               </a>
             
           </div>
@@ -599,7 +599,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">68</span>
+                    <span class="site-state-item-count">69</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
@@ -845,7 +845,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#gRPC"><span class="nav-number">1.</span> <span class="nav-text">gRPC</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#说在前面"><span class="nav-number">1.1.</span> <span class="nav-text">说在前面</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#gRPC-简单介绍"><span class="nav-number">1.2.</span> <span class="nav-text">gRPC 简单介绍</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Protocol-Buffers"><span class="nav-number">1.3.</span> <span class="nav-text">Protocol Buffers</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#gRPC-概念"><span class="nav-number">1.4.</span> <span class="nav-text">gRPC 概念</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#服务定义"><span class="nav-number">1.4.1.</span> <span class="nav-text">服务定义</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#API-surface-应用"><span class="nav-number">1.4.2.</span> <span class="nav-text">API surface 应用</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#同步与异步"><span class="nav-number">1.4.3.</span> <span class="nav-text">同步与异步</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#小结"><span class="nav-number">1.5.</span> <span class="nav-text">小结</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#资料"><span class="nav-number">1.6.</span> <span class="nav-text">资料</span></a></li></ol></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#说在前面"><span class="nav-number">1.</span> <span class="nav-text">说在前面</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#gRPC-简单介绍"><span class="nav-number">2.</span> <span class="nav-text">gRPC 简单介绍</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Protocol-Buffers"><span class="nav-number">3.</span> <span class="nav-text">Protocol Buffers</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#gRPC-概念"><span class="nav-number">4.</span> <span class="nav-text">gRPC 概念</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#服务定义"><span class="nav-number">4.1.</span> <span class="nav-text">服务定义</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#API-surface-应用"><span class="nav-number">4.2.</span> <span class="nav-text">API surface 应用</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#同步与异步"><span class="nav-number">4.3.</span> <span class="nav-text">同步与异步</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#小结"><span class="nav-number">5.</span> <span class="nav-text">小结</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#资料"><span class="nav-number">6.</span> <span class="nav-text">资料</span></a></li></ol></div>
             
 
           </div>
