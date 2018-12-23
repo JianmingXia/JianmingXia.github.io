@@ -1,0 +1,1094 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=6.3.0" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=6.3.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=6.3.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=6.3.0">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=6.3.0" color="#222">
+
+
+
+
+
+
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '6.3.0',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="gRPC说在前面首先为自己的目光短浅感到羞愧，一直待在自己的舒适区过得很舒服，没有接触什么新的技术或是拓宽自己的视野。在有次出去面试介绍参与的项目中：描述服务之间通过Socket连接传输数据，而数据则是通过服务共同依赖的Server-Lib服务中定义的pack 及 unpack函数进行传输（pack及unpack当作做write 及 read操作即可）。举个例子： 1234567891011121">
+<meta name="keywords" content="gRPC">
+<meta property="og:type" content="article">
+<meta property="og:title" content="gRPC 基础">
+<meta property="og:url" content="https://blog.ryoma.top/posts/grpc_start/index.html">
+<meta property="og:site_name" content="Ryoma&#39;s Blog">
+<meta property="og:description" content="gRPC说在前面首先为自己的目光短浅感到羞愧，一直待在自己的舒适区过得很舒服，没有接触什么新的技术或是拓宽自己的视野。在有次出去面试介绍参与的项目中：描述服务之间通过Socket连接传输数据，而数据则是通过服务共同依赖的Server-Lib服务中定义的pack 及 unpack函数进行传输（pack及unpack当作做write 及 read操作即可）。举个例子： 1234567891011121">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2018/png/92822/1545487408776-3ea32a85-2f87-4868-b9d7-7c022af2ec69.png">
+<meta property="og:updated_time" content="2018-12-23T04:08:10.974Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="gRPC 基础">
+<meta name="twitter:description" content="gRPC说在前面首先为自己的目光短浅感到羞愧，一直待在自己的舒适区过得很舒服，没有接触什么新的技术或是拓宽自己的视野。在有次出去面试介绍参与的项目中：描述服务之间通过Socket连接传输数据，而数据则是通过服务共同依赖的Server-Lib服务中定义的pack 及 unpack函数进行传输（pack及unpack当作做write 及 read操作即可）。举个例子： 1234567891011121">
+<meta name="twitter:image" content="https://cdn.nlark.com/yuque/0/2018/png/92822/1545487408776-3ea32a85-2f87-4868-b9d7-7c022af2ec69.png">
+
+
+
+
+
+
+  <link rel="canonical" href="https://blog.ryoma.top/posts/grpc_start/"/>
+
+
+
+<script type="text/javascript" id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>gRPC 基础 | Ryoma's Blog</title>
+  
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style type="text/css">
+    .use-motion .motion-element,
+    .use-motion .brand,
+    .use-motion .menu-item,
+    .sidebar-inner,
+    .use-motion .post-block,
+    .use-motion .pagination,
+    .use-motion .comments,
+    .use-motion .post-header,
+    .use-motion .post-body,
+    .use-motion .collection-title { opacity: initial; }
+
+    .use-motion .logo,
+    .use-motion .site-title,
+    .use-motion .site-subtitle {
+      opacity: initial;
+      top: initial;
+    }
+
+    .use-motion {
+      .logo-line-before i { left: initial; }
+      .logo-line-after i { right: initial; }
+    }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Ryoma's Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+      
+        <p class="site-subtitle">纸上得来终觉浅</p>
+      
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+    <a href="/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-home"></i> <br />首页</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+    <a href="/tags/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />标签</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+    <a href="/categories/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-th"></i> <br />分类</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+    <a href="/archives/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />归档</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+    <a href="/about/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-user"></i> <br />关于我</a>
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.ryoma.top/posts/grpc_start/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Ryoma">
+      <meta itemprop="description" content="Ryoma's Blog">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Ryoma's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">gRPC 基础
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2018-07-01 12:00:00" itemprop="dateCreated datePublished" datetime="2018-07-01T12:00:00+08:00">2018-07-01</time>
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/gRPC/" itemprop="url" rel="index"><span itemprop="name">gRPC</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/posts/grpc_start/#comments" itemprop="discussionUrl">
+                
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="posts/grpc_start/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="gRPC"><a href="#gRPC" class="headerlink" title="gRPC"></a>gRPC</h1><h2 id="说在前面"><a href="#说在前面" class="headerlink" title="说在前面"></a>说在前面</h2><p>首先为自己的目光短浅感到羞愧，一直待在自己的舒适区过得很舒服，没有接触什么新的技术或是拓宽自己的视野。在有次出去面试介绍参与的项目中：描述服务之间通过Socket连接传输数据，而数据则是通过服务共同依赖的Server-Lib服务中定义的pack 及 unpack函数进行传输（pack及unpack当作做write 及 read操作即可）。举个例子：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">// 写数据</span><br><span class="line">   reply_data-&gt;writeInt32(_company_id);</span><br><span class="line">reply_data-&gt;writeString(_company_name);</span><br><span class="line">reply_data-&gt;writeInt32(_creator_passport_id);</span><br><span class="line">reply_data-&gt;writeString(_icon_url);</span><br><span class="line">reply_data-&gt;writeInt32(_edition_type);</span><br><span class="line"></span><br><span class="line">   // 读数据</span><br><span class="line">_company_id = data-&gt;readInt32();</span><br><span class="line">_company_name = data-&gt;readString();</span><br><span class="line">_creator_passport_id = data-&gt;readInt32();</span><br><span class="line">_icon_url = data-&gt;readString();</span><br><span class="line">_edition_type = data-&gt;readInt32();</span><br></pre></td></tr></table></figure>
+<a id="more"></a>
+<p>当时的面试官get 到之后，问我为什么你们不使用Protocol Buffer 呢？当时的黑人问号脸真的是太尴尬了。。。<br>当然回去之后我就认真补了课，在接下来的工作也应用了，下面来聊一聊。</p>
+<h2 id="gRPC-简单介绍"><a href="#gRPC-简单介绍" class="headerlink" title="gRPC 简单介绍"></a>gRPC 简单介绍</h2><p>gRPC可以使用protocol buffers作为其接口定义语言(IDL)和底层消息交换格式。</p>
+<p>在gRPC中，客户端应用程序可以直接调用不同机器上服务器应用程序上的方法，就像它是一个本地对象一样，这使得我们更容易创建分布式应用程序和服务。在许多RPC系统中，gRPC基于定义服务的思想，指定可以通过参数和返回类型远程调用的方法：</p>
+<ul>
+<li>在服务端，服务实现这个接口，并运行gRPC服务器来处理客户端调用</li>
+<li>在客户端，客户端有一个存根（在某些语言中仅称为客户端）提供与服务端相同的方法</li>
+</ul>
+<p><img src="https://cdn.nlark.com/yuque/0/2018/png/92822/1545487408776-3ea32a85-2f87-4868-b9d7-7c022af2ec69.png" alt="image.png | left | 552x327"></p>
+<p>gRPC客户端和服务端可以在各种环境中运行并相互通信——从谷歌内部服务到自己的桌面——并且可以用gRPC支持的任何语言编写。例如，你可以轻松地用Java创建gRPC服务端，客户端使用Go、Python或Ruby。</p>
+<h2 id="Protocol-Buffers"><a href="#Protocol-Buffers" class="headerlink" title="Protocol Buffers"></a>Protocol Buffers</h2><blockquote>
+<p><a href="https://developers.google.com/protocol-buffers/docs/overview" target="_blank" rel="noopener">Protocol Buffer文档</a><br>默认情况下，gRPC使用protocol buffers，这是谷歌用于序列化结构化数据的成熟开源机制（尽管它可以与JSON等其他数据格式一起使用）。</p>
+</blockquote>
+<p>使用协议缓冲区时的第一步是要在proto文件中定义想要序列化数据的结构：这是一个扩展名为.proto的普通文本。Protocol Buffer数据以 message 构造，其中每个message都是包含一系列名称-值对信息的小逻辑记录。如：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">message Person &#123;</span><br><span class="line">  string name = 1;</span><br><span class="line">  int32 id = 2;</span><br><span class="line">  bool has_ponycopter = 3;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>然后，一旦指定了数据结构，就可以使用protocol buffer编译器 <strong>protoc</strong> 从proto定义生成首选语言中的数据访问类。这些方法为每个字段（如name()和set_name()）提供简单的访问器，以及将整个结构序列化/解析为/从原始字节——例如，如果选择的语言是c++，那么在上面的示例上运行编译器将生成一个名为Person的类。</p>
+<h2 id="gRPC-概念"><a href="#gRPC-概念" class="headerlink" title="gRPC 概念"></a>gRPC 概念</h2><h3 id="服务定义"><a href="#服务定义" class="headerlink" title="服务定义"></a>服务定义</h3><p>与许多RPC系统一样，gRPC基于定义服务的思想，指定可以通过参数和返回类型远程调用的方法：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">service HelloService &#123;</span><br><span class="line">  rpc SayHello (HelloRequest) returns (HelloResponse);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">message HelloRequest &#123;</span><br><span class="line">  string greeting = 1;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">message HelloResponse &#123;</span><br><span class="line">  string reply = 1;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>gRPC可以定义四种服务方式：</p>
+<ul>
+<li><p>Unary RPCs：客户端向服务端发送一个请求，并获得一个响应，就像普通的函数调用一样</p>
+  <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">rpc SayHello(HelloRequest) returns (HelloResponse)&#123;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>Server streaming RPCs：其中客户端向服务端发送请求并获取流以读取返回的消息序列。客户端从返回的流中读取信息，直到没有更多的消息为止。gRPC保证了单个RPC调用中的消息排序</p>
+  <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">rpc LotsOfReplies(HelloRequest) returns (stream HelloResponse)&#123;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>Client streaming RPCs：客户端在其中写入一系列消息并将其发送到服务器，同样使用提供的流。一旦客户端完成了消息的编写，它将等待服务端读取它们并返回其响应。同样，gRPC保证在单个RPC调用中对消息进行排序</p>
+  <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">rpc LotsOfGreetings(stream HelloRequest) returns (HelloResponse) &#123;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>Bidirectional streaming RPCs：双方使用读写流发送消息序列。这两个流独立操作，因此客户端和服务端可以按照自己喜欢的顺序读写。例如，服务端可以在写入响应之前等待接收所有客户端消息，或者它可以交替读取消息然后写入消息，或者其他一些读和写的组合。保留每个流中的消息顺序</p>
+  <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">rpc BidiHello(stream HelloRequest) returns (stream HelloResponse)&#123;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h3 id="API-surface-应用"><a href="#API-surface-应用" class="headerlink" title="API surface 应用"></a>API surface 应用</h3><p>从 .proto 文件中的服务定义开始，gRPC提供了生成客户端和服务器端代码的protocol buffer编译器插件。gRPC使用者通常在客户端调用这些API，并在服务器端实现相应的API：</p>
+<ul>
+<li>在服务器端，服务器实现服务声明的方法，并运行gRPC服务端来处理客户端调用。gRPC基础设施解码传入的请求，执行服务方法，并对服务响应进行编码</li>
+<li>在客户端，客户端有一个称为存根的本地对象(对于某些语言，首选术语是客户端)，它实现了与服务相同的方法。然后客户端可以在本地对象上调用这些方法，将调用的参数包装在适当的protocol buffer message类型中——gRPC在将请求发送到服务端并对返回的服务端protocol buffer响应进行处理</li>
+</ul>
+<h3 id="同步与异步"><a href="#同步与异步" class="headerlink" title="同步与异步"></a>同步与异步</h3><p>在服务器响应到达之前，阻塞的同步RPC调用最接近于RPC渴望的过程调用的抽象。另一方面，网络本质上是异步的，在许多情况下，能够在不阻塞当前线程的情况下启动rpc非常有用。</p>
+<p>大多数语言中的gRPC编程都有同步和异步两种风格。</p>
+<h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><ul>
+<li>像调用本地服务一样调用远程服务</li>
+<li>适用于低延迟、高扩展性、分布式的系统</li>
+<li>支持多种语言</li>
+</ul>
+<h2 id="资料"><a href="#资料" class="headerlink" title="资料"></a>资料</h2><ul>
+<li><a href="https://grpc.io/" target="_blank" rel="noopener">https://grpc.io/</a></li>
+<li><a href="https://grpc.io/docs/guides/index.html" target="_blank" rel="noopener">https://grpc.io/docs/guides/index.html</a></li>
+<li><a href="https://grpc.io/docs/guides/concepts.html" target="_blank" rel="noopener">https://grpc.io/docs/guides/concepts.html</a></li>
+<li><a href="https://developers.google.com/protocol-buffers/docs/overview" target="_blank" rel="noopener">https://developers.google.com/protocol-buffers/docs/overview</a></li>
+</ul>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/gRPC/" rel="tag"># gRPC</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/posts/mysql_alibaba/" rel="next" title="MySQL使用规范">
+                <i class="fa fa-chevron-left"></i> MySQL使用规范
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/posts/redis_analysis/" rel="prev" title="Redis 引入分析">
+                Redis 引入分析 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+    <div class="comments" id="comments">
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/avatar.jpg"
+                alt="Ryoma" />
+            
+              <p class="site-author-name" itemprop="name">Ryoma</p>
+              <p class="site-description motion-element" itemprop="description">Ryoma's Blog</p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">68</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  <a href="/categories/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">20</span>
+                    <span class="site-state-item-name">分类</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  <a href="/tags/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">65</span>
+                    <span class="site-state-item-name">标签</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+            <div class="links-of-author motion-element">
+              
+                <span class="links-of-author-item">
+                  <a href="https://github.com/JianmingXia" target="_blank" title="GitHub"><i class="fa fa-fw fa-github"></i>GitHub</a>
+                  
+                </span>
+              
+                <span class="links-of-author-item">
+                  <a href="mailto:xiajianming_xjm@163.com" target="_blank" title="E-Mail"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                  
+                </span>
+              
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#gRPC"><span class="nav-number">1.</span> <span class="nav-text">gRPC</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#说在前面"><span class="nav-number">1.1.</span> <span class="nav-text">说在前面</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#gRPC-简单介绍"><span class="nav-number">1.2.</span> <span class="nav-text">gRPC 简单介绍</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Protocol-Buffers"><span class="nav-number">1.3.</span> <span class="nav-text">Protocol Buffers</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#gRPC-概念"><span class="nav-number">1.4.</span> <span class="nav-text">gRPC 概念</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#服务定义"><span class="nav-number">1.4.1.</span> <span class="nav-text">服务定义</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#API-surface-应用"><span class="nav-number">1.4.2.</span> <span class="nav-text">API surface 应用</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#同步与异步"><span class="nav-number">1.4.3.</span> <span class="nav-text">同步与异步</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#小结"><span class="nav-number">1.5.</span> <span class="nav-text">小结</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#资料"><span class="nav-number">1.6.</span> <span class="nav-text">资料</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2017 &mdash; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Ryoma</span>
+
+  
+
+  
+</div>
+
+
+
+
+  <div class="powered-by"><a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> v3.7.1</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://theme-next.org">NexT.Gemini</a> v6.3.0</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+	
+    
+
+    
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/three/three.min.js"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/three/canvas_sphere.min.js"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=6.3.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=6.3.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=6.3.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=6.3.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=6.3.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=6.3.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=6.3.0"></script>
+
+
+
+  
+
+  
+    <script id="dsq-count-scr" src="https://ryoma-blog.disqus.com/count.js" async></script>
+  
+
+  
+    <script type="text/javascript">
+      var disqus_config = function () {
+        this.page.url = 'https://blog.ryoma.top/posts/grpc_start/';
+        this.page.identifier = 'posts/grpc_start/';
+        this.page.title = 'gRPC 基础';
+        };
+      function loadComments () {
+        var d = document, s = d.createElement('script');
+        s.src = 'https://ryoma-blog.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', '' + +new Date());
+        (d.head || d.body).appendChild(s);
+      }
+      
+        $(function () {
+          var offsetTop = $('#comments').offset().top - $(window).height();
+          if (offsetTop <= 0) {
+            // load directly when there's no a scrollbar
+            loadComments();
+          } else {
+            $(window).on('scroll.disqus_scroll', function () {
+              var scrollTop = document.documentElement.scrollTop;
+              if (scrollTop >= offsetTop) {
+                $(window).off('.disqus_scroll');
+                loadComments();
+              }
+            });
+          }
+        });
+      
+    </script>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
