@@ -125,7 +125,7 @@
 <meta property="og:image" content="https://cdn.nlark.com/yuque/0/2019/png/92822/1546860387762-2b18cd9d-3b03-481a-9046-46740303bd0a.png#align=left&display=inline&height=316&linkTarget=_blank&name=image.png&originHeight=316&originWidth=463&size=13108&width=463">
 <meta property="og:image" content="https://cdn.nlark.com/yuque/0/2019/png/92822/1546862676218-1015f6c5-8dbb-4162-8315-710c40735e52.png#align=left&display=inline&height=67&linkTarget=_blank&name=image.png&originHeight=67&originWidth=843&size=31962&width=843">
 <meta property="og:image" content="https://cdn.nlark.com/yuque/0/2019/png/92822/1546861818195-46510772-cc56-4ada-99a9-25374f81f9bc.png#align=left&display=inline&height=213&linkTarget=_blank&name=image.png&originHeight=213&originWidth=781&size=20894&width=781">
-<meta property="og:updated_time" content="2019-01-07T12:07:08.493Z">
+<meta property="og:updated_time" content="2019-01-09T12:50:54.494Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="多进程模型（egg）">
 <meta name="twitter:description" content="大家都知道JS代码是运行在单线程上的——NodeJS也同理，这也就导致了进程只能利用一个CPU，没有办法享受到多核带来的优势；同时也带来另外一个问题，如果代码出了问题，单个进程不确定性的问题也就暴露出来。而Egg作为企业级的解决方案，首先解决的是：如果榨干服务器资源，利用多核CPU的并发优势 Cluster 是什么简单说明123A single instance of Node.js runs i">
@@ -434,6 +434,7 @@
       
         <p>大家都知道JS代码是运行在单线程上的——NodeJS也同理，这也就导致了进程只能利用一个CPU，没有办法享受到多核带来的优势；同时也带来另外一个问题，如果代码出了问题，单个进程不确定性的问题也就暴露出来。<br>而Egg作为企业级的解决方案，首先解决的是：如果榨干服务器资源，利用多核CPU的并发优势</p>
 <h2 id="Cluster-是什么"><a href="#Cluster-是什么" class="headerlink" title="Cluster 是什么"></a>Cluster 是什么</h2><h3 id="简单说明"><a href="#简单说明" class="headerlink" title="简单说明"></a>简单说明</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">A single instance of Node.js runs in a single thread. To take advantage of multi-core systems, the user will sometimes want to launch a cluster of Node.js processes to handle the load.</span><br><span class="line"></span><br><span class="line">The cluster module allows easy creation of child processes that all share server ports.</span><br></pre></td></tr></table></figure>
+<a id="more"></a>
 <p>即：单个NodeJS实例在单线程中运行。为了充分利用多核系统，有时需要启动一组NodeJS 进程来处理负载任务——cluster 模块可以创建共享服务器端口的子进程</p>
 <h3 id="有什么作用？"><a href="#有什么作用？" class="headerlink" title="有什么作用？"></a>有什么作用？</h3><ul>
 <li>在服务器上启动多个进程（每个进程运行的都是同一份代码）</li>
@@ -550,8 +551,8 @@
 
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/posts/api_blueprint_demo/" rel="prev" title="API Blueprint教程及Demo">
-                API Blueprint教程及Demo <i class="fa fa-chevron-right"></i>
+              <a href="/posts/egg_ipc/" rel="prev" title="进程间通讯（egg）">
+                进程间通讯（egg） <i class="fa fa-chevron-right"></i>
               </a>
             
           </div>
@@ -636,7 +637,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">70</span>
+                    <span class="site-state-item-count">71</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
@@ -836,7 +837,9 @@
                     
                       
                     
-                    <span class="site-state-item-count">66</span>
+                      
+                    
+                    <span class="site-state-item-count">67</span>
                     <span class="site-state-item-name">标签</span>
                   </a>
                 </div>
