@@ -20,6 +20,7 @@ A single instance of Node.js runs in a single thread. To take advantage of multi
 
 The cluster module allows easy creation of child processes that all share server ports.
 ```
+<!-- more -->
 
 即：单个NodeJS实例在单线程中运行。为了充分利用多核系统，有时需要启动一组NodeJS 进程来处理负载任务——cluster 模块可以创建共享服务器端口的子进程
 
