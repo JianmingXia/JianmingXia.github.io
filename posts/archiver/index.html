@@ -1,0 +1,1104 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=6.3.0" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=6.3.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=6.3.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=6.3.0">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=6.3.0" color="#222">
+
+
+
+
+
+
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '6.3.0',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="说在前面由于现有的上传下载服务实现不合理——在内存中暂存完整内容。只要并发稍微高一点，内存占用就疯狂报警；除此之外，还伴随着段错误，服务重构迫在眉睫。NodeJS 中有个zlib模块提供压缩功能，但是没有找到支持多文件压缩的文档。最后找到了archiver模块，支持zip及tar格式的压缩，使用起来也很简单。 Archiver 介绍基础事件close listen for all archive">
+<meta name="keywords" content="压缩打包">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Archiver zip打包">
+<meta property="og:url" content="https://blog.ryoma.top/posts/archiver/index.html">
+<meta property="og:site_name" content="Ryoma&#39;s Blog">
+<meta property="og:description" content="说在前面由于现有的上传下载服务实现不合理——在内存中暂存完整内容。只要并发稍微高一点，内存占用就疯狂报警；除此之外，还伴随着段错误，服务重构迫在眉睫。NodeJS 中有个zlib模块提供压缩功能，但是没有找到支持多文件压缩的文档。最后找到了archiver模块，支持zip及tar格式的压缩，使用起来也很简单。 Archiver 介绍基础事件close listen for all archive">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2019/png/92822/1547520254405-107f5672-e267-48b0-9405-e574ed658e54.png#align=left&display=inline&height=415&linkTarget=_blank&name=image.png&originHeight=415&originWidth=1391&size=43881&width=1391">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2019/png/92822/1547520322139-ae96efbc-a2fa-4c35-9d26-4cff891c4ab8.png#align=left&display=inline&height=511&linkTarget=_blank&name=image.png&originHeight=511&originWidth=1417&size=50451&width=1417">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2019/png/92822/1547534871016-ef79c8ce-d7a7-4fdb-b4bf-26a2c856636d.png#align=left&display=inline&height=477&linkTarget=_blank&name=image.png&originHeight=477&originWidth=1378&size=51152&width=1378">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2019/png/92822/1547534963703-d6761a3e-4770-4b33-9bd9-a18130548da6.png#align=left&display=inline&height=298&linkTarget=_blank&name=image.png&originHeight=298&originWidth=876&size=38297&width=876">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2019/png/92822/1547537448379-b2d02a16-ba2e-4acf-b013-76949b6338b7.png#align=left&display=inline&height=261&linkTarget=_blank&name=image.png&originHeight=261&originWidth=1217&size=19846&width=1217">
+<meta property="og:updated_time" content="2019-01-15T07:35:31.592Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Archiver zip打包">
+<meta name="twitter:description" content="说在前面由于现有的上传下载服务实现不合理——在内存中暂存完整内容。只要并发稍微高一点，内存占用就疯狂报警；除此之外，还伴随着段错误，服务重构迫在眉睫。NodeJS 中有个zlib模块提供压缩功能，但是没有找到支持多文件压缩的文档。最后找到了archiver模块，支持zip及tar格式的压缩，使用起来也很简单。 Archiver 介绍基础事件close listen for all archive">
+<meta name="twitter:image" content="https://cdn.nlark.com/yuque/0/2019/png/92822/1547520254405-107f5672-e267-48b0-9405-e574ed658e54.png#align=left&display=inline&height=415&linkTarget=_blank&name=image.png&originHeight=415&originWidth=1391&size=43881&width=1391">
+
+
+
+
+
+
+  <link rel="canonical" href="https://blog.ryoma.top/posts/archiver/"/>
+
+
+
+<script type="text/javascript" id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>Archiver zip打包 | Ryoma's Blog</title>
+  
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style type="text/css">
+    .use-motion .motion-element,
+    .use-motion .brand,
+    .use-motion .menu-item,
+    .sidebar-inner,
+    .use-motion .post-block,
+    .use-motion .pagination,
+    .use-motion .comments,
+    .use-motion .post-header,
+    .use-motion .post-body,
+    .use-motion .collection-title { opacity: initial; }
+
+    .use-motion .logo,
+    .use-motion .site-title,
+    .use-motion .site-subtitle {
+      opacity: initial;
+      top: initial;
+    }
+
+    .use-motion {
+      .logo-line-before i { left: initial; }
+      .logo-line-after i { right: initial; }
+    }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Ryoma's Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+      
+        <p class="site-subtitle">纸上得来终觉浅</p>
+      
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+    <a href="/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-home"></i> <br />首页</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+    <a href="/tags/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />标签</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+    <a href="/categories/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-th"></i> <br />分类</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+    <a href="/archives/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />归档</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+    <a href="/about/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-user"></i> <br />关于我</a>
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.ryoma.top/posts/archiver/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Ryoma">
+      <meta itemprop="description" content="Ryoma's Blog">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Ryoma's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Archiver zip打包
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2019-01-14 21:00:00" itemprop="dateCreated datePublished" datetime="2019-01-14T21:00:00+08:00">2019-01-14</time>
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/NodeJS/" itemprop="url" rel="index"><span itemprop="name">NodeJS</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/posts/archiver/#comments" itemprop="discussionUrl">
+                
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="posts/archiver/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="说在前面"><a href="#说在前面" class="headerlink" title="说在前面"></a>说在前面</h2><p>由于现有的上传下载服务实现不合理——在内存中暂存完整内容。只要并发稍微高一点，内存占用就疯狂报警；除此之外，还伴随着段错误，服务重构迫在眉睫。<br>NodeJS 中有个zlib模块提供压缩功能，但是没有找到支持多文件压缩的文档。最后找到了archiver模块，支持zip及tar格式的压缩，使用起来也很简单。</p>
+<h2 id="Archiver-介绍"><a href="#Archiver-介绍" class="headerlink" title="Archiver 介绍"></a>Archiver 介绍</h2><h3 id="基础事件"><a href="#基础事件" class="headerlink" title="基础事件"></a>基础事件</h3><h4 id="close"><a href="#close" class="headerlink" title="close"></a>close</h4><blockquote>
+<p>listen for all archive data to be written<br>‘close’ event is fired only when a file descriptor is involved</p>
+</blockquote>
+<a id="more"></a>
+<p>监听要写入的所有存档数据，当涉及到文件描述符时事件会触发——一般来说，当可写数据完毕后，close事件会被触发</p>
+<h4 id="end"><a href="#end" class="headerlink" title="end"></a>end</h4><blockquote>
+<p>This event is fired when the data source is drained no matter what was the data source.<br>It is not part of this library but rather from the NodeJS Stream API.<br>@see: <a href="https://nodejs.org/api/stream.html#stream_event_end" target="_blank" rel="noopener">https://nodejs.org/api/stream.html#stream_event_end</a></p>
+</blockquote>
+<p>这个事件很奇怪，在NodeJS可写流相关文档中，没有找到end事件相关的文档；同时在end event上方的说明中，有一个<a href="https://nodejs.org/api/stream.html#stream_event_end" target="_blank" rel="noopener">文档</a>——在一个可读流中，如果没有更多的数据流出，end事件将会被触发。</p>
+<p>这里突然想到，如果在压缩时，有一个转换流——当数据流完之后，end 事件会被触发<br>PS：<a href="https://github.com/JianmingXia/StudyTest/blob/master/Archiver/endEventFired.js" target="_blank" rel="noopener">https://github.com/JianmingXia/StudyTest/blob/master/Archiver/endEventFired.js</a></p>
+<h3 id="Archiver-事件"><a href="#Archiver-事件" class="headerlink" title="Archiver 事件"></a>Archiver 事件</h3><h4 id="error"><a href="#error" class="headerlink" title="error"></a>error</h4><blockquote>
+<p><a href="https://archiverjs.com/docs/lib_core.js.html" target="_blank" rel="noopener">https://archiverjs.com/docs/lib_core.js.html</a><br>在此文档搜索ArchiverError即可，可以发现有很多触发error事件的情况</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">/**</span><br><span class="line"> * Error listener that re-emits error on to our internal stream.</span><br><span class="line"> *</span><br><span class="line"> * @private</span><br><span class="line"> * @param  &#123;Error&#125; err</span><br><span class="line"> * @return void</span><br><span class="line"> */</span><br><span class="line">Archiver.prototype._onModuleError = function(err) &#123;</span><br><span class="line">  /**</span><br><span class="line">   * @event Archiver#error</span><br><span class="line">   * @type &#123;ErrorData&#125;</span><br><span class="line">   */</span><br><span class="line">  this.emit(&apos;error&apos;, err);</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>比如调用finalize方法，依然调用append方法，此时error方法会被触发：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">archive.append(&quot;&quot;, &#123; name: &quot;sdffsdfsd/&quot; &#125;);</span><br><span class="line"></span><br><span class="line">archive.finalize();</span><br><span class="line"></span><br><span class="line">archive.append(&quot;&quot;, &#123; name: &quot;sdffsdfsd/&quot; &#125;);</span><br></pre></td></tr></table></figure>
+<p>PS：<a href="https://github.com/JianmingXia/StudyTest/blob/master/Archiver/errorEventFired.js" target="_blank" rel="noopener">https://github.com/JianmingXia/StudyTest/blob/master/Archiver/errorEventFired.js</a></p>
+<h4 id="warning"><a href="#warning" class="headerlink" title="warning"></a>warning</h4><blockquote>
+<p><a href="https://archiverjs.com/docs/lib_core.js.html" target="_blank" rel="noopener">https://archiverjs.com/docs/lib_core.js.html</a><br>在此文档搜索ArchiverError即可，可以发现有很多触发warning事件的情况</p>
+</blockquote>
+<h4 id="entry"><a href="#entry" class="headerlink" title="entry"></a>entry</h4><p>每个正常被append的item都会触发<br>PS：<a href="https://github.com/JianmingXia/StudyTest/blob/master/Archiver/entryAndProgressEvent.js" target="_blank" rel="noopener">https://github.com/JianmingXia/StudyTest/blob/master/Archiver/entryAndProgressEvent.js</a></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">/**</span><br><span class="line"> * Fires when the entry&apos;s input has been processed and appended to the archive.</span><br><span class="line"> *</span><br><span class="line"> * @event Archiver#entry</span><br><span class="line"> * @type &#123;EntryData&#125;</span><br><span class="line"> */</span><br><span class="line">this.emit(&apos;entry&apos;, data);</span><br><span class="line">this._entriesProcessedCount++;</span><br><span class="line">if (data.stats &amp;&amp; data.stats.size) &#123;</span><br><span class="line">  this._fsEntriesProcessedBytes += data.stats.size;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><img src="https://cdn.nlark.com/yuque/0/2019/png/92822/1547520254405-107f5672-e267-48b0-9405-e574ed658e54.png#align=left&amp;display=inline&amp;height=415&amp;linkTarget=_blank&amp;name=image.png&amp;originHeight=415&amp;originWidth=1391&amp;size=43881&amp;width=1391" alt="image.png"></p>
+<h4 id="progress"><a href="#progress" class="headerlink" title="progress"></a>progress</h4><p>每个正常被append的item都会触发<br>PS：<a href="https://github.com/JianmingXia/StudyTest/blob/master/Archiver/entryAndProgressEvent.js" target="_blank" rel="noopener">https://github.com/JianmingXia/StudyTest/blob/master/Archiver/entryAndProgressEvent.js</a></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">/**</span><br><span class="line"> * @event Archiver#progress</span><br><span class="line"> * @type &#123;ProgressData&#125;</span><br><span class="line"> */</span><br><span class="line">this.emit(&apos;progress&apos;, &#123;</span><br><span class="line">  entries: &#123;</span><br><span class="line">    total: this._entriesCount,</span><br><span class="line">    processed: this._entriesProcessedCount</span><br><span class="line">  &#125;,</span><br><span class="line">  fs: &#123;</span><br><span class="line">    totalBytes: this._fsEntriesTotalBytes,</span><br><span class="line">    processedBytes: this._fsEntriesProcessedBytes</span><br><span class="line">  &#125;</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<p><img src="https://cdn.nlark.com/yuque/0/2019/png/92822/1547520322139-ae96efbc-a2fa-4c35-9d26-4cff891c4ab8.png#align=left&amp;display=inline&amp;height=511&amp;linkTarget=_blank&amp;name=image.png&amp;originHeight=511&amp;originWidth=1417&amp;size=50451&amp;width=1417" alt="image.png"></p>
+<h3 id="Zip-配置"><a href="#Zip-配置" class="headerlink" title="Zip 配置"></a>Zip 配置</h3><p><img src="https://cdn.nlark.com/yuque/0/2019/png/92822/1547534871016-ef79c8ce-d7a7-4fdb-b4bf-26a2c856636d.png#align=left&amp;display=inline&amp;height=477&amp;linkTarget=_blank&amp;name=image.png&amp;originHeight=477&amp;originWidth=1378&amp;size=51152&amp;width=1378" alt="image.png"></p>
+<h4 id="zlib-配置"><a href="#zlib-配置" class="headerlink" title="zlib 配置"></a>zlib 配置</h4><p><img src="https://cdn.nlark.com/yuque/0/2019/png/92822/1547534963703-d6761a3e-4770-4b33-9bd9-a18130548da6.png#align=left&amp;display=inline&amp;height=298&amp;linkTarget=_blank&amp;name=image.png&amp;originHeight=298&amp;originWidth=876&amp;size=38297&amp;width=876" alt="image.png"></p>
+<p>比如 level 可配置项：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">zlib.constants.Z_NO_COMPRESSION</span><br><span class="line">zlib.constants.Z_BEST_SPEED</span><br><span class="line">zlib.constants.Z_BEST_COMPRESSION</span><br><span class="line">zlib.constants.Z_DEFAULT_COMPRESSION</span><br></pre></td></tr></table></figure></p>
+<p>更多参数可见文档。</p>
+<h2 id="Demo"><a href="#Demo" class="headerlink" title="Demo"></a>Demo</h2><h3 id="append"><a href="#append" class="headerlink" title="append"></a>append</h3><h4 id="追加一个文件流"><a href="#追加一个文件流" class="headerlink" title="追加一个文件流"></a>追加一个文件流</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">archive.append(fs.createReadStream(__dirname + &quot;/sourceFiles/1.txt&quot;), &#123; name: &quot;file1.txt&quot; &#125;);</span><br></pre></td></tr></table></figure>
+<h4 id="追加一个string"><a href="#追加一个string" class="headerlink" title="追加一个string"></a>追加一个string</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">archive.append(&quot;string cheese!&quot;, &#123; name: &quot;file2.txt&quot; &#125;);</span><br></pre></td></tr></table></figure>
+<h4 id="追加一个buffer"><a href="#追加一个buffer" class="headerlink" title="追加一个buffer"></a>追加一个buffer</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">var buffer = Buffer.from(&quot;buff it!&quot;);</span><br><span class="line">archive.append(buffer, &#123; name: &quot;file3.txt&quot; &#125;);</span><br></pre></td></tr></table></figure>
+<h4 id="新增空文件夹"><a href="#新增空文件夹" class="headerlink" title="新增空文件夹"></a>新增空文件夹</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">archive.append(&quot;&quot;, &#123; name: &quot;empty-dir/&quot; &#125;);</span><br></pre></td></tr></table></figure>
+<h3 id="file"><a href="#file" class="headerlink" title="file"></a>file</h3><p>使用file追加一个文件</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">archive.file(&quot;sourceFiles/1.txt&quot;, &#123; name: &quot;file4.txt&quot; &#125;);</span><br></pre></td></tr></table></figure>
+<h3 id="directory"><a href="#directory" class="headerlink" title="directory"></a>directory</h3><p>以下三种方式比较类似，只是会有微小差别</p>
+<h4 id="追加一个目录（子目录也会被增加）"><a href="#追加一个目录（子目录也会被增加）" class="headerlink" title="追加一个目录（子目录也会被增加）"></a>追加一个目录（子目录也会被增加）</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">archive.directory(&quot;sourceFiles/&quot;, &quot;new-subdir&quot;);</span><br></pre></td></tr></table></figure>
+<h4 id="追加一个目录——类似于直接复制"><a href="#追加一个目录——类似于直接复制" class="headerlink" title="追加一个目录——类似于直接复制"></a>追加一个目录——类似于直接复制</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">archive.directory(&quot;sourceFiles/&quot;);</span><br></pre></td></tr></table></figure>
+<h4 id="将目标目录中的文件追加至根目录"><a href="#将目标目录中的文件追加至根目录" class="headerlink" title="将目标目录中的文件追加至根目录"></a>将目标目录中的文件追加至根目录</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">archive.directory(&quot;sourceFiles/&quot;, false);</span><br></pre></td></tr></table></figure>
+<h3 id="glob"><a href="#glob" class="headerlink" title="glob"></a>glob</h3><p>使用通配符匹配</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">archive.glob(&quot;*.js&quot;);</span><br></pre></td></tr></table></figure>
+<h3 id="完整代码"><a href="#完整代码" class="headerlink" title="完整代码"></a>完整代码</h3><blockquote>
+<p><a href="https://github.com/JianmingXia/StudyTest/tree/master/Archiver" target="_blank" rel="noopener">https://github.com/JianmingXia/StudyTest/tree/master/Archiver</a></p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br></pre></td><td class="code"><pre><span class="line">var fs = require(&quot;fs&quot;);</span><br><span class="line">var archiver = require(&quot;archiver&quot;);</span><br><span class="line"></span><br><span class="line">var output = fs.createWriteStream(__dirname + &quot;/example.zip&quot;);</span><br><span class="line">var archive = archiver(&quot;zip&quot;, &#123;</span><br><span class="line">  zlib: &#123; level: 9 &#125;,</span><br><span class="line">  comment: &quot;testtest&quot;</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">output.on(&quot;close&quot;, function() &#123;</span><br><span class="line">  console.log(archive.pointer() + &quot; total bytes&quot;);</span><br><span class="line">  console.log(</span><br><span class="line">    &quot;archiver has been finalized and the output file descriptor has closed.&quot;</span><br><span class="line">  );</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">archive.on(&quot;warning&quot;, function(err) &#123;</span><br><span class="line">  console.log(err);</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">// good practice to catch this error explicitly</span><br><span class="line">archive.on(&quot;error&quot;, function(err) &#123;</span><br><span class="line">  console.log(err);</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">archive.pipe(output);</span><br><span class="line"></span><br><span class="line">// 追加一个文件流</span><br><span class="line">archive.append(fs.createReadStream(__dirname + &quot;/sourceFiles/1.txt&quot;), &#123; name: &quot;file1.txt&quot; &#125;);</span><br><span class="line"></span><br><span class="line">// 追加一个string</span><br><span class="line">archive.append(&quot;string cheese!&quot;, &#123; name: &quot;file2.txt&quot; &#125;);</span><br><span class="line"></span><br><span class="line">// 追加一个buffer</span><br><span class="line">var buffer = Buffer.from(&quot;buff it!&quot;);</span><br><span class="line">archive.append(buffer, &#123; name: &quot;file3.txt&quot; &#125;);</span><br><span class="line"></span><br><span class="line">// 追加一个现有文件</span><br><span class="line">archive.file(&quot;sourceFiles/1.txt&quot;, &#123; name: &quot;file4.txt&quot; &#125;);</span><br><span class="line"></span><br><span class="line">// 追加一个目录（子目录也会被增加）</span><br><span class="line">archive.directory(&quot;sourceFiles/&quot;, &quot;new-subdir&quot;);</span><br><span class="line"></span><br><span class="line">// 追加一个目录——类似于直接复制</span><br><span class="line">archive.directory(&quot;sourceFiles/&quot;);</span><br><span class="line"></span><br><span class="line">// 将目标目录中的文件追加至根目录</span><br><span class="line">archive.directory(&quot;sourceFiles/&quot;, false);</span><br><span class="line"></span><br><span class="line">// 新增空文件夹</span><br><span class="line">archive.append(&apos;&apos;, &#123; name: &quot;empty-dir/&quot; &#125;);</span><br><span class="line"></span><br><span class="line">// 使用通配符</span><br><span class="line">archive.glob(&quot;*.js&quot;);</span><br><span class="line"></span><br><span class="line">archive.finalize();</span><br></pre></td></tr></table></figure>
+<h4 id="打包后的目录结构"><a href="#打包后的目录结构" class="headerlink" title="打包后的目录结构"></a>打包后的目录结构</h4><p><img src="https://cdn.nlark.com/yuque/0/2019/png/92822/1547537448379-b2d02a16-ba2e-4acf-b013-76949b6338b7.png#align=left&amp;display=inline&amp;height=261&amp;linkTarget=_blank&amp;name=image.png&amp;originHeight=261&amp;originWidth=1217&amp;size=19846&amp;width=1217" alt="image.png"></p>
+<h2 id="资料"><a href="#资料" class="headerlink" title="资料"></a>资料</h2><ul>
+<li><a href="https://github.com/archiverjs/node-archiver" target="_blank" rel="noopener">https://github.com/archiverjs/node-archiver</a></li>
+<li><a href="https://archiverjs.com/docs/" target="_blank" rel="noopener">https://archiverjs.com/docs/</a></li>
+<li><a href="https://nodejs.org/api/zlib.html#zlib_class_options" target="_blank" rel="noopener">https://nodejs.org/api/zlib.html#zlib_class_options</a></li>
+</ul>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/压缩打包/" rel="tag"># 压缩打包</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/posts/git_commit_message/" rel="next" title="如何书写Git Commit Message">
+                <i class="fa fa-chevron-left"></i> 如何书写Git Commit Message
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+    <div class="comments" id="comments">
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/avatar.jpg"
+                alt="Ryoma" />
+            
+              <p class="site-author-name" itemprop="name">Ryoma</p>
+              <p class="site-description motion-element" itemprop="description">Ryoma's Blog</p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">73</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  <a href="/categories/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">21</span>
+                    <span class="site-state-item-name">分类</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  <a href="/tags/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">69</span>
+                    <span class="site-state-item-name">标签</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+            <div class="links-of-author motion-element">
+              
+                <span class="links-of-author-item">
+                  <a href="https://github.com/JianmingXia" target="_blank" title="GitHub"><i class="fa fa-fw fa-github"></i>GitHub</a>
+                  
+                </span>
+              
+                <span class="links-of-author-item">
+                  <a href="mailto:xiajianming_xjm@163.com" target="_blank" title="E-Mail"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                  
+                </span>
+              
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#说在前面"><span class="nav-number">1.</span> <span class="nav-text">说在前面</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Archiver-介绍"><span class="nav-number">2.</span> <span class="nav-text">Archiver 介绍</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#基础事件"><span class="nav-number">2.1.</span> <span class="nav-text">基础事件</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#close"><span class="nav-number">2.1.1.</span> <span class="nav-text">close</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#end"><span class="nav-number">2.1.2.</span> <span class="nav-text">end</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Archiver-事件"><span class="nav-number">2.2.</span> <span class="nav-text">Archiver 事件</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#error"><span class="nav-number">2.2.1.</span> <span class="nav-text">error</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#warning"><span class="nav-number">2.2.2.</span> <span class="nav-text">warning</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#entry"><span class="nav-number">2.2.3.</span> <span class="nav-text">entry</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#progress"><span class="nav-number">2.2.4.</span> <span class="nav-text">progress</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Zip-配置"><span class="nav-number">2.3.</span> <span class="nav-text">Zip 配置</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#zlib-配置"><span class="nav-number">2.3.1.</span> <span class="nav-text">zlib 配置</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Demo"><span class="nav-number">3.</span> <span class="nav-text">Demo</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#append"><span class="nav-number">3.1.</span> <span class="nav-text">append</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#追加一个文件流"><span class="nav-number">3.1.1.</span> <span class="nav-text">追加一个文件流</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#追加一个string"><span class="nav-number">3.1.2.</span> <span class="nav-text">追加一个string</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#追加一个buffer"><span class="nav-number">3.1.3.</span> <span class="nav-text">追加一个buffer</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#新增空文件夹"><span class="nav-number">3.1.4.</span> <span class="nav-text">新增空文件夹</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#file"><span class="nav-number">3.2.</span> <span class="nav-text">file</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#directory"><span class="nav-number">3.3.</span> <span class="nav-text">directory</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#追加一个目录（子目录也会被增加）"><span class="nav-number">3.3.1.</span> <span class="nav-text">追加一个目录（子目录也会被增加）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#追加一个目录——类似于直接复制"><span class="nav-number">3.3.2.</span> <span class="nav-text">追加一个目录——类似于直接复制</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#将目标目录中的文件追加至根目录"><span class="nav-number">3.3.3.</span> <span class="nav-text">将目标目录中的文件追加至根目录</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#glob"><span class="nav-number">3.4.</span> <span class="nav-text">glob</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#完整代码"><span class="nav-number">3.5.</span> <span class="nav-text">完整代码</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#打包后的目录结构"><span class="nav-number">3.5.1.</span> <span class="nav-text">打包后的目录结构</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#资料"><span class="nav-number">4.</span> <span class="nav-text">资料</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2017 &mdash; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Ryoma</span>
+
+  
+
+  
+</div>
+
+
+
+
+  <div class="powered-by"><a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> v3.7.1</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://theme-next.org">NexT.Gemini</a> v6.3.0</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+	
+    
+
+    
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/three/three.min.js"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/three/canvas_sphere.min.js"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=6.3.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=6.3.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=6.3.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=6.3.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=6.3.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=6.3.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=6.3.0"></script>
+
+
+
+  
+
+  
+    <script id="dsq-count-scr" src="https://ryoma-blog.disqus.com/count.js" async></script>
+  
+
+  
+    <script type="text/javascript">
+      var disqus_config = function () {
+        this.page.url = 'https://blog.ryoma.top/posts/archiver/';
+        this.page.identifier = 'posts/archiver/';
+        this.page.title = 'Archiver zip打包';
+        };
+      function loadComments () {
+        var d = document, s = d.createElement('script');
+        s.src = 'https://ryoma-blog.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', '' + +new Date());
+        (d.head || d.body).appendChild(s);
+      }
+      
+        $(function () {
+          var offsetTop = $('#comments').offset().top - $(window).height();
+          if (offsetTop <= 0) {
+            // load directly when there's no a scrollbar
+            loadComments();
+          } else {
+            $(window).on('scroll.disqus_scroll', function () {
+              var scrollTop = document.documentElement.scrollTop;
+              if (scrollTop >= offsetTop) {
+                $(window).off('.disqus_scroll');
+                loadComments();
+              }
+            });
+          }
+        });
+      
+    </script>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
