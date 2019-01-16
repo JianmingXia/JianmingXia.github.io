@@ -114,7 +114,7 @@ PS：[https://github.com/JianmingXia/StudyTest/blob/master/Archiver/errorEventFi
 
 ![image.png](https://cdn.nlark.com/yuque/0/2019/png/92822/1547534871016-ef79c8ce-d7a7-4fdb-b4bf-26a2c856636d.png#align=left&display=inline&height=477&linkTarget=_blank&name=image.png&originHeight=477&originWidth=1378&size=51152&width=1378)
 
-#### zlib 配置
+#### zlib
 
 ![image.png](https://cdn.nlark.com/yuque/0/2019/png/92822/1547534963703-d6761a3e-4770-4b33-9bd9-a18130548da6.png#align=left&display=inline&height=298&linkTarget=_blank&name=image.png&originHeight=298&originWidth=876&size=38297&width=876)
 
@@ -127,6 +127,19 @@ zlib.constants.Z_DEFAULT_COMPRESSION
 ```
 
 更多参数可见文档。
+
+#### forceLocalTime
+
+```
+    const archive = archiver('zip', {
+      zlib: { level: ZLIB_LEVEL.Z_BEST_COMPRESSION },
+      forceLocalTime: true,
+    });
+```
+
+forceLocalTime 设置为true，即可解决下面的问题：
+
+![image.png](https://cdn.nlark.com/yuque/0/2019/png/92822/1547642132394-3e43b450-594f-4416-b7d8-0246f9a13bf2.png#align=left&display=inline&height=201&linkTarget=_blank&name=image.png&originHeight=201&originWidth=922&size=30061&width=922)
 
 ## Demo
 ### append
