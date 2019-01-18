@@ -108,19 +108,19 @@
 
 
 
-  <meta name="description" content="MySQL 更新某个字段的部分数据 之所以会有MySQL相关，是因为最近版本对数据库进行了升级，之前的字段设计没有做好，此次升级会对原有字段进行修改。总体来说，即对原有字段进行截取，组合成其它的值。  left截取左边 update str set str = left(str, 8);">
+  <meta name="description" content="MySQL 更新某个字段的部分数据之所以会有MySQL相关，是因为最近版本对数据库进行了升级，之前的字段设计没有做好，此次升级会对原有字段进行修改。总体来说，即对原有字段进行截取，组合成其它的值。 left截取左边 update str set str = left(str, 8);">
 <meta name="keywords" content="MySQL,left right concat">
 <meta property="og:type" content="article">
 <meta property="og:title" content="MySQL(截取数据)">
 <meta property="og:url" content="https://blog.ryoma.top/posts/mysql_2/index.html">
 <meta property="og:site_name" content="Ryoma&#39;s Blog">
-<meta property="og:description" content="MySQL 更新某个字段的部分数据 之所以会有MySQL相关，是因为最近版本对数据库进行了升级，之前的字段设计没有做好，此次升级会对原有字段进行修改。总体来说，即对原有字段进行截取，组合成其它的值。  left截取左边 update str set str = left(str, 8);">
+<meta property="og:description" content="MySQL 更新某个字段的部分数据之所以会有MySQL相关，是因为最近版本对数据库进行了升级，之前的字段设计没有做好，此次升级会对原有字段进行修改。总体来说，即对原有字段进行截取，组合成其它的值。 left截取左边 update str set str = left(str, 8);">
 <meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="https://img.ryoma.top/Mysql/%E5%8D%A0%E7%94%A8%E7%AB%AF%E5%8F%A3.png">
-<meta property="og:updated_time" content="2019-01-16T12:41:41.782Z">
+<meta property="og:updated_time" content="2019-01-18T01:57:30.124Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="MySQL(截取数据)">
-<meta name="twitter:description" content="MySQL 更新某个字段的部分数据 之所以会有MySQL相关，是因为最近版本对数据库进行了升级，之前的字段设计没有做好，此次升级会对原有字段进行修改。总体来说，即对原有字段进行截取，组合成其它的值。  left截取左边 update str set str = left(str, 8);">
+<meta name="twitter:description" content="MySQL 更新某个字段的部分数据之所以会有MySQL相关，是因为最近版本对数据库进行了升级，之前的字段设计没有做好，此次升级会对原有字段进行修改。总体来说，即对原有字段进行截取，组合成其它的值。 left截取左边 update str set str = left(str, 8);">
 <meta name="twitter:image" content="https://img.ryoma.top/Mysql/%E5%8D%A0%E7%94%A8%E7%AB%AF%E5%8F%A3.png">
 
 
@@ -417,27 +417,25 @@
       
 
       
-        <h1 id="MySQL-更新某个字段的部分数据"><a href="#MySQL-更新某个字段的部分数据" class="headerlink" title="MySQL 更新某个字段的部分数据"></a>MySQL 更新某个字段的部分数据</h1><ul>
-<li>之所以会有MySQL相关，是因为最近版本对数据库进行了升级，之前的字段设计没有做好，此次升级会对原有字段进行修改。总体来说，即对原有字段进行截取，组合成其它的值。</li>
-</ul>
-<h2 id="left"><a href="#left" class="headerlink" title="left"></a>left</h2><h4 id="截取左边"><a href="#截取左边" class="headerlink" title="截取左边"></a>截取左边</h4><ul>
+        <h2 id="MySQL-更新某个字段的部分数据"><a href="#MySQL-更新某个字段的部分数据" class="headerlink" title="MySQL 更新某个字段的部分数据"></a>MySQL 更新某个字段的部分数据</h2><p>之所以会有MySQL相关，是因为最近版本对数据库进行了升级，之前的字段设计没有做好，此次升级会对原有字段进行修改。总体来说，即对原有字段进行截取，组合成其它的值。</p>
+<h2 id="left"><a href="#left" class="headerlink" title="left"></a>left</h2><h3 id="截取左边"><a href="#截取左边" class="headerlink" title="截取左边"></a>截取左边</h3><ul>
 <li>update str set str = left(str, 8);</li>
 </ul>
 <a id="more"></a>
-<h4 id="select左边"><a href="#select左边" class="headerlink" title="select左边"></a>select左边</h4><ul>
+<h3 id="select左边"><a href="#select左边" class="headerlink" title="select左边"></a>select左边</h3><ul>
 <li>SELECT LEFT(str, 5) from str;</li>
 </ul>
-<h2 id="right"><a href="#right" class="headerlink" title="right"></a>right</h2><h4 id="截取右边（与左边类似）"><a href="#截取右边（与左边类似）" class="headerlink" title="截取右边（与左边类似）"></a>截取右边（与左边类似）</h4><ul>
+<h2 id="right"><a href="#right" class="headerlink" title="right"></a>right</h2><h3 id="截取右边（与左边类似）"><a href="#截取右边（与左边类似）" class="headerlink" title="截取右边（与左边类似）"></a>截取右边（与左边类似）</h3><ul>
 <li>文档：Returns the rightmost len characters from the string str, or NULL if any argument is NULL.</li>
 <li>update str set str = right(str, 7);</li>
 </ul>
-<h4 id="select右边"><a href="#select右边" class="headerlink" title="select右边"></a>select右边</h4><ul>
+<h3 id="select右边"><a href="#select右边" class="headerlink" title="select右边"></a>select右边</h3><ul>
 <li>SELECT right(str, 4) from str;</li>
 </ul>
-<h2 id="concat"><a href="#concat" class="headerlink" title="concat"></a>concat</h2><h4 id="连接"><a href="#连接" class="headerlink" title="连接"></a>连接</h4><ul>
+<h2 id="concat"><a href="#concat" class="headerlink" title="concat"></a>concat</h2><h3 id="连接"><a href="#连接" class="headerlink" title="连接"></a>连接</h3><ul>
 <li>update str set str = concat(left(str, 3), “aaa”, right(str, 3))</li>
 </ul>
-<h1 id="题外话"><a href="#题外话" class="headerlink" title="题外话"></a>题外话</h1><ul>
+<h2 id="题外话"><a href="#题外话" class="headerlink" title="题外话"></a>题外话</h2><ul>
 <li>看到了上次的blog，五月十二号，写博客真的是一件很难的事，之前好不容易开始了，没想到还是停下了。看的东西倒是挺多，但是很难提笔去写，这段时间沉迷农药不可自拔，该打。</li>
 <li>竟然连本地hexo的使用都忘记了，幸好存了这篇<a href="http://blog.ryoma.top/2017/05/06/hello-world/">入门文章</a>。</li>
 <li>启动hexo之后，localhost:4000没办法打开，果然4000端口被占用：<br><img src="https://img.ryoma.top/Mysql/%E5%8D%A0%E7%94%A8%E7%AB%AF%E5%8F%A3.png" alt="端口占用"><br>由俭入奢易，由奢入俭难啊，篇幅不长，但是当做新的开始。捋起袖子努力干！！！</li>
@@ -829,7 +827,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#MySQL-更新某个字段的部分数据"><span class="nav-number">1.</span> <span class="nav-text">MySQL 更新某个字段的部分数据</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#left"><span class="nav-number">1.1.</span> <span class="nav-text">left</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#截取左边"><span class="nav-number">1.1.0.1.</span> <span class="nav-text">截取左边</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#select左边"><span class="nav-number">1.1.0.2.</span> <span class="nav-text">select左边</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#right"><span class="nav-number">1.2.</span> <span class="nav-text">right</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#截取右边（与左边类似）"><span class="nav-number">1.2.0.1.</span> <span class="nav-text">截取右边（与左边类似）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#select右边"><span class="nav-number">1.2.0.2.</span> <span class="nav-text">select右边</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#concat"><span class="nav-number">1.3.</span> <span class="nav-text">concat</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#连接"><span class="nav-number">1.3.0.1.</span> <span class="nav-text">连接</span></a></li></ol></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#题外话"><span class="nav-number">2.</span> <span class="nav-text">题外话</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#MySQL-更新某个字段的部分数据"><span class="nav-number">1.</span> <span class="nav-text">MySQL 更新某个字段的部分数据</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#left"><span class="nav-number">2.</span> <span class="nav-text">left</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#截取左边"><span class="nav-number">2.1.</span> <span class="nav-text">截取左边</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#select左边"><span class="nav-number">2.2.</span> <span class="nav-text">select左边</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#right"><span class="nav-number">3.</span> <span class="nav-text">right</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#截取右边（与左边类似）"><span class="nav-number">3.1.</span> <span class="nav-text">截取右边（与左边类似）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#select右边"><span class="nav-number">3.2.</span> <span class="nav-text">select右边</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#concat"><span class="nav-number">4.</span> <span class="nav-text">concat</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#连接"><span class="nav-number">4.1.</span> <span class="nav-text">连接</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#题外话"><span class="nav-number">5.</span> <span class="nav-text">题外话</span></a></li></ol></div>
             
 
           </div>
