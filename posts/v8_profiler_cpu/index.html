@@ -1,0 +1,1113 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=6.3.0" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=6.3.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=6.3.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=6.3.0">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=6.3.0" color="#222">
+
+
+
+
+
+
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '6.3.0',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="NodeJS 是一个基于Chrome V8 引擎的 JS 运行环境，而V8暴露了一些 profiler API，可以通过 v8-profiler 收集一些运行时数据（如CPU、内存）。 使用v8-profiler初始化代码12345678910111213141516171819202122232425262728const fs = require(&amp;apos;fs&amp;apos;)const cr">
+<meta name="keywords" content="v8-profiler,《NodeJS 调试指南》">
+<meta property="og:type" content="article">
+<meta property="og:title" content="v8-profiler（分析CPU使用情况）">
+<meta property="og:url" content="https://blog.ryoma.top/posts/v8_profiler_cpu/index.html">
+<meta property="og:site_name" content="Ryoma&#39;s Blog">
+<meta property="og:description" content="NodeJS 是一个基于Chrome V8 引擎的 JS 运行环境，而V8暴露了一些 profiler API，可以通过 v8-profiler 收集一些运行时数据（如CPU、内存）。 使用v8-profiler初始化代码12345678910111213141516171819202122232425262728const fs = require(&amp;apos;fs&amp;apos;)const cr">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2019/png/92822/1548140078872-2725ac4d-e2cc-413a-a772-3953b5d2dc7c.png#align=left&display=inline&height=168&linkTarget=_blank&name=image.png&originHeight=168&originWidth=829&size=28868&width=829">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2019/png/92822/1548140155457-53f2dbd0-8710-4922-8e08-a540d0ec9786.png#align=left&display=inline&height=540&linkTarget=_blank&name=image.png&originHeight=540&originWidth=1462&size=75701&width=1462">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2019/png/92822/1548141347959-be11d3d7-69b8-49a0-a306-97bc13072e42.png#align=left&display=inline&height=168&linkTarget=_blank&name=image.png&originHeight=168&originWidth=568&size=15995&width=568">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2019/png/92822/1548141438729-8e1b8d9c-f932-445d-be5b-003de3be37a7.png#align=left&display=inline&height=347&linkTarget=_blank&name=image.png&originHeight=347&originWidth=1195&size=70912&width=1195">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2019/png/92822/1548142349639-1206f733-d6c5-44c8-86d3-2fe894f825b4.png#align=left&display=inline&height=506&linkTarget=_blank&name=image.png&originHeight=506&originWidth=1001&size=133504&width=1001">
+<meta property="og:updated_time" content="2019-02-20T07:46:26.228Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="v8-profiler（分析CPU使用情况）">
+<meta name="twitter:description" content="NodeJS 是一个基于Chrome V8 引擎的 JS 运行环境，而V8暴露了一些 profiler API，可以通过 v8-profiler 收集一些运行时数据（如CPU、内存）。 使用v8-profiler初始化代码12345678910111213141516171819202122232425262728const fs = require(&amp;apos;fs&amp;apos;)const cr">
+<meta name="twitter:image" content="https://cdn.nlark.com/yuque/0/2019/png/92822/1548140078872-2725ac4d-e2cc-413a-a772-3953b5d2dc7c.png#align=left&display=inline&height=168&linkTarget=_blank&name=image.png&originHeight=168&originWidth=829&size=28868&width=829">
+
+
+
+
+
+
+  <link rel="canonical" href="https://blog.ryoma.top/posts/v8_profiler_cpu/"/>
+
+
+
+<script type="text/javascript" id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>v8-profiler（分析CPU使用情况） | Ryoma's Blog</title>
+  
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style type="text/css">
+    .use-motion .motion-element,
+    .use-motion .brand,
+    .use-motion .menu-item,
+    .sidebar-inner,
+    .use-motion .post-block,
+    .use-motion .pagination,
+    .use-motion .comments,
+    .use-motion .post-header,
+    .use-motion .post-body,
+    .use-motion .collection-title { opacity: initial; }
+
+    .use-motion .logo,
+    .use-motion .site-title,
+    .use-motion .site-subtitle {
+      opacity: initial;
+      top: initial;
+    }
+
+    .use-motion {
+      .logo-line-before i { left: initial; }
+      .logo-line-after i { right: initial; }
+    }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Ryoma's Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+      
+        <p class="site-subtitle">纸上得来终觉浅</p>
+      
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+    <a href="/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-home"></i> <br />首页</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+    <a href="/tags/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />标签</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+    <a href="/categories/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-th"></i> <br />分类</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+    <a href="/archives/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />归档</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+    <a href="/about/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-user"></i> <br />关于我</a>
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.ryoma.top/posts/v8_profiler_cpu/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Ryoma">
+      <meta itemprop="description" content="Ryoma's Blog">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Ryoma's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">v8-profiler（分析CPU使用情况）
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2018-07-08 21:00:00" itemprop="dateCreated datePublished" datetime="2018-07-08T21:00:00+08:00">2018-07-08</time>
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/NodeJS/" itemprop="url" rel="index"><span itemprop="name">NodeJS</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/posts/v8_profiler_cpu/#comments" itemprop="discussionUrl">
+                
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="posts/v8_profiler_cpu/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>NodeJS 是一个基于Chrome V8 引擎的 JS 运行环境，而V8暴露了一些 profiler API，可以通过 <a href="https://github.com/node-inspector/v8-profiler" target="_blank" rel="noopener">v8-profiler</a> 收集一些运行时数据（如CPU、内存）。</p>
+<h2 id="使用v8-profiler"><a href="#使用v8-profiler" class="headerlink" title="使用v8-profiler"></a>使用v8-profiler</h2><h3 id="初始化代码"><a href="#初始化代码" class="headerlink" title="初始化代码"></a>初始化代码</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line">const fs = require(&apos;fs&apos;)</span><br><span class="line">const crypto = require(&apos;crypto&apos;)</span><br><span class="line">const Bluebird = require(&apos;bluebird&apos;)</span><br><span class="line">const profiler = require(&apos;v8-profiler&apos;)</span><br><span class="line">const Paloma = require(&apos;paloma&apos;)</span><br><span class="line">const app = new Paloma()</span><br><span class="line"></span><br><span class="line">app.route(&#123; method: &apos;GET&apos;, path: &apos;/encrypt&apos;, controller: function encryptRouter (ctx) &#123;</span><br><span class="line">  const password = ctx.query.password || &apos;test&apos;</span><br><span class="line">  const salt = crypto.randomBytes(128).toString(&apos;base64&apos;)</span><br><span class="line">  const encryptedPassword = crypto.pbkdf2Sync(password, salt, 10000, 64, &apos;sha512&apos;).toString(&apos;hex&apos;)</span><br><span class="line"></span><br><span class="line">  ctx.body = encryptedPassword</span><br><span class="line">&#125;&#125;)</span><br><span class="line"></span><br><span class="line">app.route(&#123; method: &apos;GET&apos;, path: &apos;/cpuprofile&apos;, async controller (ctx) &#123;</span><br><span class="line">   //Start Profiling</span><br><span class="line">   profiler.startProfiling(&apos;CPU profile&apos;)</span><br><span class="line">   await Bluebird.delay(30000)</span><br><span class="line">   //Stop Profiling after 30s</span><br><span class="line">   const profile = profiler.stopProfiling()</span><br><span class="line">   profile.export()</span><br><span class="line">     .pipe(fs.createWriteStream(`cpuprofile-$&#123;Date.now()&#125;.cpuprofile`))</span><br><span class="line">     .on(&apos;finish&apos;, () =&gt; profile.delete())</span><br><span class="line">   ctx.status = 204</span><br><span class="line">&#125;&#125;)</span><br><span class="line"> </span><br><span class="line">app.listen(3000)</span><br></pre></td></tr></table></figure>
+<a id="more"></a>
+<h3 id="说明"><a href="#说明" class="headerlink" title="说明"></a>说明</h3><p>其中，GET /encrypt 中有一个 CPU 密集型的计算函数：<strong>crypto.pbkdf2Sync</strong>，GET /cpuprofile 收集30s的 V8 log并dump到文件中。</p>
+<ul>
+<li>调用 cpuprofile接口：curl localhost:3000/cpuprofile</li>
+<li>调用 encrypt：ab -c 20 -n 2000 “<a href="http://localhost:3000/encrypt?password=123456&quot;" target="_blank" rel="noopener">http://localhost:3000/encrypt?password=123456&quot;</a></li>
+</ul>
+<h2 id="Chrome-DevTools"><a href="#Chrome-DevTools" class="headerlink" title="Chrome DevTools"></a>Chrome DevTools</h2><p>Chrome 自带了分析 CPU profile 日志的工具。打开 Chrome -&gt; 调出开发者工具（DevTools） -&gt; 单击右上角三个点的按钮 -&gt; More tools -&gt; JavaScript Profiler -&gt; Load。</p>
+<h3 id="三种模式"><a href="#三种模式" class="headerlink" title="三种模式"></a>三种模式</h3><p><img src="https://cdn.nlark.com/yuque/0/2019/png/92822/1548140078872-2725ac4d-e2cc-413a-a772-3953b5d2dc7c.png#align=left&amp;display=inline&amp;height=168&amp;linkTarget=_blank&amp;name=image.png&amp;originHeight=168&amp;originWidth=829&amp;size=28868&amp;width=829" alt="image.png"></p>
+<ul>
+<li>Chart：显示按时间顺序排列的火焰图。</li>
+<li>Heavy (Bottom Up)：按照函数对性能的影响排列，同时可以检查函数的调用路径。</li>
+<li>Tree (Top Down)：显示调用结构的总体状况，从调用堆栈的顶端开始。</li>
+</ul>
+<h3 id="Tree（Top-Down）模式"><a href="#Tree（Top-Down）模式" class="headerlink" title="Tree（Top Down）模式"></a>Tree（Top Down）模式</h3><p>按Totol Time 降序：</p>
+<p><img src="https://cdn.nlark.com/yuque/0/2019/png/92822/1548140155457-53f2dbd0-8710-4922-8e08-a540d0ec9786.png#align=left&amp;display=inline&amp;height=540&amp;linkTarget=_blank&amp;name=image.png&amp;originHeight=540&amp;originWidth=1462&amp;size=75701&amp;width=1462" alt="image.png"></p>
+<p>定位到encryptRoute路由中的exports.pbkdf2Sync方法占用了绝大部分CPU时间</p>
+<h4 id="列说明"><a href="#列说明" class="headerlink" title="列说明"></a>列说明</h4><ul>
+<li>Self Time：函数调用所耗费的时间，仅包含函数本身的声明，不包含任何子函数的执行时间。</li>
+<li>Total Time：函数调用所耗费的总时间，包含函数本身的声明及所有子函数执行时间。即：父函数的 Total Time = 父函数的 Self Time + 所有子函数的 Total Time。</li>
+<li>Function：函数名及路径，可展开查看子函数。</li>
+</ul>
+<h2 id="火焰图"><a href="#火焰图" class="headerlink" title="火焰图"></a>火焰图</h2><h3 id="安装-flamegraph-模块"><a href="#安装-flamegraph-模块" class="headerlink" title="安装 flamegraph 模块"></a>安装 flamegraph 模块</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm i flamegraph -g</span><br></pre></td></tr></table></figure>
+<h3 id="生成svg文件"><a href="#生成svg文件" class="headerlink" title="生成svg文件"></a>生成svg文件</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">flamegraph -t cpuprofile -f cpuprofile-xxx.cpuprofile -o cpuprofile.svg</span><br></pre></td></tr></table></figure>
+<h3 id="问题"><a href="#问题" class="headerlink" title="问题"></a>问题</h3><p><img src="https://cdn.nlark.com/yuque/0/2019/png/92822/1548141347959-be11d3d7-69b8-49a0-a306-97bc13072e42.png#align=left&amp;display=inline&amp;height=168&amp;linkTarget=_blank&amp;name=image.png&amp;originHeight=168&amp;originWidth=568&amp;size=15995&amp;width=568" alt="image.png"></p>
+<p>将 &amp; 替换为 &amp; 即可</p>
+<h3 id="结果"><a href="#结果" class="headerlink" title="结果"></a>结果</h3><p><img src="https://cdn.nlark.com/yuque/0/2019/png/92822/1548141438729-8e1b8d9c-f932-445d-be5b-003de3be37a7.png#align=left&amp;display=inline&amp;height=347&amp;linkTarget=_blank&amp;name=image.png&amp;originHeight=347&amp;originWidth=1195&amp;size=70912&amp;width=1195" alt="image.png"></p>
+<p>定位到v8-profile.js中的11行的encryptRouter这个路由中的 exports.pbkdf2Sync 方法占用了大部分的CPU时间</p>
+<h2 id="v8-analytics"><a href="#v8-analytics" class="headerlink" title="v8-analytics"></a>v8-analytics</h2><blockquote>
+<p><a href="https://github.com/hyj1991/v8-analytics/blob/master/README_ZH.md" target="_blank" rel="noopener">https://github.com/hyj1991/v8-analytics/blob/master/README_ZH.md</a></p>
+</blockquote>
+<p><a href="https://github.com/hyj1991/v8-analytics" target="_blank" rel="noopener">v8-analytics</a> 是社区开源的一个解析 v8-profiler 和 heapdump 等模块生成的 CPU 和 heap-memory 日志的工具。它提供以下功能：</p>
+<ul>
+<li>将 V8 引擎逆优化或者优化失败的函数标红展示，并展示优化失败的原因</li>
+<li>在函数执行时长超过预期时标红展示</li>
+<li>展示当前项目中可疑的内存泄漏点</li>
+</ul>
+<p>试一下 <strong>函数执行时长超过预期标红！</strong></p>
+<h3 id="安装-v8-analytics-模块"><a href="#安装-v8-analytics-模块" class="headerlink" title="安装 v8-analytics 模块"></a>安装 v8-analytics 模块</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm i v8-analytics -g</span><br></pre></td></tr></table></figure>
+<h3 id="输出"><a href="#输出" class="headerlink" title="输出"></a>输出</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">va timeout cpuprofile-xxx.cpuprofile 100 --only</span><br></pre></td></tr></table></figure>
+<p><img src="https://cdn.nlark.com/yuque/0/2019/png/92822/1548142349639-1206f733-d6c5-44c8-86d3-2fe894f825b4.png#align=left&amp;display=inline&amp;height=506&amp;linkTarget=_blank&amp;name=image.png&amp;originHeight=506&amp;originWidth=1001&amp;size=133504&amp;width=1001" alt="image.png"></p>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><ul>
+<li><a href="https://github.com/nswbmw/node-in-debugging/blob/master/1.2%20v8-profiler.md" target="_blank" rel="noopener">https://github.com/nswbmw/node-in-debugging/blob/master/1.2 v8-profiler.md</a></li>
+<li><a href="https://developers.google.com/web/tools/chrome-devtools/rendering-tools/js-execution" target="_blank" rel="noopener">https://developers.google.com/web/tools/chrome-devtools/rendering-tools/js-execution</a></li>
+<li><a href="https://github.com/node-inspector/v8-profiler" target="_blank" rel="noopener">https://github.com/node-inspector/v8-profiler</a></li>
+<li>《NodeJS》 调试指南</li>
+</ul>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/v8-profiler/" rel="tag"># v8-profiler</a>
+          
+            <a href="/tags/《NodeJS-调试指南》/" rel="tag"># 《NodeJS 调试指南》</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/posts/grpc_node_demo/" rel="next" title="gRPC node demo">
+                <i class="fa fa-chevron-left"></i> gRPC node demo
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/posts/redis_analysis/" rel="prev" title="Redis 引入分析">
+                Redis 引入分析 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+    <div class="comments" id="comments">
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/avatar.jpg"
+                alt="Ryoma" />
+            
+              <p class="site-author-name" itemprop="name">Ryoma</p>
+              <p class="site-description motion-element" itemprop="description">Ryoma's Blog</p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">76</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  <a href="/categories/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">21</span>
+                    <span class="site-state-item-name">分类</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  <a href="/tags/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">73</span>
+                    <span class="site-state-item-name">标签</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+            <div class="links-of-author motion-element">
+              
+                <span class="links-of-author-item">
+                  <a href="https://github.com/JianmingXia" target="_blank" title="GitHub"><i class="fa fa-fw fa-github"></i>GitHub</a>
+                  
+                </span>
+              
+                <span class="links-of-author-item">
+                  <a href="mailto:xiajianming_xjm@163.com" target="_blank" title="E-Mail"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                  
+                </span>
+              
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#使用v8-profiler"><span class="nav-number">1.</span> <span class="nav-text">使用v8-profiler</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#初始化代码"><span class="nav-number">1.1.</span> <span class="nav-text">初始化代码</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#说明"><span class="nav-number">1.2.</span> <span class="nav-text">说明</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Chrome-DevTools"><span class="nav-number">2.</span> <span class="nav-text">Chrome DevTools</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#三种模式"><span class="nav-number">2.1.</span> <span class="nav-text">三种模式</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Tree（Top-Down）模式"><span class="nav-number">2.2.</span> <span class="nav-text">Tree（Top Down）模式</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#列说明"><span class="nav-number">2.2.1.</span> <span class="nav-text">列说明</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#火焰图"><span class="nav-number">3.</span> <span class="nav-text">火焰图</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#安装-flamegraph-模块"><span class="nav-number">3.1.</span> <span class="nav-text">安装 flamegraph 模块</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#生成svg文件"><span class="nav-number">3.2.</span> <span class="nav-text">生成svg文件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#问题"><span class="nav-number">3.3.</span> <span class="nav-text">问题</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#结果"><span class="nav-number">3.4.</span> <span class="nav-text">结果</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#v8-analytics"><span class="nav-number">4.</span> <span class="nav-text">v8-analytics</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#安装-v8-analytics-模块"><span class="nav-number">4.1.</span> <span class="nav-text">安装 v8-analytics 模块</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#输出"><span class="nav-number">4.2.</span> <span class="nav-text">输出</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考"><span class="nav-number">5.</span> <span class="nav-text">参考</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2017 &mdash; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Ryoma</span>
+
+  
+
+  
+</div>
+
+
+
+
+  <div class="powered-by"><a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> v3.7.1</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://theme-next.org">NexT.Gemini</a> v6.3.0</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+	
+    
+
+    
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/three/three.min.js"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/three/canvas_sphere.min.js"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=6.3.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=6.3.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=6.3.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=6.3.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=6.3.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=6.3.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=6.3.0"></script>
+
+
+
+  
+
+  
+    <script id="dsq-count-scr" src="https://ryoma-blog.disqus.com/count.js" async></script>
+  
+
+  
+    <script type="text/javascript">
+      var disqus_config = function () {
+        this.page.url = 'https://blog.ryoma.top/posts/v8_profiler_cpu/';
+        this.page.identifier = 'posts/v8_profiler_cpu/';
+        this.page.title = 'v8-profiler（分析CPU使用情况）';
+        };
+      function loadComments () {
+        var d = document, s = d.createElement('script');
+        s.src = 'https://ryoma-blog.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', '' + +new Date());
+        (d.head || d.body).appendChild(s);
+      }
+      
+        $(function () {
+          var offsetTop = $('#comments').offset().top - $(window).height();
+          if (offsetTop <= 0) {
+            // load directly when there's no a scrollbar
+            loadComments();
+          } else {
+            $(window).on('scroll.disqus_scroll', function () {
+              var scrollTop = document.documentElement.scrollTop;
+              if (scrollTop >= offsetTop) {
+                $(window).off('.disqus_scroll');
+                loadComments();
+              }
+            });
+          }
+        });
+      
+    </script>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
