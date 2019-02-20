@@ -1,0 +1,1104 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=6.3.0" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=6.3.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=6.3.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=6.3.0">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=6.3.0" color="#222">
+
+
+
+
+
+
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '6.3.0',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="V8 内置了一个性能分析工具：Tick  Processor，可以记录JS/C/C++代码的堆栈信息。Tick Processor 默认是关闭的，可以通过 –prof 开启。 同步调用12345678910111213const crypto = require(&amp;apos;crypto&amp;apos;)function hash (password) &amp;#123;  const salt = cry">
+<meta name="keywords" content="Tick Processor,《NodeJS 调试指南》">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Tick Processor（性能分析）">
+<meta property="og:url" content="https://blog.ryoma.top/posts/tick_processor/index.html">
+<meta property="og:site_name" content="Ryoma&#39;s Blog">
+<meta property="og:description" content="V8 内置了一个性能分析工具：Tick  Processor，可以记录JS/C/C++代码的堆栈信息。Tick Processor 默认是关闭的，可以通过 –prof 开启。 同步调用12345678910111213const crypto = require(&amp;apos;crypto&amp;apos;)function hash (password) &amp;#123;  const salt = cry">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2019/png/92822/1550651686492-f2187b87-2335-40ea-91b6-eb4b56cf5246.png#align=left&display=inline&height=840&linkTarget=_blank&name=image.png&originHeight=840&originWidth=1898&size=170569&width=1898">
+<meta property="og:updated_time" content="2019-02-20T08:54:42.515Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Tick Processor（性能分析）">
+<meta name="twitter:description" content="V8 内置了一个性能分析工具：Tick  Processor，可以记录JS/C/C++代码的堆栈信息。Tick Processor 默认是关闭的，可以通过 –prof 开启。 同步调用12345678910111213const crypto = require(&amp;apos;crypto&amp;apos;)function hash (password) &amp;#123;  const salt = cry">
+<meta name="twitter:image" content="https://cdn.nlark.com/yuque/0/2019/png/92822/1550651686492-f2187b87-2335-40ea-91b6-eb4b56cf5246.png#align=left&display=inline&height=840&linkTarget=_blank&name=image.png&originHeight=840&originWidth=1898&size=170569&width=1898">
+
+
+
+
+
+
+  <link rel="canonical" href="https://blog.ryoma.top/posts/tick_processor/"/>
+
+
+
+<script type="text/javascript" id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>Tick Processor（性能分析） | Ryoma's Blog</title>
+  
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style type="text/css">
+    .use-motion .motion-element,
+    .use-motion .brand,
+    .use-motion .menu-item,
+    .sidebar-inner,
+    .use-motion .post-block,
+    .use-motion .pagination,
+    .use-motion .comments,
+    .use-motion .post-header,
+    .use-motion .post-body,
+    .use-motion .collection-title { opacity: initial; }
+
+    .use-motion .logo,
+    .use-motion .site-title,
+    .use-motion .site-subtitle {
+      opacity: initial;
+      top: initial;
+    }
+
+    .use-motion {
+      .logo-line-before i { left: initial; }
+      .logo-line-after i { right: initial; }
+    }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Ryoma's Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+      
+        <p class="site-subtitle">纸上得来终觉浅</p>
+      
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+    <a href="/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-home"></i> <br />首页</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+    <a href="/tags/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />标签</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+    <a href="/categories/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-th"></i> <br />分类</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+    <a href="/archives/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />归档</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+    <a href="/about/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-user"></i> <br />关于我</a>
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.ryoma.top/posts/tick_processor/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Ryoma">
+      <meta itemprop="description" content="Ryoma's Blog">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Ryoma's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Tick Processor（性能分析）
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2018-07-14 22:00:00" itemprop="dateCreated datePublished" datetime="2018-07-14T22:00:00+08:00">2018-07-14</time>
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/NodeJS/" itemprop="url" rel="index"><span itemprop="name">NodeJS</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/posts/tick_processor/#comments" itemprop="discussionUrl">
+                
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="posts/tick_processor/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>V8 内置了一个性能分析工具：Tick  Processor，可以记录JS/C/C++代码的堆栈信息。Tick Processor 默认是关闭的，可以通过 <strong>–prof</strong> 开启。</p>
+<h2 id="同步调用"><a href="#同步调用" class="headerlink" title="同步调用"></a>同步调用</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">const crypto = require(&apos;crypto&apos;)</span><br><span class="line"></span><br><span class="line">function hash (password) &#123;</span><br><span class="line">  const salt = crypto.randomBytes(128).toString(&apos;base64&apos;)</span><br><span class="line">  const hash = crypto.pbkdf2Sync(password, salt, 10000, 64, &apos;sha512&apos;)</span><br><span class="line">  return hash</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">console.time(&apos;pbkdf2Sync&apos;)</span><br><span class="line">for (let i = 0; i &lt; 100; i++) &#123;</span><br><span class="line">  hash(&apos;random_password&apos;)</span><br><span class="line">&#125;</span><br><span class="line">console.timeEnd(&apos;pbkdf2Sync&apos;)</span><br></pre></td></tr></table></figure>
+<a id="more"></a>
+<h3 id="运行"><a href="#运行" class="headerlink" title="运行"></a>运行</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">node --prof .\app.js</span><br><span class="line">pbkdf2Sync: 1103.329ms</span><br></pre></td></tr></table></figure>
+<p>运行100次hash函数共计1103ms，并且在当前目录多了一个isolate-xxx-v8.log——记录V8的性能日志。</p>
+<h3 id="–prof-process-分析"><a href="#–prof-process-分析" class="headerlink" title="–prof-process 分析"></a>–prof-process 分析</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">node --prof-process .\isolate-000001F7B8B0F7E0-v8.log</span><br></pre></td></tr></table></figure>
+<p>结果如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br></pre></td><td class="code"><pre><span class="line">Statistical profiling result from .\isolate-000001F7B8B0F7E0-v8.log, (667 ticks, 2 unaccounted, 0 excluded).</span><br><span class="line"></span><br><span class="line"> [Shared libraries]:</span><br><span class="line">   ticks  total  nonlib   name</span><br><span class="line">    616   92.4%          D:\Install\NodeJs\node.exe</span><br><span class="line">     42    6.3%          C:\WINDOWS\SYSTEM32\ntdll.dll</span><br><span class="line">      3    0.4%          C:\WINDOWS\System32\KERNEL32.DLL</span><br><span class="line">      1    0.1%          C:\WINDOWS\System32\win32u.dll</span><br><span class="line"></span><br><span class="line"> [JavaScript]:</span><br><span class="line">   ticks  total  nonlib   name</span><br><span class="line">      1    0.1%   20.0%  LazyCompile: ~debuglog util.js:232:18</span><br><span class="line">      1    0.1%   20.0%  LazyCompile: ~Module.load module.js:556:33</span><br><span class="line">      1    0.1%   20.0%  Builtin: TypedArrayInitializeWithBuffer</span><br><span class="line"></span><br><span class="line"> [C++]:</span><br><span class="line">   ticks  total  nonlib   name</span><br><span class="line"></span><br><span class="line"> [Summary]:</span><br><span class="line">   ticks  total  nonlib   name</span><br><span class="line">      3    0.4%   60.0%  JavaScript</span><br><span class="line">      0    0.0%    0.0%  C++</span><br><span class="line">      3    0.4%   60.0%  GC</span><br><span class="line">    662   99.3%          Shared libraries</span><br><span class="line">      2    0.3%          Unaccounted</span><br><span class="line"></span><br><span class="line"> [C++ entry points]:</span><br><span class="line">   ticks    cpp   total   name</span><br><span class="line"></span><br><span class="line"> [Bottom up (heavy) profile]:</span><br><span class="line">  Note: percentage shows a share of a particular caller in the total</span><br><span class="line">  amount of its parent calls.</span><br><span class="line">  Callers occupying less than 1.0% are not shown.</span><br><span class="line"></span><br><span class="line">   ticks parent  name</span><br><span class="line">    616   92.4%  D:\Install\NodeJs\node.exe</span><br><span class="line">    605   98.2%    D:\Install\NodeJs\node.exe</span><br><span class="line">    547   90.4%      LazyCompile: ~pbkdf2 crypto.js:691:16</span><br><span class="line">    547  100.0%        LazyCompile: ~exports.pbkdf2Sync crypto.js:686:30</span><br><span class="line">    547  100.0%          LazyCompile: ~hash F:\web\DemoTest\NodeJS\tick-processor\app.js:3:14</span><br><span class="line">    547  100.0%            Script: ~&lt;anonymous&gt; F:\web\DemoTest\NodeJS\tick-processor\app.js:1:11</span><br><span class="line">     27    4.5%      LazyCompile: ~Resolver dns.js:245:14</span><br><span class="line">     27  100.0%        Script: ~&lt;anonymous&gt; dns.js:1:11</span><br><span class="line">     27  100.0%          LazyCompile: ~NativeModule.compile bootstrap_node.js:588:44</span><br><span class="line">     27  100.0%            LazyCompile: ~NativeModule.require bootstrap_node.js:520:34</span><br><span class="line">     17    2.8%      LazyCompile: ~runInThisContext bootstrap_node.js:499:28</span><br><span class="line">     17  100.0%        LazyCompile: ~NativeModule.compile bootstrap_node.js:588:44</span><br><span class="line">     17  100.0%          LazyCompile: ~NativeModule.require bootstrap_node.js:520:34</span><br><span class="line">      5   29.4%            Script: ~&lt;anonymous&gt; module.js:1:11</span><br><span class="line">      1    5.9%            Script: ~&lt;anonymous&gt; util.js:1:11</span><br><span class="line">      1    5.9%            Script: ~&lt;anonymous&gt; tty.js:1:11</span><br><span class="line">      1    5.9%            Script: ~&lt;anonymous&gt; timers.js:1:11</span><br><span class="line">      1    5.9%            Script: ~&lt;anonymous&gt; readline.js:1:11</span><br><span class="line">      1    5.9%            Script: ~&lt;anonymous&gt; internal/trace_events_async_hooks.js:1:11</span><br><span class="line">      1    5.9%            Script: ~&lt;anonymous&gt; internal/loader/ModuleRequest.js:1:11</span><br><span class="line">      1    5.9%            Script: ~&lt;anonymous&gt; fs.js:1:11</span><br><span class="line">      1    5.9%            Script: ~&lt;anonymous&gt; _stream_readable.js:1:11</span><br><span class="line">      1    5.9%            LazyCompile: ~startup bootstrap_node.js:12:19</span><br><span class="line">      1    5.9%            LazyCompile: ~setup_performance internal/process.js:14:27</span><br><span class="line">      1    5.9%            LazyCompile: ~setupNextTick internal/process/next_tick.js:49:23</span><br><span class="line">      1    5.9%            LazyCompile: ~setupGlobalVariables bootstrap_node.js:255:32</span><br><span class="line"></span><br><span class="line">     42    6.3%  C:\WINDOWS\SYSTEM32\ntdll.dll</span><br></pre></td></tr></table></figure>
+<p>输出结果共计六部分：</p>
+<ul>
+<li>Shared libraries</li>
+<li>JavaScript：JS代码执行所占用的CPU ticks</li>
+<li>C++：C++代码执行所占用的CPU ticks</li>
+<li>Summary：各部分的占比</li>
+<li>C++ entry points</li>
+<li>Bottom up (heavy) profile：所有CPU占用时间从大到小的函数及堆栈信息，小于1%的不显示</li>
+</ul>
+<p><strong>90.4%</strong> 的时间在 <strong>crypto.js</strong> 文件的 <strong>pbkdf2Sync</strong> 函数上，调用位置在tick-processor\app.js:3:14，即hash函数。</p>
+<h2 id="异步调用"><a href="#异步调用" class="headerlink" title="异步调用"></a>异步调用</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">const crypto = require(&apos;crypto&apos;)</span><br><span class="line"></span><br><span class="line">function hash (password, cb) &#123;</span><br><span class="line">  const salt = crypto.randomBytes(128).toString(&apos;base64&apos;)</span><br><span class="line">  crypto.pbkdf2(password, salt, 10000, 64, &apos;sha512&apos;, cb)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">let count = 0</span><br><span class="line">console.time(&apos;pbkdf2&apos;)</span><br><span class="line">for (let i = 0; i &lt; 100; i++) &#123;</span><br><span class="line">  hash(&apos;random_password&apos;, () =&gt; &#123;</span><br><span class="line">    count++</span><br><span class="line">    if (count === 100) &#123;</span><br><span class="line">      console.timeEnd(&apos;pbkdf2&apos;)</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="运行-1"><a href="#运行-1" class="headerlink" title="运行"></a>运行</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">node --prof .\async-app.js</span><br><span class="line">pbkdf2: 386.013ms</span><br></pre></td></tr></table></figure>
+<h3 id="分析"><a href="#分析" class="headerlink" title="分析"></a>分析</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br></pre></td><td class="code"><pre><span class="line">Statistical profiling result from .\isolate-000002C7775A1640-v8.log, (305 ticks, 0 unaccounted, 0 excluded).</span><br><span class="line"></span><br><span class="line"> [Shared libraries]:</span><br><span class="line">   ticks  total  nonlib   name</span><br><span class="line">    232   76.1%          C:\WINDOWS\SYSTEM32\ntdll.dll</span><br><span class="line">     66   21.6%          D:\Install\NodeJs\node.exe</span><br><span class="line">      5    1.6%          C:\WINDOWS\System32\KERNEL32.DLL</span><br><span class="line">      1    0.3%          C:\WINDOWS\System32\win32u.dll</span><br><span class="line"></span><br><span class="line"> [JavaScript]:</span><br><span class="line">   ticks  total  nonlib   name</span><br><span class="line">      1    0.3%  100.0%  LazyCompile: ~hash F:\web\DemoTest\NodeJS\tick-processor\async-app.js:11:29</span><br><span class="line"></span><br><span class="line"> [C++]:</span><br><span class="line">   ticks  total  nonlib   name</span><br><span class="line"></span><br><span class="line"> [Summary]:</span><br><span class="line">   ticks  total  nonlib   name</span><br><span class="line">      1    0.3%  100.0%  JavaScript</span><br><span class="line">      0    0.0%    0.0%  C++</span><br><span class="line">      0    0.0%    0.0%  GC</span><br><span class="line">    304   99.7%          Shared libraries</span><br><span class="line"></span><br><span class="line"> [C++ entry points]:</span><br><span class="line">   ticks    cpp   total   name</span><br><span class="line"></span><br><span class="line"> [Bottom up (heavy) profile]:</span><br><span class="line">  Note: percentage shows a share of a particular caller in the total</span><br><span class="line">  amount of its parent calls.</span><br><span class="line">  Callers occupying less than 1.0% are not shown.</span><br><span class="line"></span><br><span class="line">   ticks parent  name</span><br><span class="line">    232   76.1%  C:\WINDOWS\SYSTEM32\ntdll.dll</span><br><span class="line"></span><br><span class="line">     66   21.6%  D:\Install\NodeJs\node.exe</span><br><span class="line">     59   89.4%    D:\Install\NodeJs\node.exe</span><br><span class="line">     24   40.7%      LazyCompile: ~Resolver dns.js:245:14</span><br><span class="line">     24  100.0%        Script: ~&lt;anonymous&gt; dns.js:1:11</span><br><span class="line">     24  100.0%          LazyCompile: ~NativeModule.compile bootstrap_node.js:588:44</span><br><span class="line">     24  100.0%            LazyCompile: ~NativeModule.require bootstrap_node.js:520:34</span><br><span class="line">     15   25.4%      LazyCompile: ~runInThisContext bootstrap_node.js:499:28</span><br><span class="line">     15  100.0%        LazyCompile: ~NativeModule.compile bootstrap_node.js:588:44</span><br><span class="line">     15  100.0%          LazyCompile: ~NativeModule.require bootstrap_node.js:520:34</span><br><span class="line">      4   26.7%            Script: ~&lt;anonymous&gt; module.js:1:11</span><br><span class="line">      2   13.3%            Script: ~&lt;anonymous&gt; util.js:1:11</span><br><span class="line">      2   13.3%            LazyCompile: ~setupGlobalTimeouts bootstrap_node.js:300:31</span><br><span class="line">      1    6.7%            Script: ~&lt;anonymous&gt; tty.js:1:11</span><br><span class="line">      1    6.7%            Script: ~&lt;anonymous&gt; stream.js:1:11</span><br><span class="line">      1    6.7%            LazyCompile: ~startup bootstrap_node.js:12:19</span><br><span class="line">      1    6.7%            LazyCompile: ~setupNextTick internal/process/next_tick.js:49:23</span><br><span class="line">      1    6.7%            LazyCompile: ~setupGlobalConsole bootstrap_node.js:310:30</span><br><span class="line">      1    6.7%            LazyCompile: ~createWritableStdioStream internal/process/stdio.js:142:35</span><br><span class="line">      1    6.7%            LazyCompile: ~Module._load module.js:448:24</span><br><span class="line">      2    3.4%      LazyCompile: ~hash F:\web\DemoTest\NodeJS\tick-processor\async-app.js:3:14</span><br><span class="line">      2  100.0%        Script: ~&lt;anonymous&gt; F:\web\DemoTest\NodeJS\tick-processor\async-app.js:1:11</span><br><span class="line">      2  100.0%          LazyCompile: ~Module._compile module.js:609:37</span><br><span class="line">      2  100.0%            LazyCompile: ~Module._extensions..js module.js:661:37</span><br><span class="line">      1    1.7%      Script: ~&lt;anonymous&gt; url.js:1:11</span><br><span class="line">      1  100.0%        LazyCompile: ~NativeModule.compile bootstrap_node.js:588:44</span><br><span class="line">      1  100.0%          LazyCompile: ~NativeModule.require bootstrap_node.js:520:34</span><br><span class="line">      1  100.0%            Script: ~&lt;anonymous&gt; internal/loader/ModuleRequest.js:1:11</span><br><span class="line">      1    1.7%      Script: ~&lt;anonymous&gt; perf_hooks.js:1:11</span><br><span class="line">      1  100.0%        LazyCompile: ~NativeModule.compile bootstrap_node.js:588:44</span><br><span class="line">      1  100.0%          LazyCompile: ~NativeModule.require bootstrap_node.js:520:34</span><br><span class="line">      1  100.0%            LazyCompile: ~setup_performance internal/process.js:14:27</span><br><span class="line">      1    1.7%      Script: ~&lt;anonymous&gt; path.js:1:11</span><br><span class="line">      1  100.0%        LazyCompile: ~NativeModule.compile bootstrap_node.js:588:44</span><br><span class="line">      1  100.0%          LazyCompile: ~NativeModule.require bootstrap_node.js:520:34</span><br><span class="line">      1  100.0%            Script: ~&lt;anonymous&gt; fs.js:1:11</span><br><span class="line">      1    1.7%      Script: ~&lt;anonymous&gt; net.js:1:11</span><br><span class="line">      1  100.0%        LazyCompile: ~NativeModule.compile bootstrap_node.js:588:44</span><br><span class="line">      1  100.0%          LazyCompile: ~NativeModule.require bootstrap_node.js:520:34</span><br><span class="line">      1  100.0%            Script: ~&lt;anonymous&gt; tty.js:1:11</span><br><span class="line">      1    1.7%      Script: ~&lt;anonymous&gt; internal/util.js:1:11</span><br><span class="line">      1  100.0%        LazyCompile: ~NativeModule.compile bootstrap_node.js:588:44</span><br><span class="line">      1  100.0%          LazyCompile: ~NativeModule.require bootstrap_node.js:520:34</span><br><span class="line">      1  100.0%            Script: ~&lt;anonymous&gt; internal/encoding.js:1:11</span><br><span class="line">      1    1.7%      Script: ~&lt;anonymous&gt; internal/url.js:1:11</span><br><span class="line">      1  100.0%        LazyCompile: ~NativeModule.compile bootstrap_node.js:588:44</span><br><span class="line">      1  100.0%          LazyCompile: ~NativeModule.require bootstrap_node.js:520:34</span><br><span class="line">      1  100.0%            Script: ~&lt;anonymous&gt; module.js:1:11</span><br><span class="line">      1    1.7%      Script: ~&lt;anonymous&gt; crypto.js:1:11</span><br><span class="line">      1  100.0%        LazyCompile: ~NativeModule.compile bootstrap_node.js:588:44</span><br><span class="line">      1  100.0%          LazyCompile: ~NativeModule.require bootstrap_node.js:520:34</span><br><span class="line">      1  100.0%            LazyCompile: ~Module._load module.js:448:24</span><br><span class="line">      1    1.7%      Script: ~&lt;anonymous&gt; bootstrap_node.js:10:10</span><br><span class="line">      1    1.7%      LazyCompile: ~stat module.js:50:14</span><br><span class="line">      1  100.0%        LazyCompile: ~Module._findPath module.js:182:28</span><br><span class="line">      1  100.0%          LazyCompile: ~Module._resolveFilename module.js:514:35</span><br><span class="line">      1  100.0%            LazyCompile: ~Module._load module.js:448:24</span><br><span class="line">      1    1.7%      LazyCompile: ~setupProcessFatal bootstrap_node.js:358:29</span><br><span class="line">      1  100.0%        LazyCompile: ~startup bootstrap_node.js:12:19</span><br><span class="line">      1  100.0%          Script: ~&lt;anonymous&gt; bootstrap_node.js:10:10</span><br><span class="line">      1    1.7%      LazyCompile: ~makeSafe internal/safe_globals.js:15:18</span><br><span class="line">      1  100.0%        Script: ~&lt;anonymous&gt; internal/safe_globals.js:1:11</span><br><span class="line">      1  100.0%          LazyCompile: ~NativeModule.compile bootstrap_node.js:588:44</span><br><span class="line">      1  100.0%            LazyCompile: ~NativeModule.require bootstrap_node.js:520:34</span><br><span class="line">      1    1.7%      LazyCompile: ~inherits util.js:932:18</span><br><span class="line">      1  100.0%        Script: ~&lt;anonymous&gt; _stream_duplex.js:1:11</span><br><span class="line">      1  100.0%          LazyCompile: ~NativeModule.compile bootstrap_node.js:588:44</span><br><span class="line">      1  100.0%            LazyCompile: ~NativeModule.require bootstrap_node.js:520:34</span><br><span class="line">      1    1.7%      LazyCompile: ~fs.openSync fs.js:642:23</span><br><span class="line">      1  100.0%        LazyCompile: ~fs.readFileSync fs.js:548:27</span><br><span class="line">      1  100.0%          LazyCompile: ~Module._extensions..js module.js:661:37</span><br><span class="line">      1  100.0%            LazyCompile: ~Module.load module.js:556:33</span><br><span class="line">      1    1.7%      LazyCompile: ~createWriteReq net.js:786:24</span><br><span class="line">      1  100.0%        LazyCompile: ~Socket._writeGeneric net.js:711:42</span><br><span class="line">      1  100.0%          LazyCompile: ~Socket._write net.js:782:35</span><br><span class="line">      1  100.0%            LazyCompile: ~doWrite _stream_writable.js:389:17</span><br><span class="line">      1    1.7%      LazyCompile: ~createWritableStdioStream internal/process/stdio.js:142:35</span><br><span class="line">      1  100.0%        LazyCompile: ~getStdout internal/process/stdio.js:12:21</span><br><span class="line">      1  100.0%          Script: ~&lt;anonymous&gt; console.js:1:11</span><br><span class="line">      1  100.0%            LazyCompile: ~NativeModule.compile bootstrap_node.js:588:44</span><br><span class="line">      1    1.7%      LazyCompile: ~createUnsafeArrayBuffer buffer.js:90:33</span><br><span class="line">      1  100.0%        LazyCompile: ~createPool buffer.js:99:20</span><br><span class="line">      1  100.0%          Script: ~&lt;anonymous&gt; buffer.js:1:11</span><br><span class="line">      1  100.0%            LazyCompile: ~NativeModule.compile bootstrap_node.js:588:44</span><br><span class="line">      1    1.7%      LazyCompile: ~WritableState _stream_writable.js:41:23</span><br><span class="line">      1  100.0%        LazyCompile: ~Writable _stream_writable.js:194:18</span><br><span class="line">      1  100.0%          LazyCompile: ~Duplex _stream_duplex.js:47:16</span><br><span class="line">      1  100.0%            LazyCompile: ~Socket net.js:185:16</span><br><span class="line">      1    1.7%      LazyCompile: ~InnerArrayJoin native array.js:274:24</span><br><span class="line">      1  100.0%        LazyCompile: ~join native array.js:287:46</span><br><span class="line">      1  100.0%          LazyCompile: ~setupConfig internal/process.js:113:21</span><br><span class="line">      1  100.0%            LazyCompile: ~startup bootstrap_node.js:12:19</span><br><span class="line"></span><br><span class="line">      5    1.6%  C:\WINDOWS\System32\KERNEL32.DLL</span><br></pre></td></tr></table></figure>
+<p>此时在 <strong>Bottom up (heavy) profile</strong> 没有pbkdf2相关堆栈信息</p>
+<h2 id="Web-UI"><a href="#Web-UI" class="headerlink" title="Web UI"></a>Web UI</h2><p>V8 同时还提供了一个 Web 可视化工具来查看生产的v8 日志</p>
+<h3 id="生成-JSON-文件"><a href="#生成-JSON-文件" class="headerlink" title="生成 JSON 文件"></a>生成 JSON 文件</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">node --prof-process --preprocess .\isolate-000001F7B8B0F7E0-v8.log &gt; v8.json</span><br></pre></td></tr></table></figure>
+<h3 id="准备工作"><a href="#准备工作" class="headerlink" title="准备工作"></a>准备工作</h3><ul>
+<li>克隆 V8 仓库（如下载速度过慢直接选择Download Zip）：git clone <a href="https://github.com/v8/v8.git" target="_blank" rel="noopener">https://github.com/v8/v8.git</a></li>
+<li>在浏览器打开：v8/tools/profview/index.html</li>
+<li>选择上一部分生成的 v8.json</li>
+</ul>
+<h3 id="预览结果"><a href="#预览结果" class="headerlink" title="预览结果"></a>预览结果</h3><p><img src="https://cdn.nlark.com/yuque/0/2019/png/92822/1550651686492-f2187b87-2335-40ea-91b6-eb4b56cf5246.png#align=left&amp;display=inline&amp;height=840&amp;linkTarget=_blank&amp;name=image.png&amp;originHeight=840&amp;originWidth=1898&amp;size=170569&amp;width=1898" alt="image.png"></p>
+<p>在Bottom up 视图中，依然可以看到。</p>
+<p>另外：</p>
+<ul>
+<li>上图中的展示了CPU的timeline：X 轴表示时间，Y轴表示当前时间点不同部分占用CPU的比例</li>
+<li>上图中的表展示了当前时间段内CPU占用从大到小降序排列的函数；点击任意函数，timeline 底部会展示该函数的执行时间分布</li>
+</ul>
+<h2 id="资料"><a href="#资料" class="headerlink" title="资料"></a>资料</h2><ul>
+<li><a href="https://v8.dev/docs/profile" target="_blank" rel="noopener">https://v8.dev/docs/profile</a></li>
+<li><a href="https://stackoverflow.com/questions/23934451/how-to-read-nodejs-internal-profiler-tick-processor-output" target="_blank" rel="noopener">https://stackoverflow.com/questions/23934451/how-to-read-nodejs-internal-profiler-tick-processor-output</a></li>
+<li>《NodeJS》 调试指南</li>
+</ul>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Tick-Processor/" rel="tag"># Tick Processor</a>
+          
+            <a href="/tags/《NodeJS-调试指南》/" rel="tag"># 《NodeJS 调试指南》</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/posts/v8_profiler_cpu/" rel="next" title="v8-profiler（分析CPU使用情况）">
+                <i class="fa fa-chevron-left"></i> v8-profiler（分析CPU使用情况）
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/posts/redis_analysis/" rel="prev" title="Redis 引入分析">
+                Redis 引入分析 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+    <div class="comments" id="comments">
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/avatar.jpg"
+                alt="Ryoma" />
+            
+              <p class="site-author-name" itemprop="name">Ryoma</p>
+              <p class="site-description motion-element" itemprop="description">Ryoma's Blog</p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">77</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  <a href="/categories/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">21</span>
+                    <span class="site-state-item-name">分类</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  <a href="/tags/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">74</span>
+                    <span class="site-state-item-name">标签</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+            <div class="links-of-author motion-element">
+              
+                <span class="links-of-author-item">
+                  <a href="https://github.com/JianmingXia" target="_blank" title="GitHub"><i class="fa fa-fw fa-github"></i>GitHub</a>
+                  
+                </span>
+              
+                <span class="links-of-author-item">
+                  <a href="mailto:xiajianming_xjm@163.com" target="_blank" title="E-Mail"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                  
+                </span>
+              
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#同步调用"><span class="nav-number">1.</span> <span class="nav-text">同步调用</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#运行"><span class="nav-number">1.1.</span> <span class="nav-text">运行</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#–prof-process-分析"><span class="nav-number">1.2.</span> <span class="nav-text">–prof-process 分析</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#异步调用"><span class="nav-number">2.</span> <span class="nav-text">异步调用</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#运行-1"><span class="nav-number">2.1.</span> <span class="nav-text">运行</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#分析"><span class="nav-number">2.2.</span> <span class="nav-text">分析</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Web-UI"><span class="nav-number">3.</span> <span class="nav-text">Web UI</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#生成-JSON-文件"><span class="nav-number">3.1.</span> <span class="nav-text">生成 JSON 文件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#准备工作"><span class="nav-number">3.2.</span> <span class="nav-text">准备工作</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#预览结果"><span class="nav-number">3.3.</span> <span class="nav-text">预览结果</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#资料"><span class="nav-number">4.</span> <span class="nav-text">资料</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2017 &mdash; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Ryoma</span>
+
+  
+
+  
+</div>
+
+
+
+
+  <div class="powered-by"><a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> v3.7.1</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://theme-next.org">NexT.Gemini</a> v6.3.0</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+	
+    
+
+    
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/three/three.min.js"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/three/canvas_sphere.min.js"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=6.3.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=6.3.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=6.3.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=6.3.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=6.3.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=6.3.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=6.3.0"></script>
+
+
+
+  
+
+  
+    <script id="dsq-count-scr" src="https://ryoma-blog.disqus.com/count.js" async></script>
+  
+
+  
+    <script type="text/javascript">
+      var disqus_config = function () {
+        this.page.url = 'https://blog.ryoma.top/posts/tick_processor/';
+        this.page.identifier = 'posts/tick_processor/';
+        this.page.title = 'Tick Processor（性能分析）';
+        };
+      function loadComments () {
+        var d = document, s = d.createElement('script');
+        s.src = 'https://ryoma-blog.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', '' + +new Date());
+        (d.head || d.body).appendChild(s);
+      }
+      
+        $(function () {
+          var offsetTop = $('#comments').offset().top - $(window).height();
+          if (offsetTop <= 0) {
+            // load directly when there's no a scrollbar
+            loadComments();
+          } else {
+            $(window).on('scroll.disqus_scroll', function () {
+              var scrollTop = document.documentElement.scrollTop;
+              if (scrollTop >= offsetTop) {
+                $(window).off('.disqus_scroll');
+                loadComments();
+              }
+            });
+          }
+        });
+      
+    </script>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
