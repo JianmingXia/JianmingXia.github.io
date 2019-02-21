@@ -3,7 +3,7 @@ title: Redis 引入分析
 date: 2018/07/28 15:00:00
 tags:
   - Redis
-categories: Redis
+categories: 缓存
 ---
 
 > 在本文中，**数据库**与**MySQL**的意义相同

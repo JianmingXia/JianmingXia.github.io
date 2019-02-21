@@ -4,7 +4,7 @@ date: 2018/08/06 21:00:00
 tags:
   - Redis
   - 分布式锁
-categories: Redis
+categories: 缓存
 ---
 
 ## 说明

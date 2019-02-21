@@ -3,7 +3,7 @@ title: Redis 规范
 date: 2018/07/29 11:00:00
 tags:
   - Redis
-categories: Redis
+categories: 缓存
 ---
 
 > redis不是垃圾桶也不是 SUPER MAN，能力和资源都有限，不合理的使用会降低它的健康度，严重时甚至会引起redis抖动、阻塞等进而导致服务不可用，每一个使用redis的开发人员都应当掌握规范的开发和使用方法。

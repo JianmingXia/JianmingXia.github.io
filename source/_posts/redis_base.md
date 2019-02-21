@@ -5,7 +5,7 @@ tags:
   - Redis
   - 基础
   - 阅读笔记
-categories: Redis
+categories: 缓存
 ---
 
 ## 说明

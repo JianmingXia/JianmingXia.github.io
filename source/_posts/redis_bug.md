@@ -4,7 +4,7 @@ date: 2018/08/05 19:30:00
 tags:
   - Redis
   - 漏洞
-categories: Redis
+categories: 缓存
 ---
 
 ## 说明

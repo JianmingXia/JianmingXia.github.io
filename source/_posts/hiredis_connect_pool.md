@@ -5,9 +5,7 @@ tags:
   - hiredis
   - C++
   - Redis
-categories: 
-  - [Redis]
-  - [C++]
+categories: 缓存
 ---
 
 ## 说在前面

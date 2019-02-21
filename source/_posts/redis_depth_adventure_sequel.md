@@ -4,7 +4,7 @@ date: 2018/08/20 19:30:00
 tags:
   - Redis
   - 阅读笔记
-categories: Redis
+categories: 缓存
 ---
 
 ## 说在前面
