@@ -1,0 +1,1149 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=6.3.0" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=6.3.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=6.3.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=6.3.0">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=6.3.0" color="#222">
+
+
+
+
+
+
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '6.3.0',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="之前提到 v8-profiler 可以收集 CPU 和 内存的信息，在这里我们使用 heapdump 工具来分析 NodeJS 内存信息。 heapdump测试代码12345678910111213141516171819const heapdump = require(&amp;apos;heapdump&amp;apos;)let leakObject = nulllet count = 0setInterv">
+<meta name="keywords" content="heapdump,《NodeJS 调试指南》">
+<meta property="og:type" content="article">
+<meta property="og:title" content="heapdump（查看内存信息）">
+<meta property="og:url" content="https://blog.ryoma.top/posts/heapdump/index.html">
+<meta property="og:site_name" content="Ryoma&#39;s Blog">
+<meta property="og:description" content="之前提到 v8-profiler 可以收集 CPU 和 内存的信息，在这里我们使用 heapdump 工具来分析 NodeJS 内存信息。 heapdump测试代码12345678910111213141516171819const heapdump = require(&amp;apos;heapdump&amp;apos;)let leakObject = nulllet count = 0setInterv">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2019/png/92822/1550743942821-85158eca-d8a8-4437-8cc3-59c74ab9d3a5.png#align=left&display=inline&height=209&linkTarget=_blank&name=image.png&originHeight=209&originWidth=388&size=23725&status=done&width=388">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2019/png/92822/1550744110090-7f4e4243-eaa5-4f14-9126-ee58977e28ea.png#align=left&display=inline&height=400&linkTarget=_blank&name=image.png&originHeight=400&originWidth=270&size=20283&status=done&width=270">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2019/png/92822/1550799406960-f29403e0-b9f9-4950-ab82-cdf74582ff1d.png#align=left&display=inline&height=608&linkTarget=_blank&name=image.png&originHeight=608&originWidth=1710&size=113026&status=done&width=1710">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2019/png/92822/1550799819575-abfdb8f4-b323-4c48-8c58-677953c4cb75.png#align=left&display=inline&height=182&linkTarget=_blank&name=image.png&originHeight=182&originWidth=1709&size=34709&status=done&width=1709">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2019/png/92822/1550799956171-017e9b47-95a2-4766-9bcd-3f6db0080b85.png#align=left&display=inline&height=653&linkTarget=_blank&name=image.png&originHeight=653&originWidth=1698&size=126544&status=done&width=1698">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2019/png/92822/1550800091944-66842a79-1193-4897-b35f-bb05a4e81825.png#align=left&display=inline&height=548&linkTarget=_blank&name=image.png&originHeight=548&originWidth=1618&size=103832&status=done&width=1618">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2019/png/92822/1550800216443-27dcf985-69cb-4769-abed-e5463608f31a.png#align=left&display=inline&height=536&linkTarget=_blank&name=image.png&originHeight=536&originWidth=1709&size=62467&status=done&width=1709">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2019/png/92822/1550800973022-e90f935b-0c85-45fe-8a3b-391b40b3cca8.png#align=left&display=inline&height=671&linkTarget=_blank&name=image.png&originHeight=671&originWidth=1717&size=121510&status=done&width=1717">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2019/png/92822/1550801011458-b09b8cc9-d93c-403a-afa7-15d8ed1f0e58.png#align=left&display=inline&height=278&linkTarget=_blank&name=image.png&originHeight=278&originWidth=1718&size=52582&status=done&width=1718">
+<meta property="og:updated_time" content="2019-02-23T07:21:44.929Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="heapdump（查看内存信息）">
+<meta name="twitter:description" content="之前提到 v8-profiler 可以收集 CPU 和 内存的信息，在这里我们使用 heapdump 工具来分析 NodeJS 内存信息。 heapdump测试代码12345678910111213141516171819const heapdump = require(&amp;apos;heapdump&amp;apos;)let leakObject = nulllet count = 0setInterv">
+<meta name="twitter:image" content="https://cdn.nlark.com/yuque/0/2019/png/92822/1550743942821-85158eca-d8a8-4437-8cc3-59c74ab9d3a5.png#align=left&display=inline&height=209&linkTarget=_blank&name=image.png&originHeight=209&originWidth=388&size=23725&status=done&width=388">
+
+
+
+
+
+
+  <link rel="canonical" href="https://blog.ryoma.top/posts/heapdump/"/>
+
+
+
+<script type="text/javascript" id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>heapdump（查看内存信息） | Ryoma's Blog</title>
+  
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style type="text/css">
+    .use-motion .motion-element,
+    .use-motion .brand,
+    .use-motion .menu-item,
+    .sidebar-inner,
+    .use-motion .post-block,
+    .use-motion .pagination,
+    .use-motion .comments,
+    .use-motion .post-header,
+    .use-motion .post-body,
+    .use-motion .collection-title { opacity: initial; }
+
+    .use-motion .logo,
+    .use-motion .site-title,
+    .use-motion .site-subtitle {
+      opacity: initial;
+      top: initial;
+    }
+
+    .use-motion {
+      .logo-line-before i { left: initial; }
+      .logo-line-after i { right: initial; }
+    }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Ryoma's Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+      
+        <p class="site-subtitle">纸上得来终觉浅</p>
+      
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+    <a href="/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-home"></i> <br />首页</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+    <a href="/tags/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />标签</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+    <a href="/categories/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-th"></i> <br />分类</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+    <a href="/archives/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />归档</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+    <a href="/about/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-user"></i> <br />关于我</a>
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.ryoma.top/posts/heapdump/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Ryoma">
+      <meta itemprop="description" content="Ryoma's Blog">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Ryoma's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">heapdump（查看内存信息）
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2018-07-15 18:00:00" itemprop="dateCreated datePublished" datetime="2018-07-15T18:00:00+08:00">2018-07-15</time>
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/NodeJS/" itemprop="url" rel="index"><span itemprop="name">NodeJS</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/posts/heapdump/#comments" itemprop="discussionUrl">
+                
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="posts/heapdump/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>之前提到 v8-profiler 可以收集 CPU 和 内存的信息，在这里我们使用 heapdump 工具来分析 NodeJS 内存信息。</p>
+<h2 id="heapdump"><a href="#heapdump" class="headerlink" title="heapdump"></a>heapdump</h2><h3 id="测试代码"><a href="#测试代码" class="headerlink" title="测试代码"></a>测试代码</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">const heapdump = require(&apos;heapdump&apos;)</span><br><span class="line">let leakObject = null</span><br><span class="line">let count = 0</span><br><span class="line"></span><br><span class="line">setInterval(function testMemoryLeak() &#123;</span><br><span class="line">  const originLeakObject = leakObject</span><br><span class="line">  const unused = function () &#123;</span><br><span class="line">    if (originLeakObject) &#123;</span><br><span class="line">      console.log(&apos;originLeakObject&apos;)</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  leakObject = &#123;</span><br><span class="line">    count: String(count++),</span><br><span class="line">    leakStr: new Array(1e7).join(&apos;*&apos;),</span><br><span class="line">    leakMethod: function () &#123;</span><br><span class="line">      console.log(&apos;leakMessage&apos;)</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;, 1000)</span><br></pre></td></tr></table></figure>
+<a id="more"></a>
+<h3 id="闭包的原理"><a href="#闭包的原理" class="headerlink" title="闭包的原理"></a>闭包的原理</h3><p>同一个函数内部的<strong>闭包作用域只有一个</strong>，所有闭包共享。<br>在执行函数时，如果遇到闭包，则会创建闭包作用域的内存空间，将该闭包所用的局部变量加入；再遇到闭包时，会在之前创建的闭包作用域中添加之前未加入的局部变量。函数结束时，会清除没有被闭包作用域引用的变量</p>
+<h3 id="内存泄露"><a href="#内存泄露" class="headerlink" title="内存泄露"></a>内存泄露</h3><p>在 testMemoryLeak 中有两个闭包：</p>
+<ul>
+<li>unused</li>
+<li>leakMethod</li>
+</ul>
+<p>进行分析：</p>
+<ul>
+<li>unused：unused 闭包引用了父作用域中的 originLeakObject 变量；若无leakMethod，会在函数结束后被清除，此时闭包作用域也会被清除</li>
+<li>但是由于 leakObject 是全局变量，故而 leakObject 也成了全局变量，故而引用的闭包作用域（包含unused引用的originLeakObject）也不会是否。</li>
+</ul>
+<p>随着函数不断被调用，originLeakObject指向前一次的leakObject，而 leakObject 通过 leakMethod 又引用之前的 originLeakObject，从而形成闭包引用链。而leakStr 是个超大的字符串，一直未释放故而造成内存泄露</p>
+<h3 id="解决内存泄露"><a href="#解决内存泄露" class="headerlink" title="解决内存泄露"></a>解决内存泄露</h3><p>在 testMemoryLeak 函数最后添加 originLeakObejct=null 即可</p>
+<h3 id="获取堆快照"><a href="#获取堆快照" class="headerlink" title="获取堆快照"></a>获取堆快照</h3><blockquote>
+<p>通过 pgrep 获取当前进程id</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kill -USR2 `pgrep -n node`</span><br></pre></td></tr></table></figure>
+<p>可以获取多个堆快照方便后续进行比较</p>
+<h2 id="Chrome-DevTools"><a href="#Chrome-DevTools" class="headerlink" title="Chrome DevTools"></a>Chrome DevTools</h2><p>可以使用 Chrome DevTools 来分析堆快照文件。通过 Chrome DevTools - Memory - Load，按生成快照的顺序加载。</p>
+<h3 id="基本介绍"><a href="#基本介绍" class="headerlink" title="基本介绍"></a>基本介绍</h3><p>点击第二个堆快照 - 点击左上角，可以看到：</p>
+<p><img src="https://cdn.nlark.com/yuque/0/2019/png/92822/1550743942821-85158eca-d8a8-4437-8cc3-59c74ab9d3a5.png#align=left&amp;display=inline&amp;height=209&amp;linkTarget=_blank&amp;name=image.png&amp;originHeight=209&amp;originWidth=388&amp;size=23725&amp;status=done&amp;width=388" alt="image.png"></p>
+<ul>
+<li>Summary：以构造函数名 分类显示</li>
+<li>Comparison：比较多个堆快照之间的差异（加载单个堆快照时没有此项）</li>
+<li>Containment：查看整个GC的路径</li>
+<li>Statistics：以饼状图显示内存信息</li>
+</ul>
+<h4 id="Statistics"><a href="#Statistics" class="headerlink" title="Statistics"></a>Statistics</h4><p><img src="https://cdn.nlark.com/yuque/0/2019/png/92822/1550744110090-7f4e4243-eaa5-4f14-9126-ee58977e28ea.png#align=left&amp;display=inline&amp;height=400&amp;linkTarget=_blank&amp;name=image.png&amp;originHeight=400&amp;originWidth=270&amp;size=20283&amp;status=done&amp;width=270" alt="image.png"></p>
+<h4 id="Summary"><a href="#Summary" class="headerlink" title="Summary"></a>Summary</h4><p>表结构有四列：</p>
+<ul>
+<li>Constructor：<ul>
+<li>构造函数名：如Object、Module、Socket，(array)、(string)等有括号的分别代表内置的Array、String</li>
+<li>对象个数：构造函数名后的数字</li>
+</ul>
+</li>
+<li>Distance：到GC roots（GC 根对象）的距离。距离越大，则说明引用越深</li>
+<li>Shallow Size：对象自身的大小，不包含引用的对象</li>
+<li>Retained Size：对象自身的大小和引用对象的大小——当对象被GC之后可回收的大小</li>
+<li>Objects Count：对象个数（Chrome70 之后，对象个数在Constructor内的名称后面）</li>
+</ul>
+<h4 id="Retained-Size-amp-Shallow-Size"><a href="#Retained-Size-amp-Shallow-Size" class="headerlink" title="Retained Size &amp; Shallow Size"></a>Retained Size &amp; Shallow Size</h4><p>Retained Size = 对象的 shallow Size + 对象树上其它子节点的Retained Size<br>Shallow Size = Retained Size中（boolean number string），因为这些类型无法引用其它值，并且始终是叶子节点</p>
+<h3 id="基本分析"><a href="#基本分析" class="headerlink" title="基本分析"></a>基本分析</h3><p>单击 Retained Size 按降序显示，其中closure引用内容达到99%，继续展开：</p>
+<p><img src="https://cdn.nlark.com/yuque/0/2019/png/92822/1550799406960-f29403e0-b9f9-4950-ab82-cdf74582ff1d.png#align=left&amp;display=inline&amp;height=608&amp;linkTarget=_blank&amp;name=image.png&amp;originHeight=608&amp;originWidth=1710&amp;size=113026&amp;status=done&amp;width=1710" alt="image.png"></p>
+<p>其中：</p>
+<ul>
+<li>leakStr 占了4% 的内存</li>
+<li>leakMethod 占了 95% 的内存（第二个leakMethod 占了91%的内存）</li>
+<li>originLeakMethod 中 leakMethod 引用的即为 第二个 leakMethod（都是@63503，Distance 也是一致的）</li>
+<li>对象保留树（即Retainers）展示了对象的GC Path（可能会随着Chrome 版本迭代有变化）</li>
+</ul>
+<p><img src="https://cdn.nlark.com/yuque/0/2019/png/92822/1550799819575-abfdb8f4-b323-4c48-8c58-677953c4cb75.png#align=left&amp;display=inline&amp;height=182&amp;linkTarget=_blank&amp;name=image.png&amp;originHeight=182&amp;originWidth=1709&amp;size=34709&amp;status=done&amp;width=1709" alt="image.png"></p>
+<h3 id="查看引用关系"><a href="#查看引用关系" class="headerlink" title="查看引用关系"></a>查看引用关系</h3><p>继续展开下一层的 leakMethod：</p>
+<p><img src="https://cdn.nlark.com/yuque/0/2019/png/92822/1550799956171-017e9b47-95a2-4766-9bcd-3f6db0080b85.png#align=left&amp;display=inline&amp;height=653&amp;linkTarget=_blank&amp;name=image.png&amp;originHeight=653&amp;originWidth=1698&amp;size=126544&amp;status=done&amp;width=1698" alt="image.png"></p>
+<p><img src="https://cdn.nlark.com/yuque/0/2019/png/92822/1550800091944-66842a79-1193-4897-b35f-bb05a4e81825.png#align=left&amp;display=inline&amp;height=548&amp;linkTarget=_blank&amp;name=image.png&amp;originHeight=548&amp;originWidth=1618&amp;size=103832&amp;status=done&amp;width=1618" alt="image.png"></p>
+<p>可以发现：</p>
+<ul>
+<li>count=24 的 originLeakObject 中 leakMethod 函数的 context 引用了一个有 count=23 的 originLeakObject</li>
+<li>同理，这个 originLeakObject 继续引用了下一层</li>
+<li>每个 originLeakObject 对象上都有一个大字符串 leakStr，从而造成内存泄露</li>
+</ul>
+<h2 id="对比堆快照"><a href="#对比堆快照" class="headerlink" title="对比堆快照"></a>对比堆快照</h2><p>切至 Comparison 视图下，有 #New、#Deleted、#Delta等属性：</p>
+<p><img src="https://cdn.nlark.com/yuque/0/2019/png/92822/1550800216443-27dcf985-69cb-4769-abed-e5463608f31a.png#align=left&amp;display=inline&amp;height=536&amp;linkTarget=_blank&amp;name=image.png&amp;originHeight=536&amp;originWidth=1709&amp;size=62467&amp;status=done&amp;width=1709" alt="image.png"></p>
+<p>增加了 10个 (string)，每个大小为 10000024个字节</p>
+<h2 id="解决内存泄露-1"><a href="#解决内存泄露-1" class="headerlink" title="解决内存泄露"></a>解决内存泄露</h2><p>按照上面的方法，加入如下代码（使用 let 定义）：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">originLeakObject = null</span><br></pre></td></tr></table></figure>
+<p>查看堆栈：</p>
+<p><img src="https://cdn.nlark.com/yuque/0/2019/png/92822/1550800973022-e90f935b-0c85-45fe-8a3b-391b40b3cca8.png#align=left&amp;display=inline&amp;height=671&amp;linkTarget=_blank&amp;name=image.png&amp;originHeight=671&amp;originWidth=1717&amp;size=121510&amp;status=done&amp;width=1717" alt="image.png"></p>
+<p>对象引用树：</p>
+<p><img src="https://cdn.nlark.com/yuque/0/2019/png/92822/1550801011458-b09b8cc9-d93c-403a-afa7-15d8ed1f0e58.png#align=left&amp;display=inline&amp;height=278&amp;linkTarget=_blank&amp;name=image.png&amp;originHeight=278&amp;originWidth=1718&amp;size=52582&amp;status=done&amp;width=1718" alt="image.png"></p>
+<p>此时内存信息就属于正常了，只有 leakObject 中的 leakStr 占用了大半内存，没有形成闭包引用链。</p>
+<h2 id="资料"><a href="#资料" class="headerlink" title="资料"></a>资料</h2><ul>
+<li><a href="https://www.zhihu.com/question/56806069" target="_blank" rel="noopener">https://www.zhihu.com/question/56806069</a></li>
+<li><a href="https://developers.google.com/web/tools/chrome-devtools/memory-problems/memory-101" target="_blank" rel="noopener">https://developers.google.com/web/tools/chrome-devtools/memory-problems/memory-101</a></li>
+<li>《NodeJS》 调试指南</li>
+</ul>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/heapdump/" rel="tag"># heapdump</a>
+          
+            <a href="/tags/《NodeJS-调试指南》/" rel="tag"># 《NodeJS 调试指南》</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/posts/tick_processor/" rel="next" title="Tick Processor（性能分析）">
+                <i class="fa fa-chevron-left"></i> Tick Processor（性能分析）
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/posts/cache/" rel="prev" title="缓存杂谈">
+                缓存杂谈 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+    <div class="comments" id="comments">
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/avatar.jpg"
+                alt="Ryoma" />
+            
+              <p class="site-author-name" itemprop="name">Ryoma</p>
+              <p class="site-description motion-element" itemprop="description">Ryoma's Blog</p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">79</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  <a href="/categories/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">20</span>
+                    <span class="site-state-item-name">分类</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  <a href="/tags/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">75</span>
+                    <span class="site-state-item-name">标签</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+            <div class="links-of-author motion-element">
+              
+                <span class="links-of-author-item">
+                  <a href="https://github.com/JianmingXia" target="_blank" title="GitHub"><i class="fa fa-fw fa-github"></i>GitHub</a>
+                  
+                </span>
+              
+                <span class="links-of-author-item">
+                  <a href="mailto:xiajianming_xjm@163.com" target="_blank" title="E-Mail"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                  
+                </span>
+              
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#heapdump"><span class="nav-number">1.</span> <span class="nav-text">heapdump</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#测试代码"><span class="nav-number">1.1.</span> <span class="nav-text">测试代码</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#闭包的原理"><span class="nav-number">1.2.</span> <span class="nav-text">闭包的原理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#内存泄露"><span class="nav-number">1.3.</span> <span class="nav-text">内存泄露</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#解决内存泄露"><span class="nav-number">1.4.</span> <span class="nav-text">解决内存泄露</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#获取堆快照"><span class="nav-number">1.5.</span> <span class="nav-text">获取堆快照</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Chrome-DevTools"><span class="nav-number">2.</span> <span class="nav-text">Chrome DevTools</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#基本介绍"><span class="nav-number">2.1.</span> <span class="nav-text">基本介绍</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Statistics"><span class="nav-number">2.1.1.</span> <span class="nav-text">Statistics</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Summary"><span class="nav-number">2.1.2.</span> <span class="nav-text">Summary</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Retained-Size-amp-Shallow-Size"><span class="nav-number">2.1.3.</span> <span class="nav-text">Retained Size &amp; Shallow Size</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#基本分析"><span class="nav-number">2.2.</span> <span class="nav-text">基本分析</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#查看引用关系"><span class="nav-number">2.3.</span> <span class="nav-text">查看引用关系</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#对比堆快照"><span class="nav-number">3.</span> <span class="nav-text">对比堆快照</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#解决内存泄露-1"><span class="nav-number">4.</span> <span class="nav-text">解决内存泄露</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#资料"><span class="nav-number">5.</span> <span class="nav-text">资料</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2017 &mdash; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Ryoma</span>
+
+  
+
+  
+</div>
+
+
+
+
+  <div class="powered-by"><a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> v3.7.1</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://theme-next.org">NexT.Gemini</a> v6.3.0</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+	
+    
+
+    
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/three/three.min.js"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/three/canvas_sphere.min.js"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=6.3.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=6.3.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=6.3.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=6.3.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=6.3.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=6.3.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=6.3.0"></script>
+
+
+
+  
+
+  
+    <script id="dsq-count-scr" src="https://ryoma-blog.disqus.com/count.js" async></script>
+  
+
+  
+    <script type="text/javascript">
+      var disqus_config = function () {
+        this.page.url = 'https://blog.ryoma.top/posts/heapdump/';
+        this.page.identifier = 'posts/heapdump/';
+        this.page.title = 'heapdump（查看内存信息）';
+        };
+      function loadComments () {
+        var d = document, s = d.createElement('script');
+        s.src = 'https://ryoma-blog.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', '' + +new Date());
+        (d.head || d.body).appendChild(s);
+      }
+      
+        $(function () {
+          var offsetTop = $('#comments').offset().top - $(window).height();
+          if (offsetTop <= 0) {
+            // load directly when there's no a scrollbar
+            loadComments();
+          } else {
+            $(window).on('scroll.disqus_scroll', function () {
+              var scrollTop = document.documentElement.scrollTop;
+              if (scrollTop >= offsetTop) {
+                $(window).off('.disqus_scroll');
+                loadComments();
+              }
+            });
+          }
+        });
+      
+    </script>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
