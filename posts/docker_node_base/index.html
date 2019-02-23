@@ -1,0 +1,1147 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=6.3.0" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=6.3.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=6.3.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=6.3.0">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=6.3.0" color="#222">
+
+
+
+
+
+
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '6.3.0',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="docker是一个开源的应用容器引擎，可以为我们提供安全、可移植、可重复的自动化部署的方式。  为什么要用 Docker 呢？这个文档一开始就说得很清楚了，这里只关注如何使用 Docker 部署一个 Node 项目。 创建 Node 项目package.json创建一个 package.json 文件，描述应用程序及其依赖： 1234567891011121314151617&amp;#123;  &amp;q">
+<meta name="keywords" content="Docker,NodeJS">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Docker 部署 Node 项目">
+<meta property="og:url" content="https://blog.ryoma.top/posts/docker_node_base/index.html">
+<meta property="og:site_name" content="Ryoma&#39;s Blog">
+<meta property="og:description" content="docker是一个开源的应用容器引擎，可以为我们提供安全、可移植、可重复的自动化部署的方式。  为什么要用 Docker 呢？这个文档一开始就说得很清楚了，这里只关注如何使用 Docker 部署一个 Node 项目。 创建 Node 项目package.json创建一个 package.json 文件，描述应用程序及其依赖： 1234567891011121314151617&amp;#123;  &amp;q">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2019/png/92822/1550927788761-0d98cb71-87e1-4018-ad12-22721d191cea.png#align=left&display=inline&height=394&linkTarget=_blank&name=image.png&originHeight=788&originWidth=1158&size=169300&status=done&width=579">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2019/png/92822/1550927871087-7eb5d9e5-24ee-4f9a-8f63-06b32442a43a.png#align=left&display=inline&height=48&linkTarget=_blank&name=image.png&originHeight=96&originWidth=1498&size=33684&status=done&width=749">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2019/png/92822/1550927935904-aa04674e-f78f-46aa-bd83-c333270595ae.png#align=left&display=inline&height=35&linkTarget=_blank&name=image.png&originHeight=70&originWidth=1362&size=26210&status=done&width=681">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2019/png/92822/1550927980365-f1dfd181-5331-45c2-9951-b0a503fc7119.png#align=left&display=inline&height=53&linkTarget=_blank&name=image.png&originHeight=106&originWidth=2540&size=41496&status=done&width=1270">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2019/png/92822/1550927463090-05e9f8a4-2a73-4b03-8a3e-e5504a9749ce.png#align=left&display=inline&height=81&linkTarget=_blank&name=image.png&originHeight=162&originWidth=782&size=14152&status=done&width=391">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2019/png/92822/1550927434164-599dedff-7816-4a49-9bcd-af661d77d901.png#align=left&display=inline&height=102&linkTarget=_blank&name=image.png&originHeight=204&originWidth=1004&size=37031&status=done&width=502">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2019/png/92822/1550929033517-5cb31640-162f-4857-9d23-633012448d52.png#align=left&display=inline&height=247&linkTarget=_blank&name=image.png&originHeight=494&originWidth=1594&size=150710&status=done&width=797">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2019/png/92822/1550928859692-f356839e-ad01-4e3c-a7ac-76da2d39ad6d.png#align=left&display=inline&height=457&linkTarget=_blank&name=image.png&originHeight=914&originWidth=1254&size=91543&status=done&width=627">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2019/png/92822/1550934097845-018eeae2-8ab0-4b6e-af25-a0773c43ee85.png#align=left&display=inline&height=347&linkTarget=_blank&name=image.png&originHeight=694&originWidth=1516&size=415947&status=done&width=758">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2019/png/92822/1550934190513-2d5a1619-08fd-4426-ac78-8b1ca3135d64.png#align=left&display=inline&height=37&linkTarget=_blank&name=image.png&originHeight=74&originWidth=882&size=35269&status=done&width=441">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2019/png/92822/1550934219368-89291a01-9dad-4518-a1b6-6dec4abe8986.png#align=left&display=inline&height=129&linkTarget=_blank&name=image.png&originHeight=258&originWidth=808&size=88059&status=done&width=404">
+<meta property="og:updated_time" content="2019-02-23T15:12:42.292Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Docker 部署 Node 项目">
+<meta name="twitter:description" content="docker是一个开源的应用容器引擎，可以为我们提供安全、可移植、可重复的自动化部署的方式。  为什么要用 Docker 呢？这个文档一开始就说得很清楚了，这里只关注如何使用 Docker 部署一个 Node 项目。 创建 Node 项目package.json创建一个 package.json 文件，描述应用程序及其依赖： 1234567891011121314151617&amp;#123;  &amp;q">
+<meta name="twitter:image" content="https://cdn.nlark.com/yuque/0/2019/png/92822/1550927788761-0d98cb71-87e1-4018-ad12-22721d191cea.png#align=left&display=inline&height=394&linkTarget=_blank&name=image.png&originHeight=788&originWidth=1158&size=169300&status=done&width=579">
+
+
+
+
+
+
+  <link rel="canonical" href="https://blog.ryoma.top/posts/docker_node_base/"/>
+
+
+
+<script type="text/javascript" id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>Docker 部署 Node 项目 | Ryoma's Blog</title>
+  
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style type="text/css">
+    .use-motion .motion-element,
+    .use-motion .brand,
+    .use-motion .menu-item,
+    .sidebar-inner,
+    .use-motion .post-block,
+    .use-motion .pagination,
+    .use-motion .comments,
+    .use-motion .post-header,
+    .use-motion .post-body,
+    .use-motion .collection-title { opacity: initial; }
+
+    .use-motion .logo,
+    .use-motion .site-title,
+    .use-motion .site-subtitle {
+      opacity: initial;
+      top: initial;
+    }
+
+    .use-motion {
+      .logo-line-before i { left: initial; }
+      .logo-line-after i { right: initial; }
+    }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Ryoma's Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+      
+        <p class="site-subtitle">纸上得来终觉浅</p>
+      
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+    <a href="/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-home"></i> <br />首页</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+    <a href="/tags/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />标签</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+    <a href="/categories/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-th"></i> <br />分类</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+    <a href="/archives/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />归档</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+    <a href="/about/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-user"></i> <br />关于我</a>
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.ryoma.top/posts/docker_node_base/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Ryoma">
+      <meta itemprop="description" content="Ryoma's Blog">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Ryoma's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Docker 部署 Node 项目
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2018-09-01 18:30:00" itemprop="dateCreated datePublished" datetime="2018-09-01T18:30:00+08:00">2018-09-01</time>
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/NodeJS/" itemprop="url" rel="index"><span itemprop="name">NodeJS</span></a></span>
+
+                
+                
+                  ，
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/Docker/" itemprop="url" rel="index"><span itemprop="name">Docker</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/posts/docker_node_base/#comments" itemprop="discussionUrl">
+                
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="posts/docker_node_base/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <blockquote>
+<p>docker是一个开源的应用容器引擎，可以为我们提供安全、可移植、可重复的自动化部署的方式。</p>
+</blockquote>
+<p>为什么要用 Docker 呢？这个<a href="https://blog.ryoma.top/posts/docker_base/">文档</a>一开始就说得很清楚了，这里只关注如何使用 Docker 部署一个 Node 项目。</p>
+<h2 id="创建-Node-项目"><a href="#创建-Node-项目" class="headerlink" title="创建 Node 项目"></a>创建 Node 项目</h2><h3 id="package-json"><a href="#package-json" class="headerlink" title="package.json"></a>package.json</h3><p>创建一个 package.json 文件，描述应用程序及其依赖：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  &quot;name&quot;: &quot;docker_web_app&quot;,</span><br><span class="line">  &quot;version&quot;: &quot;1.0.0&quot;,</span><br><span class="line">  &quot;description&quot;: &quot;docker web app in nodejs&quot;,</span><br><span class="line">  &quot;main&quot;: &quot;index.js&quot;,</span><br><span class="line">  &quot;scripts&quot;: &#123;</span><br><span class="line">    &quot;start&quot;: &quot;node index.js&quot;</span><br><span class="line">  &#125;,</span><br><span class="line">  &quot;keywords&quot;: [</span><br><span class="line">    &quot;docker&quot;</span><br><span class="line">  ],</span><br><span class="line">  &quot;author&quot;: &quot;ryoma&quot;,</span><br><span class="line">  &quot;license&quot;: &quot;ISC&quot;,</span><br><span class="line">  &quot;dependencies&quot;: &#123;</span><br><span class="line">    &quot;express&quot;: &quot;^4.16.4&quot;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<a id="more"></a>
+<h3 id="Demo-应用"><a href="#Demo-应用" class="headerlink" title="Demo 应用"></a>Demo 应用</h3><blockquote>
+<p>index.js</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">const express = require(&quot;express&quot;);</span><br><span class="line"></span><br><span class="line">// Constants</span><br><span class="line">const PORT = 8080;</span><br><span class="line">const HOST = &quot;0.0.0.0&quot;;</span><br><span class="line"></span><br><span class="line">// App</span><br><span class="line">const app = express();</span><br><span class="line">app.get(&quot;/&quot;, (req, res) =&gt; &#123;</span><br><span class="line">  console.log(&quot;receiving request...&quot;);</span><br><span class="line">  res.send(&quot;Hello Docker!\n&quot;);</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">app.listen(PORT, HOST);</span><br><span class="line">console.log(`Running on http://$&#123;HOST&#125;:$&#123;PORT&#125;`);</span><br></pre></td></tr></table></figure>
+<h2 id="准备工作"><a href="#准备工作" class="headerlink" title="准备工作"></a>准备工作</h2><blockquote>
+<p>请提前安装好 Docker</p>
+</blockquote>
+<h3 id="Dockerfile"><a href="#Dockerfile" class="headerlink" title="Dockerfile"></a>Dockerfile</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">FROM node:8.9</span><br><span class="line"></span><br><span class="line"># Create app directory</span><br><span class="line">WORKDIR /usr/src/app</span><br><span class="line"></span><br><span class="line"># Install app dependencies</span><br><span class="line"># A wildcard is used to ensure both package.json AND package-lock.json are copied</span><br><span class="line"># where available (npm@5+)</span><br><span class="line">COPY package*.json ./</span><br><span class="line"></span><br><span class="line">RUN npm install</span><br><span class="line"># If you are building your code for production</span><br><span class="line"># RUN npm ci --only=production</span><br><span class="line"></span><br><span class="line"># Bundle app source</span><br><span class="line">COPY . .</span><br><span class="line"></span><br><span class="line">EXPOSE 8080</span><br><span class="line">CMD [ &quot;npm&quot;, &quot;start&quot; ]</span><br></pre></td></tr></table></figure>
+<p>现在来解释上面的定义：</p>
+<ul>
+<li>FROM：指定基础镜像（必须是 Dockerfile 文件的第一个指令），如果镜像不存在默认从 Docker Hub 下载</li>
+<li>WORKDIR：设置 Dockerfile 中的RUN、CMD 和 ENTRYPOINT 指令执行命令的工作目录；可以出现多次，如果使用相对路径则为相对于WORKDIR上一次的值，</li>
+<li>RUN：会在一个新的容器中执行任何命令，然后把执行后的改变提交到当前镜像</li>
+<li>EXPOSE：告诉 Docker 这个容器在运行时会监听哪些端口</li>
+<li>CMD：CMD指令中指定的命令会在镜像运行时执行，在 Dockerfile 中只能存在一个，如果使用了多个 CMD 指令，则只有最后一个 CMD 指令有效。<ul>
+<li>当出现 ENTRYPOINT 指令时，CMD 中定义的内容会作为 ENTRYPOINT指令的默认参数</li>
+<li>RUN 和 CMD 都是执行命令，差异在于 RUN 中定义的命令会在执行 <strong>docker build</strong> 命令创建镜像时执行，而 CMD 中定义的命令会在执行 docker run 命令运行镜像时执行</li>
+</ul>
+</li>
+</ul>
+<h3 id="dockerignore"><a href="#dockerignore" class="headerlink" title=".dockerignore"></a>.dockerignore</h3><p>与 <strong>.gitignore</strong> 文件功能类似，用户忽略文件——这里指的是当构建镜像时，需要忽略的内容</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">node_modules</span><br><span class="line">npm-debug.log</span><br></pre></td></tr></table></figure>
+<h2 id="构建镜像"><a href="#构建镜像" class="headerlink" title="构建镜像"></a>构建镜像</h2><h3 id="构建镜像-1"><a href="#构建镜像-1" class="headerlink" title="构建镜像"></a>构建镜像</h3><blockquote>
+<p>这里 ryoma1992 是我本人在 Docker Hub 中的账号，在构建镜像时，可以不用</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker build -t ryoma1992/node-web-app:1.0.0 .</span><br></pre></td></tr></table></figure>
+<p><img src="https://cdn.nlark.com/yuque/0/2019/png/92822/1550927788761-0d98cb71-87e1-4018-ad12-22721d191cea.png#align=left&amp;display=inline&amp;height=394&amp;linkTarget=_blank&amp;name=image.png&amp;originHeight=788&amp;originWidth=1158&amp;size=169300&amp;status=done&amp;width=579" alt="image.png"></p>
+<h4 id="docker-login"><a href="#docker-login" class="headerlink" title="docker login"></a>docker login</h4><p>如果在 docker build 时遇到此类错误，可以使用 docker login 先登录</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Step 1/7 : FROM node:8.9</span><br><span class="line">Get https://registry-1.docker.io/v2/library/node/manifests/8.9: unauthorized: incorrect username or password</span><br></pre></td></tr></table></figure>
+<h3 id="查看镜像"><a href="#查看镜像" class="headerlink" title="查看镜像"></a>查看镜像</h3><p>使用 docker image ls 命令即可查看之前构建的镜像</p>
+<p><img src="https://cdn.nlark.com/yuque/0/2019/png/92822/1550927871087-7eb5d9e5-24ee-4f9a-8f63-06b32442a43a.png#align=left&amp;display=inline&amp;height=48&amp;linkTarget=_blank&amp;name=image.png&amp;originHeight=96&amp;originWidth=1498&amp;size=33684&amp;status=done&amp;width=749" alt="image.png"></p>
+<h2 id="运行"><a href="#运行" class="headerlink" title="运行"></a>运行</h2><h3 id="运行-1"><a href="#运行-1" class="headerlink" title="运行"></a>运行</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run -d -p 20000:8080 ryoma1992/node-web-app:1.0.0</span><br></pre></td></tr></table></figure>
+<p><img src="https://cdn.nlark.com/yuque/0/2019/png/92822/1550927935904-aa04674e-f78f-46aa-bd83-c333270595ae.png#align=left&amp;display=inline&amp;height=35&amp;linkTarget=_blank&amp;name=image.png&amp;originHeight=70&amp;originWidth=1362&amp;size=26210&amp;status=done&amp;width=681" alt="image.png"></p>
+<p>其中：</p>
+<ul>
+<li>-d：表示后台运行</li>
+<li>-p：表示端口映射关系，这里是本地 20000 映射容器内的8080</li>
+</ul>
+<h3 id="查看运行情况"><a href="#查看运行情况" class="headerlink" title="查看运行情况"></a>查看运行情况</h3><p>使用 docker ps 来查看容器</p>
+<p><img src="https://cdn.nlark.com/yuque/0/2019/png/92822/1550927980365-f1dfd181-5331-45c2-9951-b0a503fc7119.png#align=left&amp;display=inline&amp;height=53&amp;linkTarget=_blank&amp;name=image.png&amp;originHeight=106&amp;originWidth=2540&amp;size=41496&amp;status=done&amp;width=1270" alt="image.png"></p>
+<h4 id="浏览器访问"><a href="#浏览器访问" class="headerlink" title="浏览器访问"></a>浏览器访问</h4><p><img src="https://cdn.nlark.com/yuque/0/2019/png/92822/1550927463090-05e9f8a4-2a73-4b03-8a3e-e5504a9749ce.png#align=left&amp;display=inline&amp;height=81&amp;linkTarget=_blank&amp;name=image.png&amp;originHeight=162&amp;originWidth=782&amp;size=14152&amp;status=done&amp;width=391" alt="image.png"></p>
+<h4 id="docker-logs"><a href="#docker-logs" class="headerlink" title="docker logs"></a>docker logs</h4><p><img src="https://cdn.nlark.com/yuque/0/2019/png/92822/1550927434164-599dedff-7816-4a49-9bcd-af661d77d901.png#align=left&amp;display=inline&amp;height=102&amp;linkTarget=_blank&amp;name=image.png&amp;originHeight=204&amp;originWidth=1004&amp;size=37031&amp;status=done&amp;width=502" alt="image.png"></p>
+<h2 id="上传镜像"><a href="#上传镜像" class="headerlink" title="上传镜像"></a>上传镜像</h2><h3 id="docker-tag"><a href="#docker-tag" class="headerlink" title="docker tag"></a>docker tag</h3><blockquote>
+<p><a href="https://docs.docker.com/engine/reference/commandline/tag/" target="_blank" rel="noopener">https://docs.docker.com/engine/reference/commandline/tag/</a><br>这里我提前编译了一个版本，镜像命名为 node-web-app:1.0.1</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">// 格式</span><br><span class="line">docker tag SOURCE_IMAGE[:TAG] TARGET_IMAGE[:TAG]</span><br><span class="line"></span><br><span class="line">// 实际运行</span><br><span class="line">docker tag node-web-app:1.0.1 ryoma1992/node-web-app:1.0.1</span><br></pre></td></tr></table></figure>
+<h3 id="上传"><a href="#上传" class="headerlink" title="上传"></a>上传</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker push ryoma1992/node-web-app:1.0.1</span><br></pre></td></tr></table></figure>
+<p><img src="https://cdn.nlark.com/yuque/0/2019/png/92822/1550929033517-5cb31640-162f-4857-9d23-633012448d52.png#align=left&amp;display=inline&amp;height=247&amp;linkTarget=_blank&amp;name=image.png&amp;originHeight=494&amp;originWidth=1594&amp;size=150710&amp;status=done&amp;width=797" alt="image.png"></p>
+<h3 id="Docker-Hub-查看"><a href="#Docker-Hub-查看" class="headerlink" title="Docker Hub 查看"></a>Docker Hub 查看</h3><p><img src="https://cdn.nlark.com/yuque/0/2019/png/92822/1550928859692-f356839e-ad01-4e3c-a7ac-76da2d39ad6d.png#align=left&amp;display=inline&amp;height=457&amp;linkTarget=_blank&amp;name=image.png&amp;originHeight=914&amp;originWidth=1254&amp;size=91543&amp;status=done&amp;width=627" alt="image.png"></p>
+<h2 id="去部署服务器运行"><a href="#去部署服务器运行" class="headerlink" title="去部署服务器运行"></a>去部署服务器运行</h2><p>之前的运行是在本地运行的，但是在上一步我们将镜像推到了 Docker Hub。现在在一台新服务器中运行：</p>
+<h3 id="拉取镜像-amp-运行"><a href="#拉取镜像-amp-运行" class="headerlink" title="拉取镜像 &amp; 运行"></a>拉取镜像 &amp; 运行</h3><p><img src="https://cdn.nlark.com/yuque/0/2019/png/92822/1550934097845-018eeae2-8ab0-4b6e-af25-a0773c43ee85.png#align=left&amp;display=inline&amp;height=347&amp;linkTarget=_blank&amp;name=image.png&amp;originHeight=694&amp;originWidth=1516&amp;size=415947&amp;status=done&amp;width=758" alt="image.png"></p>
+<p>注意到第一行：本地没有目标镜像，故而会从 Docker 仓库中下载</p>
+<h3 id="访问"><a href="#访问" class="headerlink" title="访问"></a>访问</h3><p><img src="https://cdn.nlark.com/yuque/0/2019/png/92822/1550934190513-2d5a1619-08fd-4426-ac78-8b1ca3135d64.png#align=left&amp;display=inline&amp;height=37&amp;linkTarget=_blank&amp;name=image.png&amp;originHeight=74&amp;originWidth=882&amp;size=35269&amp;status=done&amp;width=441" alt="image.png"></p>
+<p><img src="https://cdn.nlark.com/yuque/0/2019/png/92822/1550934219368-89291a01-9dad-4518-a1b6-6dec4abe8986.png#align=left&amp;display=inline&amp;height=129&amp;linkTarget=_blank&amp;name=image.png&amp;originHeight=258&amp;originWidth=808&amp;size=88059&amp;status=done&amp;width=404" alt="image.png"></p>
+<h2 id="资料"><a href="#资料" class="headerlink" title="资料"></a>资料</h2><ul>
+<li><a href="https://nodejs.org/zh-cn/docs/guides/nodejs-docker-webapp/" target="_blank" rel="noopener">https://nodejs.org/zh-cn/docs/guides/nodejs-docker-webapp/</a></li>
+<li><a href="https://blog.ryoma.top/posts/docker_base/">https://blog.ryoma.top/posts/docker_base/</a></li>
+</ul>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Docker/" rel="tag"># Docker</a>
+          
+            <a href="/tags/NodeJS/" rel="tag"># NodeJS</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/posts/docker_base/" rel="next" title="Docker 基础">
+                <i class="fa fa-chevron-left"></i> Docker 基础
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/posts/sharding_analysis/" rel="prev" title="分库分表分析">
+                分库分表分析 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+    <div class="comments" id="comments">
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/avatar.jpg"
+                alt="Ryoma" />
+            
+              <p class="site-author-name" itemprop="name">Ryoma</p>
+              <p class="site-description motion-element" itemprop="description">Ryoma's Blog</p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">80</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  <a href="/categories/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">20</span>
+                    <span class="site-state-item-name">分类</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  <a href="/tags/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">76</span>
+                    <span class="site-state-item-name">标签</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+            <div class="links-of-author motion-element">
+              
+                <span class="links-of-author-item">
+                  <a href="https://github.com/JianmingXia" target="_blank" title="GitHub"><i class="fa fa-fw fa-github"></i>GitHub</a>
+                  
+                </span>
+              
+                <span class="links-of-author-item">
+                  <a href="mailto:xiajianming_xjm@163.com" target="_blank" title="E-Mail"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                  
+                </span>
+              
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#创建-Node-项目"><span class="nav-number">1.</span> <span class="nav-text">创建 Node 项目</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#package-json"><span class="nav-number">1.1.</span> <span class="nav-text">package.json</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Demo-应用"><span class="nav-number">1.2.</span> <span class="nav-text">Demo 应用</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#准备工作"><span class="nav-number">2.</span> <span class="nav-text">准备工作</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Dockerfile"><span class="nav-number">2.1.</span> <span class="nav-text">Dockerfile</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#dockerignore"><span class="nav-number">2.2.</span> <span class="nav-text">.dockerignore</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#构建镜像"><span class="nav-number">3.</span> <span class="nav-text">构建镜像</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#构建镜像-1"><span class="nav-number">3.1.</span> <span class="nav-text">构建镜像</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#docker-login"><span class="nav-number">3.1.1.</span> <span class="nav-text">docker login</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#查看镜像"><span class="nav-number">3.2.</span> <span class="nav-text">查看镜像</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#运行"><span class="nav-number">4.</span> <span class="nav-text">运行</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#运行-1"><span class="nav-number">4.1.</span> <span class="nav-text">运行</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#查看运行情况"><span class="nav-number">4.2.</span> <span class="nav-text">查看运行情况</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#浏览器访问"><span class="nav-number">4.2.1.</span> <span class="nav-text">浏览器访问</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#docker-logs"><span class="nav-number">4.2.2.</span> <span class="nav-text">docker logs</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#上传镜像"><span class="nav-number">5.</span> <span class="nav-text">上传镜像</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#docker-tag"><span class="nav-number">5.1.</span> <span class="nav-text">docker tag</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#上传"><span class="nav-number">5.2.</span> <span class="nav-text">上传</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Docker-Hub-查看"><span class="nav-number">5.3.</span> <span class="nav-text">Docker Hub 查看</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#去部署服务器运行"><span class="nav-number">6.</span> <span class="nav-text">去部署服务器运行</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#拉取镜像-amp-运行"><span class="nav-number">6.1.</span> <span class="nav-text">拉取镜像 &amp; 运行</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#访问"><span class="nav-number">6.2.</span> <span class="nav-text">访问</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#资料"><span class="nav-number">7.</span> <span class="nav-text">资料</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2017 &mdash; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Ryoma</span>
+
+  
+
+  
+</div>
+
+
+
+
+  <div class="powered-by"><a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> v3.7.1</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://theme-next.org">NexT.Gemini</a> v6.3.0</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+	
+    
+
+    
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/three/three.min.js"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/three/canvas_sphere.min.js"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=6.3.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=6.3.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=6.3.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=6.3.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=6.3.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=6.3.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=6.3.0"></script>
+
+
+
+  
+
+  
+    <script id="dsq-count-scr" src="https://ryoma-blog.disqus.com/count.js" async></script>
+  
+
+  
+    <script type="text/javascript">
+      var disqus_config = function () {
+        this.page.url = 'https://blog.ryoma.top/posts/docker_node_base/';
+        this.page.identifier = 'posts/docker_node_base/';
+        this.page.title = 'Docker 部署 Node 项目';
+        };
+      function loadComments () {
+        var d = document, s = d.createElement('script');
+        s.src = 'https://ryoma-blog.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', '' + +new Date());
+        (d.head || d.body).appendChild(s);
+      }
+      
+        $(function () {
+          var offsetTop = $('#comments').offset().top - $(window).height();
+          if (offsetTop <= 0) {
+            // load directly when there's no a scrollbar
+            loadComments();
+          } else {
+            $(window).on('scroll.disqus_scroll', function () {
+              var scrollTop = document.documentElement.scrollTop;
+              if (scrollTop >= offsetTop) {
+                $(window).off('.disqus_scroll');
+                loadComments();
+              }
+            });
+          }
+        });
+      
+    </script>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
