@@ -309,6 +309,222 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.ryoma.top/posts/node_base/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Ryoma">
+      <meta itemprop="description" content="Ryoma's Blog">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Ryoma's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/posts/node_base/" itemprop="url">
+                  最简单的 NodeJS 项目
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2018-06-30 18:30:00" itemprop="dateCreated datePublished" datetime="2018-06-30T18:30:00+08:00">2018-06-30</time>
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/NodeJS/" itemprop="url" rel="index"><span itemprop="name">NodeJS</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/posts/node_base/#comments" itemprop="discussionUrl">
+                
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="posts/node_base/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="创建一个服务"><a href="#创建一个服务" class="headerlink" title="创建一个服务"></a>创建一个服务</h2><h3 id="createServer"><a href="#createServer" class="headerlink" title="createServer"></a>createServer</h3><p>在 Node 中，通常使用 createServer 来创建服务：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">const http = require(&apos;http&apos;);</span><br><span class="line"></span><br><span class="line">const server = http.createServer((request, response) =&gt; &#123;</span><br><span class="line">  // magic happens here!</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<p>每当服务接收到 HTTP 请求时，createServer 中的 Function 就被自动执行——这个 Function 也被称为是请求处理函数。<br>值得注意的是，createServer 返回的是一个 EventEmitter，默认会被添加 request event：</p>
+<p><img src="https://cdn.nlark.com/yuque/0/2019/png/92822/1550978156056-79b8f1e3-0ea9-4c2f-8df2-27a0ea20e634.png#align=left&amp;display=inline&amp;height=367&amp;linkTarget=_blank&amp;name=image.png&amp;originHeight=734&amp;originWidth=2692&amp;size=182977&amp;status=done&amp;width=1346" alt="image.png"></p>
+<p>故而上面的代码可以改为：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">const server = http.createServer();</span><br><span class="line">server.on(&apos;request&apos;, (request, response) =&gt; &#123;</span><br><span class="line">  // the same kind of magic happens here!</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<h3 id="listen"><a href="#listen" class="headerlink" title="listen"></a>listen</h3><p>创建服务器之后，还需要为服务器设置监听的端口：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">server.listen(8889);</span><br></pre></td></tr></table></figure>
+<p>更多操作见<a href="https://nodejs.org/api/net.html#net_server_listen" target="_blank" rel="noopener">文档</a>。</p>
+<h2 id="请求"><a href="#请求" class="headerlink" title="请求"></a>请求</h2><h3 id="方法-amp-访问地址-amp-请求头"><a href="#方法-amp-访问地址-amp-请求头" class="headerlink" title="方法 &amp; 访问地址 &amp; 请求头"></a>方法 &amp; 访问地址 &amp; 请求头</h3><p>requestListener 即为 request event 的回调函数，它的类型为 RequestListener：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">type RequestListener = (req: IncomingMessage, res: ServerResponse) =&gt; void;</span><br></pre></td></tr></table></figure>
+<p>而当处理请求时，首先要看请求方法及url，以此服务器来决定做何处理。<br>Node 将这些属性放在了 request 对象之中，可以直接从 request 对象中取出来：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">const &#123; method, url &#125; = request;</span><br><span class="line"></span><br><span class="line">// 获取请求头</span><br><span class="line">const &#123; headers &#125; = request;</span><br><span class="line">const userAgent = headers[&apos;user-agent&apos;];</span><br></pre></td></tr></table></figure>
+<p><strong>更多属性</strong>：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br></pre></td><td class="code"><pre><span class="line">// request 类型</span><br><span class="line">class IncomingMessage extends stream.Readable &#123;</span><br><span class="line">    constructor(socket: net.Socket);</span><br><span class="line"></span><br><span class="line">    httpVersion: string;</span><br><span class="line">    httpVersionMajor: number;</span><br><span class="line">    httpVersionMinor: number;</span><br><span class="line">    connection: net.Socket;</span><br><span class="line">    headers: IncomingHttpHeaders;</span><br><span class="line">    rawHeaders: string[];</span><br><span class="line">    trailers: &#123; [key: string]: string | undefined &#125;;</span><br><span class="line">    rawTrailers: string[];</span><br><span class="line">    setTimeout(msecs: number, callback: () =&gt; void): this;</span><br><span class="line">    /**</span><br><span class="line">    * Only valid for request obtained from http.Server.</span><br><span class="line">    */</span><br><span class="line">    method?: string;</span><br><span class="line">    /**</span><br><span class="line">    * Only valid for request obtained from http.Server.</span><br><span class="line">    */</span><br><span class="line">    url?: string;</span><br><span class="line">    /**</span><br><span class="line">    * Only valid for response obtained from http.ClientRequest.</span><br><span class="line">    */</span><br><span class="line">    statusCode?: number;</span><br><span class="line">    /**</span><br><span class="line">    * Only valid for response obtained from http.ClientRequest.</span><br><span class="line">    */</span><br><span class="line">    statusMessage?: string;</span><br><span class="line">    socket: net.Socket;</span><br><span class="line">    destroy(error?: Error): void;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">// 请求头</span><br><span class="line">// incoming headers will never contain number</span><br><span class="line">interface IncomingHttpHeaders &#123;</span><br><span class="line">    &apos;accept&apos;?: string;</span><br><span class="line">    &apos;accept-patch&apos;?: string;</span><br><span class="line">    &apos;accept-ranges&apos;?: string;</span><br><span class="line">    &apos;access-control-allow-credentials&apos;?: string;</span><br><span class="line">    &apos;access-control-allow-headers&apos;?: string;</span><br><span class="line">    &apos;access-control-allow-methods&apos;?: string;</span><br><span class="line">    &apos;access-control-allow-origin&apos;?: string;</span><br><span class="line">    &apos;access-control-expose-headers&apos;?: string;</span><br><span class="line">    &apos;access-control-max-age&apos;?: string;</span><br><span class="line">    &apos;age&apos;?: string;</span><br><span class="line">    &apos;allow&apos;?: string;</span><br><span class="line">    &apos;alt-svc&apos;?: string;</span><br><span class="line">    &apos;authorization&apos;?: string;</span><br><span class="line">    &apos;cache-control&apos;?: string;</span><br><span class="line">    &apos;connection&apos;?: string;</span><br><span class="line">    &apos;content-disposition&apos;?: string;</span><br><span class="line">    &apos;content-encoding&apos;?: string;</span><br><span class="line">    &apos;content-language&apos;?: string;</span><br><span class="line">    &apos;content-length&apos;?: string;</span><br><span class="line">    &apos;content-location&apos;?: string;</span><br><span class="line">    &apos;content-range&apos;?: string;</span><br><span class="line">    &apos;content-type&apos;?: string;</span><br><span class="line">    &apos;cookie&apos;?: string;</span><br><span class="line">    &apos;date&apos;?: string;</span><br><span class="line">    &apos;expect&apos;?: string;</span><br><span class="line">    &apos;expires&apos;?: string;</span><br><span class="line">    &apos;forwarded&apos;?: string;</span><br><span class="line">    &apos;from&apos;?: string;</span><br><span class="line">    &apos;host&apos;?: string;</span><br><span class="line">    &apos;if-match&apos;?: string;</span><br><span class="line">    &apos;if-modified-since&apos;?: string;</span><br><span class="line">    &apos;if-none-match&apos;?: string;</span><br><span class="line">    &apos;if-unmodified-since&apos;?: string;</span><br><span class="line">    &apos;last-modified&apos;?: string;</span><br><span class="line">    &apos;location&apos;?: string;</span><br><span class="line">    &apos;pragma&apos;?: string;</span><br><span class="line">    &apos;proxy-authenticate&apos;?: string;</span><br><span class="line">    &apos;proxy-authorization&apos;?: string;</span><br><span class="line">    &apos;public-key-pins&apos;?: string;</span><br><span class="line">    &apos;range&apos;?: string;</span><br><span class="line">    &apos;referer&apos;?: string;</span><br><span class="line">    &apos;retry-after&apos;?: string;</span><br><span class="line">    &apos;set-cookie&apos;?: string[];</span><br><span class="line">    &apos;strict-transport-security&apos;?: string;</span><br><span class="line">    &apos;tk&apos;?: string;</span><br><span class="line">    &apos;trailer&apos;?: string;</span><br><span class="line">    &apos;transfer-encoding&apos;?: string;</span><br><span class="line">    &apos;upgrade&apos;?: string;</span><br><span class="line">    &apos;user-agent&apos;?: string;</span><br><span class="line">    &apos;vary&apos;?: string;</span><br><span class="line">    &apos;via&apos;?: string;</span><br><span class="line">    &apos;warning&apos;?: string;</span><br><span class="line">    &apos;www-authenticate&apos;?: string;</span><br><span class="line">    [header: string]: string | string[] | undefined;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>有一点值得注意，<strong>所有的请求头都是小写</strong>，也方便去了解析请求头。</p>
+<h3 id="请求体"><a href="#请求体" class="headerlink" title="请求体"></a>请求体</h3><p>当接收到 POST/PUT/PATCH 等请求时，请求体对服务非常重要。但是与获取请求头相比，获取请求体会略微麻烦一点。但在上面的代码中可以发现，request 继承自 stream.Readable，所以可以通过添加 data、end 事件将数据取出来。</p>
+<p>每次 data 事件触发时获取的数据块皆为一个 Buffer；如果已知数据为字符串，可以在 data 事件中先将数据收集起来，然后在 end 事件中进行拼接：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">let body = [];</span><br><span class="line">request.on(&apos;data&apos;, (chunk) =&gt; &#123;</span><br><span class="line">  body.push(chunk);</span><br><span class="line">&#125;).on(&apos;end&apos;, () =&gt; &#123;</span><br><span class="line">  body = Buffer.concat(body).toString();</span><br><span class="line">  // at this point, `body` has the entire request body stored in it as a string</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<h2 id="响应"><a href="#响应" class="headerlink" title="响应"></a>响应</h2><p>如果只处理了请求，而没响应，如果在浏览器上运行，最终获得的就是一个超时</p>
+<p><img src="https://cdn.nlark.com/yuque/0/2019/png/92822/1550988062446-9716363a-2960-4fa4-a524-d5c79f79d6ed.png#align=left&amp;display=inline&amp;height=156&amp;linkTarget=_blank&amp;name=image.png&amp;originHeight=312&amp;originWidth=2292&amp;size=96223&amp;status=done&amp;width=1146" alt="image.png"></p>
+<h3 id="response"><a href="#response" class="headerlink" title="response"></a>response</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line">// https://github.com/nodejs/node/blob/master/lib/_http_server.js#L108-L256</span><br><span class="line">class ServerResponse extends OutgoingMessage &#123;</span><br><span class="line">    statusCode: number;</span><br><span class="line">    statusMessage: string;</span><br><span class="line"></span><br><span class="line">    constructor(req: IncomingMessage);</span><br><span class="line"></span><br><span class="line">    assignSocket(socket: net.Socket): void;</span><br><span class="line">    detachSocket(socket: net.Socket): void;</span><br><span class="line">    // https://github.com/nodejs/node/blob/master/test/parallel/test-http-write-callbacks.js#L53</span><br><span class="line">    // no args in writeContinue callback</span><br><span class="line">    writeContinue(callback?: () =&gt; void): void;</span><br><span class="line">    writeHead(statusCode: number, reasonPhrase?: string, headers?: OutgoingHttpHeaders): void;</span><br><span class="line">    writeHead(statusCode: number, headers?: OutgoingHttpHeaders): void;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">// https://github.com/nodejs/node/blob/master/lib/_http_outgoing.js</span><br><span class="line">class OutgoingMessage extends stream.Writable &#123;</span><br><span class="line">    upgrading: boolean;</span><br><span class="line">    chunkedEncoding: boolean;</span><br><span class="line">    shouldKeepAlive: boolean;</span><br><span class="line">    useChunkedEncodingByDefault: boolean;</span><br><span class="line">    sendDate: boolean;</span><br><span class="line">    finished: boolean;</span><br><span class="line">    headersSent: boolean;</span><br><span class="line">    connection: net.Socket;</span><br><span class="line"></span><br><span class="line">    constructor();</span><br><span class="line"></span><br><span class="line">    setTimeout(msecs: number, callback?: () =&gt; void): this;</span><br><span class="line">    setHeader(name: string, value: number | string | string[]): void;</span><br><span class="line">    getHeader(name: string): number | string | string[] | undefined;</span><br><span class="line">    getHeaders(): OutgoingHttpHeaders;</span><br><span class="line">    getHeaderNames(): string[];</span><br><span class="line">    hasHeader(name: string): boolean;</span><br><span class="line">    removeHeader(name: string): void;</span><br><span class="line">    addTrailers(headers: OutgoingHttpHeaders | Array&lt;[string, string]&gt;): void;</span><br><span class="line">    flushHeaders(): void;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="状态码"><a href="#状态码" class="headerlink" title="状态码"></a>状态码</h3><p>可以直接通过设置 statusCode 设置返回码</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">response.statusCode = 404; // Tell the client that the resource wasn&apos;t found.</span><br></pre></td></tr></table></figure>
+<h3 id="响应头"><a href="#响应头" class="headerlink" title="响应头"></a>响应头</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">response.setHeader(&apos;Content-Type&apos;, &apos;application/json&apos;);</span><br><span class="line">response.setHeader(&apos;X-Powered-By&apos;, &apos;bacon&apos;);</span><br></pre></td></tr></table></figure>
+<p>设置响应头时，它们的名字是大小写敏感的。如果重复设置了响应头，最后一次设置的值即为系统得到的值。</p>
+<h3 id="writeHead"><a href="#writeHead" class="headerlink" title="writeHead"></a>writeHead</h3><p>writeHead 可以同时设置 状态码 &amp; 响应头：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">response.writeHead(200, &#123;</span><br><span class="line">  &apos;Content-Type&apos;: &apos;application/json&apos;,</span><br><span class="line">  &apos;X-Powered-By&apos;: &apos;bacon&apos;</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<h3 id="响应体"><a href="#响应体" class="headerlink" title="响应体"></a>响应体</h3><p>既然 response 是一个 WriteableStream，写响应体就简单了：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">response.write(&apos;&lt;html&gt;&apos;);</span><br><span class="line">response.write(&apos;&lt;body&gt;&apos;);</span><br><span class="line">response.write(&apos;&lt;h1&gt;Hello, World!&lt;/h1&gt;&apos;);</span><br><span class="line">response.write(&apos;&lt;/body&gt;&apos;);</span><br><span class="line">response.write(&apos;&lt;/html&gt;&apos;);</span><br><span class="line">response.end();</span><br></pre></td></tr></table></figure>
+<p>另外，end 方法也是可以带数据，故而上面的代码可以简化为：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">response.end(&apos;&lt;html&gt;&lt;body&gt;&lt;h1&gt;Hello, World!&lt;/h1&gt;&lt;/body&gt;&lt;/html&gt;&apos;);</span><br></pre></td></tr></table></figure>
+<h2 id="代码"><a href="#代码" class="headerlink" title="代码"></a>代码</h2><h3 id="示例代码"><a href="#示例代码" class="headerlink" title="示例代码"></a>示例代码</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">var http = require(&quot;http&quot;);</span><br><span class="line"></span><br><span class="line">http.createServer((request, response) =&gt; &#123;</span><br><span class="line">  const &#123; headers, method, url &#125; = request;</span><br><span class="line">  let body = [];</span><br><span class="line">  request.on(&apos;error&apos;, (err) =&gt; &#123;</span><br><span class="line">    console.error(err);</span><br><span class="line">  &#125;).on(&apos;data&apos;, (chunk) =&gt; &#123;</span><br><span class="line">    body.push(chunk);</span><br><span class="line">  &#125;).on(&apos;end&apos;, () =&gt; &#123;</span><br><span class="line">    body = Buffer.concat(body).toString();</span><br><span class="line"></span><br><span class="line">    response.on(&apos;error&apos;, (err) =&gt; &#123;</span><br><span class="line">      console.error(err);</span><br><span class="line">    &#125;);</span><br><span class="line"></span><br><span class="line">    response.writeHead(200, &#123;&apos;Content-Type&apos;: &apos;application/json&apos;&#125;)</span><br><span class="line"></span><br><span class="line">    const responseBody = &#123; headers, method, url, body &#125;;</span><br><span class="line"></span><br><span class="line">    response.end(JSON.stringify(responseBody))</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;).listen(8080);</span><br><span class="line"></span><br><span class="line">console.log(&quot;Server running at http://127.0.0.1:8080/&quot;);</span><br></pre></td></tr></table></figure>
+<p>运行情况：</p>
+<p><img src="https://cdn.nlark.com/yuque/0/2019/png/92822/1550989262112-9b5af151-9269-46ff-862a-a147b0927987.png#align=left&amp;display=inline&amp;height=228&amp;linkTarget=_blank&amp;name=image.png&amp;originHeight=456&amp;originWidth=2050&amp;size=138892&amp;status=done&amp;width=1025" alt="image.png"></p>
+<h3 id="简化代码"><a href="#简化代码" class="headerlink" title="简化代码"></a>简化代码</h3><p>只对以下请求做处理：</p>
+<ul>
+<li>POST 请求</li>
+<li>url 为 /echo</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">const http = require(&apos;http&apos;);</span><br><span class="line"></span><br><span class="line">http.createServer((request, response) =&gt; &#123;</span><br><span class="line">  if (request.method === &apos;POST&apos; &amp;&amp; request.url === &apos;/echo&apos;) &#123;</span><br><span class="line">    let body = [];</span><br><span class="line">    request.on(&apos;data&apos;, (chunk) =&gt; &#123;</span><br><span class="line">      body.push(chunk);</span><br><span class="line">    &#125;).on(&apos;end&apos;, () =&gt; &#123;</span><br><span class="line">      body = Buffer.concat(body).toString();</span><br><span class="line">      response.end(body);</span><br><span class="line">    &#125;);</span><br><span class="line">  &#125; else &#123;</span><br><span class="line">    response.statusCode = 404;</span><br><span class="line">    response.end();</span><br><span class="line">  &#125;</span><br><span class="line">&#125;).listen(8080);</span><br></pre></td></tr></table></figure>
+<h4 id="失败请求"><a href="#失败请求" class="headerlink" title="失败请求"></a>失败请求</h4><p><img src="https://cdn.nlark.com/yuque/0/2019/png/92822/1550990316267-52849b14-5e5d-421a-b534-c555f8a3faac.png#align=left&amp;display=inline&amp;height=102&amp;linkTarget=_blank&amp;name=image.png&amp;originHeight=204&amp;originWidth=1162&amp;size=41501&amp;status=done&amp;width=581" alt="image.png"></p>
+<h4 id="成功请求"><a href="#成功请求" class="headerlink" title="成功请求"></a>成功请求</h4><p><img src="https://cdn.nlark.com/yuque/0/2019/png/92822/1550990337884-bd963d38-2890-46b8-80f1-196e82a42518.png#align=left&amp;display=inline&amp;height=122&amp;linkTarget=_blank&amp;name=image.png&amp;originHeight=244&amp;originWidth=1262&amp;size=50702&amp;status=done&amp;width=631" alt="image.png"></p>
+<h3 id="继续优化"><a href="#继续优化" class="headerlink" title="继续优化"></a>继续优化</h3><p>request 是一个可读流，而 response 是一个可写流——可以通过 pipe 直接流转：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">const http = require(&apos;http&apos;);</span><br><span class="line"></span><br><span class="line">http.createServer((request, response) =&gt; &#123;</span><br><span class="line">  if (request.method === &apos;POST&apos; &amp;&amp; request.url === &apos;/echo&apos;) &#123;</span><br><span class="line">    request.pipe(response);</span><br><span class="line">  &#125; else &#123;</span><br><span class="line">    response.statusCode = 404;</span><br><span class="line">    response.end();</span><br><span class="line">  &#125;</span><br><span class="line">&#125;).listen(8080);</span><br></pre></td></tr></table></figure>
+<h2 id="补充"><a href="#补充" class="headerlink" title="补充"></a>补充</h2><h3 id="request"><a href="#request" class="headerlink" title="request"></a>request</h3><p>request 不只是一个 ReadableStream 对象，同时也是一个 EventEmitter。当有错误在 request 对象在发生时，会触发自身的 error 事件，如果事件未被捕捉，错误会被抛出，进而导致崩溃</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">request.on(&apos;error&apos;, (err) =&gt; &#123;</span><br><span class="line">  // This prints the error message and stack trace to `stderr`.</span><br><span class="line">  console.error(err.stack);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<h3 id="response-1"><a href="#response-1" class="headerlink" title="response"></a>response</h3><p>与 request 类似，response 上同样需要进行处理</p>
+<h2 id="资料"><a href="#资料" class="headerlink" title="资料"></a>资料</h2><ul>
+<li><a href="https://nodejs.org/zh-cn/docs/guides/anatomy-of-an-http-transaction/" target="_blank" rel="noopener">https://nodejs.org/zh-cn/docs/guides/anatomy-of-an-http-transaction/</a></li>
+</ul>
+
+          
+        
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="https://blog.ryoma.top/posts/load_balancer/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -988,185 +1204,11 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://blog.ryoma.top/posts/apache_bench/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Ryoma">
-      <meta itemprop="description" content="Ryoma's Blog">
-      <meta itemprop="image" content="/images/avatar.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Ryoma's Blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/posts/apache_bench/" itemprop="url">
-                  Apache HTTP服务器基准测试工具(ab)
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-
-            
-            
-            
-
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-
-              
-                
-              
-
-              <time title="创建时间：2018-04-03 21:00:00" itemprop="dateCreated datePublished" datetime="2018-04-03T21:00:00+08:00">2018-04-03</time>
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/技术杂集/" itemprop="url" rel="index"><span itemprop="name">技术杂集</span></a></span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/posts/apache_bench/#comments" itemprop="discussionUrl">
-                
-                  <span class="post-comments-count disqus-comment-count"
-                        data-disqus-identifier="posts/apache_bench/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <blockquote>
-<p>ab is a tool for benchmarking your Apache Hypertext Transfer Protocol (HTTP) server. It is designed to give you an impression of how your current Apache installation performs. This especially shows you how many requests per second your Apache installation is capable of serving.</p>
-</blockquote>
-<p>ab是Apache超文本传输协议(HTTP)服务器的基准测试工具，平时可以用于来评测服务的并发性能，个人觉得它是非常简单 &amp; 好用的一个工具。</p>
-<p>Note：虽然ab占用的资源不太高，但是如果参数设置的很多，还是有可能对本机器所在的服务造成影响——为了更严谨的测试，不要在部署服务的机器上做测试</p>
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/posts/apache_bench/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/page/7/"><i class="fa fa-angle-left" aria-label="上一页"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/7/">7</a><span class="page-number current">8</span><a class="page-number" href="/page/9/">9</a><span class="space">&hellip;</span><a class="page-number" href="/page/16/">16</a><a class="extend next" rel="next" href="/page/9/"><i class="fa fa-angle-right" aria-label="下一页"></i></a>
+    <a class="extend prev" rel="prev" href="/page/7/"><i class="fa fa-angle-left" aria-label="上一页"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/7/">7</a><span class="page-number current">8</span><a class="page-number" href="/page/9/">9</a><span class="space">&hellip;</span><a class="page-number" href="/page/17/">17</a><a class="extend next" rel="next" href="/page/9/"><i class="fa fa-angle-right" aria-label="下一页"></i></a>
   </nav>
 
 
@@ -1213,7 +1255,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">80</span>
+                    <span class="site-state-item-count">81</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
