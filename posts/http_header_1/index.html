@@ -1,0 +1,1302 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=6.3.0" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=6.3.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=6.3.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=6.3.0">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=6.3.0" color="#222">
+
+
+
+
+
+
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '6.3.0',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="在上文中介绍了 HTTP header 的作用、规则定义及类别。在本文针对每个 header 做更详细介绍：  通用首部字段 Cache-Control 操作缓存的工作机制  Cache-Control 的指令可用于请求及响应时： 缓存请求指令">
+<meta name="keywords" content="HTTP">
+<meta property="og:type" content="article">
+<meta property="og:title" content="HTTP header 详解">
+<meta property="og:url" content="https://blog.ryoma.top/posts/http_header_1/index.html">
+<meta property="og:site_name" content="Ryoma&#39;s Blog">
+<meta property="og:description" content="在上文中介绍了 HTTP header 的作用、规则定义及类别。在本文针对每个 header 做更详细介绍：  通用首部字段 Cache-Control 操作缓存的工作机制  Cache-Control 的指令可用于请求及响应时： 缓存请求指令">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2019/png/92822/1550644033993-b52297d5-d768-4afb-8b28-32507cb5587e.png#align=left&display=inline&height=402&name=image.png&originHeight=402&originWidth=704&size=106755&width=704#align=left&display=inline&height=402&originHeight=402&originWidth=704&status=done&width=704">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2019/png/92822/1550644060699-2d0c765a-2dea-4cfa-86ac-6a0a476c7b0b.png#align=left&display=inline&height=504&name=image.png&originHeight=504&originWidth=938&size=153469&width=938#align=left&display=inline&height=401&originHeight=504&originWidth=938&status=done&width=746">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2019/png/92822/1550646353168-d3b6e8da-6e4e-45e8-9a47-b8c4cb868969.png#align=left&display=inline&height=345&name=image.png&originHeight=345&originWidth=947&size=133655&width=947#align=left&display=inline&height=272&originHeight=345&originWidth=947&status=done&width=746">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2019/png/92822/1550646534117-11009c64-0be3-4a99-b46a-cfa158091d8c.png#align=left&display=inline&height=377&name=image.png&originHeight=377&originWidth=864&size=243528&width=864#align=left&display=inline&height=326&originHeight=377&originWidth=864&status=done&width=746">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2019/png/92822/1550646579279-2d4a0d6b-3e2e-46e3-a088-3e48a62fe6a2.png#align=left&display=inline&height=373&name=image.png&originHeight=373&originWidth=1118&size=43887&width=1118#align=left&display=inline&height=249&originHeight=373&originWidth=1118&status=done&width=746">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2019/png/92822/1551596915547-851f8e2a-ac64-4e3d-ad02-1980873356c1.png#align=left&display=inline&height=115&name=image.png&originHeight=230&originWidth=1320&size=25231&status=done&width=660">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2019/png/92822/1551596962150-803a7a54-45dd-4887-8275-cc6dad63a3a5.png#align=left&display=inline&height=98&name=image.png&originHeight=196&originWidth=1272&size=23548&status=done&width=636">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2019/png/92822/1551597014283-501caf7e-f202-4e3a-bacd-6d0c5bc43333.png#align=left&display=inline&height=101&name=image.png&originHeight=202&originWidth=1176&size=20618&status=done&width=588">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2019/png/92822/1551597233614-dc54561d-33fa-4737-ba59-10884cec81e6.png#align=left&display=inline&height=136&name=image.png&originHeight=272&originWidth=908&size=26577&status=done&width=454">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2019/png/92822/1551597347732-8c4381d6-b8d0-4d5a-a101-bb1900919bbf.png#align=left&display=inline&height=347&name=image.png&originHeight=694&originWidth=1232&size=97883&status=done&width=616">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2019/png/92822/1551597470171-2c09ed20-9ad0-4434-ae55-617325c6dee3.png#align=left&display=inline&height=647&name=image.png&originHeight=1294&originWidth=1366&size=216338&status=done&width=683">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2019/png/92822/1551597839089-f633d0a8-d601-4090-9083-6db7c2798098.png#align=left&display=inline&height=91&name=image.png&originHeight=182&originWidth=2176&size=30783&status=done&width=1088">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2019/png/92822/1551597896294-d7730dd1-d451-442b-acd6-38ecefde6677.png#align=left&display=inline&height=87&name=image.png&originHeight=174&originWidth=1644&size=30546&status=done&width=822">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2019/png/92822/1551597984874-4c829168-5dc5-4070-9b4c-e2f5ffccc254.png#align=left&display=inline&height=103&name=image.png&originHeight=206&originWidth=1128&size=21159&status=done&width=564">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2019/png/92822/1551598045484-90b8eef1-3b4d-4d2a-9e14-4a9d394ec7ff.png#align=left&display=inline&height=757&name=image.png&originHeight=1514&originWidth=2174&size=422818&status=done&width=1087">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2019/png/92822/1551598092886-06d4c27b-f996-4821-aa47-cea54e8795a3.png#align=left&display=inline&height=91&name=image.png&originHeight=182&originWidth=1700&size=27768&status=done&width=850">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2019/png/92822/1551598197832-16637a9f-db47-4d77-8c8f-862f69da5f56.png#align=left&display=inline&height=104&name=image.png&originHeight=208&originWidth=1652&size=34549&status=done&width=826">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2019/png/92822/1551599100790-2846eb8e-b88b-435d-b02f-9d5ab37a2f18.png#align=left&display=inline&height=96&name=image.png&originHeight=192&originWidth=804&size=14559&status=done&width=402">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2019/png/92822/1551599761302-da9acd63-ba0a-4f2e-9791-372b2dc31022.png#align=left&display=inline&height=91&name=image.png&originHeight=182&originWidth=1742&size=29996&status=done&width=871">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2019/png/92822/1551600268568-fc7f15e1-a636-4051-9228-0a194cab379e.png#align=left&display=inline&height=109&name=image.png&originHeight=218&originWidth=1384&size=84453&status=done&width=692">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2019/png/92822/1551600333280-aab28da7-58c0-4272-82f0-d8825d2515f5.png#align=left&display=inline&height=107&name=image.png&originHeight=214&originWidth=1388&size=86192&status=done&width=694">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2019/png/92822/1551600417185-35fed7f5-d61c-4ada-8090-ce58211cb72f.png#align=left&display=inline&height=99&name=image.png&originHeight=198&originWidth=706&size=15674&status=done&width=353">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2019/png/92822/1551600480325-8816f17e-1a2c-4869-b3df-08600203154b.png#align=left&display=inline&height=91&name=image.png&originHeight=182&originWidth=1392&size=64951&status=done&width=696">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2019/png/92822/1551600532042-d8fe7138-beec-45b6-b94b-a777644c684e.png#align=left&display=inline&height=143&name=image.png&originHeight=286&originWidth=1384&size=106970&status=done&width=692">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2019/png/92822/1551600659630-da063b56-7aa9-4265-a471-69630b283a00.png#align=left&display=inline&height=167&name=image.png&originHeight=334&originWidth=1380&size=96774&status=done&width=690">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2019/png/92822/1551600792413-c4e56cd7-6b85-4bdd-b1cf-a16d5e2e8281.png#align=left&display=inline&height=213&name=image.png&originHeight=426&originWidth=1392&size=129177&status=done&width=696">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2019/png/92822/1551601004123-9f474911-9298-47f0-b048-7c6141b0415d.png#align=left&display=inline&height=168&name=image.png&originHeight=336&originWidth=1424&size=70632&status=done&width=712">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2019/png/92822/1551601056540-e7b984d3-936d-4eb2-abf5-f9b2b81117c9.png#align=left&display=inline&height=106&name=image.png&originHeight=212&originWidth=1374&size=69077&status=done&width=687">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2019/png/92822/1551601107858-6b440252-1912-4b04-b07c-0426d7f61d5e.png#align=left&display=inline&height=173&name=image.png&originHeight=346&originWidth=1376&size=113145&status=done&width=688">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2019/png/92822/1551601222168-5744e8dd-c794-41ea-824f-199fc9af34f5.png#align=left&display=inline&height=507&name=image.png&originHeight=1014&originWidth=1418&size=279969&status=done&width=709">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2019/png/92822/1551601324281-946bc1d5-c37c-4a8c-bcd9-7505e37d3b14.png#align=left&display=inline&height=169&name=image.png&originHeight=338&originWidth=1396&size=79865&status=done&width=698">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2019/png/92822/1551601388082-23041a9f-b621-4d20-bbf6-1e9ff403527a.png#align=left&display=inline&height=207&name=image.png&originHeight=414&originWidth=1422&size=108462&status=done&width=711">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2019/png/92822/1551601440762-3fc7493e-7732-42ce-b3b7-2e14eaa9e3f8.png#align=left&display=inline&height=124&name=image.png&originHeight=248&originWidth=1380&size=63901&status=done&width=690">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2019/png/92822/1551601493514-0c4ad47f-750d-419e-9619-87fbc89653df.png#align=left&display=inline&height=165&name=image.png&originHeight=330&originWidth=1386&size=108008&status=done&width=693">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2019/png/92822/1551601589010-0d7dc223-32fd-4483-b05c-4a5799828a5d.png#align=left&display=inline&height=102&name=image.png&originHeight=204&originWidth=1308&size=46054&status=done&width=654">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2019/png/92822/1551601740438-d0aa8cc0-ba1c-4917-958c-fef90a6ab877.png#align=left&display=inline&height=140&name=image.png&originHeight=280&originWidth=1348&size=80697&status=done&width=674">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2019/png/92822/1551601808341-739fdec6-4022-4225-aa08-a6b54d8aa986.png#align=left&display=inline&height=185&name=image.png&originHeight=370&originWidth=1388&size=130108&status=done&width=694">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2019/png/92822/1551601877359-d87c922e-0f25-445f-b0cf-1a9892ea0982.png#align=left&display=inline&height=89&name=image.png&originHeight=178&originWidth=2130&size=85013&status=done&width=1065">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2019/png/92822/1551601926978-cc4c1174-ebaa-4ad1-a41a-b96be56b9050.png#align=left&display=inline&height=62&name=image.png&originHeight=124&originWidth=1394&size=34647&status=done&width=697">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2019/png/92822/1551602071972-ccf23b91-db08-4c23-a173-ef19bf4e691e.png#align=left&display=inline&height=191&name=image.png&originHeight=382&originWidth=1436&size=117876&status=done&width=718">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2019/png/92822/1551602145103-e05f5f42-e897-406d-a419-6877297f3979.png#align=left&display=inline&height=238&name=image.png&originHeight=476&originWidth=2176&size=263214&status=done&width=1088">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2019/png/92822/1551602188174-e8fcbc40-2154-4c8e-a483-ddb7f61f9284.png#align=left&display=inline&height=53&name=image.png&originHeight=106&originWidth=1302&size=23134&status=done&width=651">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2019/png/92822/1551602239701-63ad8989-8a02-4355-94f8-48031aeab276.png#align=left&display=inline&height=193&name=image.png&originHeight=386&originWidth=1398&size=106739&status=done&width=699">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2019/png/92822/1551602442868-c3e545b4-fc7b-4437-846d-cc7b70679e90.png#align=left&display=inline&height=175&name=image.png&originHeight=350&originWidth=1408&size=69443&status=done&width=704">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2019/png/92822/1551602505144-45f4139c-284f-4bd8-8f89-369c8bfd9b19.png#align=left&display=inline&height=116&name=image.png&originHeight=232&originWidth=1372&size=88246&status=done&width=686">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2019/png/92822/1551602735738-351d8a70-5d69-4ffe-96ed-eb2d05e999ed.png#align=left&display=inline&height=177&name=image.png&originHeight=354&originWidth=1862&size=115080&status=done&width=931">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2019/png/92822/1551602796782-3b5a705d-96d5-417b-9259-81fdbbfa20dc.png#align=left&display=inline&height=89&name=image.png&originHeight=178&originWidth=2174&size=35215&status=done&width=1087">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2019/png/92822/1551602833363-7b4db6c9-719c-48e3-8746-3733d76bffe9.png#align=left&display=inline&height=436&name=image.png&originHeight=872&originWidth=2202&size=367366&status=done&width=1101">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2019/png/92822/1551602883290-7c645233-4473-4e04-b2e1-fd64ff647449.png#align=left&display=inline&height=120&name=image.png&originHeight=240&originWidth=1382&size=60687&status=done&width=691">
+<meta property="og:updated_time" content="2019-03-03T08:53:27.113Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="HTTP header 详解">
+<meta name="twitter:description" content="在上文中介绍了 HTTP header 的作用、规则定义及类别。在本文针对每个 header 做更详细介绍：  通用首部字段 Cache-Control 操作缓存的工作机制  Cache-Control 的指令可用于请求及响应时： 缓存请求指令">
+<meta name="twitter:image" content="https://cdn.nlark.com/yuque/0/2019/png/92822/1550644033993-b52297d5-d768-4afb-8b28-32507cb5587e.png#align=left&display=inline&height=402&name=image.png&originHeight=402&originWidth=704&size=106755&width=704#align=left&display=inline&height=402&originHeight=402&originWidth=704&status=done&width=704">
+
+
+
+
+
+
+  <link rel="canonical" href="https://blog.ryoma.top/posts/http_header_1/"/>
+
+
+
+<script type="text/javascript" id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>HTTP header 详解 | Ryoma's Blog</title>
+  
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style type="text/css">
+    .use-motion .motion-element,
+    .use-motion .brand,
+    .use-motion .menu-item,
+    .sidebar-inner,
+    .use-motion .post-block,
+    .use-motion .pagination,
+    .use-motion .comments,
+    .use-motion .post-header,
+    .use-motion .post-body,
+    .use-motion .collection-title { opacity: initial; }
+
+    .use-motion .logo,
+    .use-motion .site-title,
+    .use-motion .site-subtitle {
+      opacity: initial;
+      top: initial;
+    }
+
+    .use-motion {
+      .logo-line-before i { left: initial; }
+      .logo-line-after i { right: initial; }
+    }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Ryoma's Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+      
+        <p class="site-subtitle">纸上得来终觉浅</p>
+      
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+    <a href="/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-home"></i> <br />首页</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+    <a href="/tags/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />标签</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+    <a href="/categories/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-th"></i> <br />分类</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+    <a href="/archives/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />归档</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+    <a href="/about/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-user"></i> <br />关于我</a>
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.ryoma.top/posts/http_header_1/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Ryoma">
+      <meta itemprop="description" content="Ryoma's Blog">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Ryoma's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">HTTP header 详解
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2017-07-29 17:30:00" itemprop="dateCreated datePublished" datetime="2017-07-29T17:30:00+08:00">2017-07-29</time>
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/技术杂集/" itemprop="url" rel="index"><span itemprop="name">技术杂集</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/posts/http_header_1/#comments" itemprop="discussionUrl">
+                
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="posts/http_header_1/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>在上文中介绍了 HTTP header 的作用、规则定义及类别。在本文针对每个 header 做更详细介绍：</p>
+<p><a name="ad595596"></a></p>
+<h2 id="通用首部字段"><a href="#通用首部字段" class="headerlink" title="通用首部字段"></a>通用首部字段</h2><p><a name="Cache-Control"></a></p>
+<h3 id="Cache-Control"><a href="#Cache-Control" class="headerlink" title="Cache-Control"></a>Cache-Control</h3><blockquote>
+<p>操作缓存的工作机制</p>
+</blockquote>
+<p>Cache-Control 的指令可用于请求及响应时：<br><a name="69c70c1a"></a></p>
+<h4 id="缓存请求指令"><a href="#缓存请求指令" class="headerlink" title="缓存请求指令"></a>缓存请求指令</h4><p><img src="https://cdn.nlark.com/yuque/0/2019/png/92822/1550644033993-b52297d5-d768-4afb-8b28-32507cb5587e.png#align=left&amp;display=inline&amp;height=402&amp;name=image.png&amp;originHeight=402&amp;originWidth=704&amp;size=106755&amp;width=704#align=left&amp;display=inline&amp;height=402&amp;originHeight=402&amp;originWidth=704&amp;status=done&amp;width=704" alt="image.png"><br><a id="more"></a></p>
+<p><a name="75215614"></a></p>
+<h4 id="缓存响应指令"><a href="#缓存响应指令" class="headerlink" title="缓存响应指令"></a>缓存响应指令</h4><p><img src="https://cdn.nlark.com/yuque/0/2019/png/92822/1550644060699-2d0c765a-2dea-4cfa-86ac-6a0a476c7b0b.png#align=left&amp;display=inline&amp;height=504&amp;name=image.png&amp;originHeight=504&amp;originWidth=938&amp;size=153469&amp;width=938#align=left&amp;display=inline&amp;height=401&amp;originHeight=504&amp;originWidth=938&amp;status=done&amp;width=746" alt="image.png"></p>
+<p><a name="dc502bb1"></a></p>
+<h4 id="是否能缓存的指令"><a href="#是否能缓存的指令" class="headerlink" title="是否能缓存的指令"></a>是否能缓存的指令</h4><ul>
+<li>public：明确表示其他用户也可利用缓存</li>
+<li>private：缓存服务器会对该特定用户提供资源缓存的服务，对于其他用户发送的请求，代理服务器则不会缓存</li>
+<li>no-cache：使用no-cache指令的目的是为了防止从缓存中返回过期的资源<ul>
+<li>客户端：表示客户端不会接受缓存过的响应，缓存服务器必须将客户端请求转发至源服务器</li>
+<li>服务端：缓存服务器不能对资源进行缓存</li>
+</ul>
+</li>
+</ul>
+<p><a name="b26f1266"></a></p>
+<h4 id="控制可执行缓存的对象的指令"><a href="#控制可执行缓存的对象的指令" class="headerlink" title="控制可执行缓存的对象的指令"></a>控制可执行缓存的对象的指令</h4><ul>
+<li>no-store：当使用no-store时，暗示请求/响应中包含机密信息，规定缓存不能在本地存储请求/响应的任一部分。</li>
+</ul>
+<p><a name="5b043e59"></a></p>
+<h4 id="指定缓存期限和认证的指令"><a href="#指定缓存期限和认证的指令" class="headerlink" title="指定缓存期限和认证的指令"></a>指定缓存期限和认证的指令</h4><ul>
+<li>s-maxage=604800（秒）：功能上与max-age相同；<ul>
+<li>不同之处是s-maxage只适用于供多位用户使用的公共缓存服务器。对于向同一用户重复返回响应的服务器来说，指令没有作用。</li>
+<li>当使用s-maxage时，会<strong>直接忽略Expires 和max-age指令</strong></li>
+</ul>
+</li>
+<li>max-age=604800（秒）：<ul>
+<li>客户端：如果缓存资源的缓存时间比指定时间的数值更小，客户端则使用缓存的资源；如果max-age=0，则缓存服务器转发请求</li>
+<li>服务端：缓存服务器不对资源的有效性进行确认，max-age数值代表资源保存为缓存的最长时间</li>
+<li>Expires 及 max-age 同时设置时的处理：<ul>
+<li>HTTP/1.1：优先处理max-age，Expires会被忽略</li>
+<li>HTTP/1.0：max-age会被忽略</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>min-fresh=60（秒）：要求缓存服务器返回至少还未过指定时间的缓存资源</li>
+<li>max-stale=3600（秒）：指示缓存资源，即使过期也照常接收<ul>
+<li>如果指令未指定值，客户端始终接收响应</li>
+<li>指定具体数值：只要处于max-stale指定的时间内，客户端依然可接收</li>
+</ul>
+</li>
+<li>only-if-cached：该指令要求缓存服务器不重新加载，也不会确认资源有效性。若发生缓存无响应，则返回504</li>
+<li>must-revalidate：代理会向源服务器再次验证即将返回的缓存目前是否依然有效<ul>
+<li>若代理无法再次获取有效资源，返回504</li>
+<li>会忽略max-stale</li>
+</ul>
+</li>
+<li>proxy-revalidate：要求所有的缓存在接收客户端的请求返回响应之前，必须再次验证缓存</li>
+<li>no-transform：缓存不能改变实体主体的媒体类型——防止缓存/代理压缩图片等操作</li>
+</ul>
+<p><a name="d04ceaf0"></a></p>
+<h4 id="Cache-Control-扩展"><a href="#Cache-Control-扩展" class="headerlink" title="Cache-Control 扩展"></a>Cache-Control 扩展</h4><ul>
+<li>cache-extension token</li>
+</ul>
+<p><img src="https://cdn.nlark.com/yuque/0/2019/png/92822/1550646353168-d3b6e8da-6e4e-45e8-9a47-b8c4cb868969.png#align=left&amp;display=inline&amp;height=345&amp;name=image.png&amp;originHeight=345&amp;originWidth=947&amp;size=133655&amp;width=947#align=left&amp;display=inline&amp;height=272&amp;originHeight=345&amp;originWidth=947&amp;status=done&amp;width=746" alt="image.png"></p>
+<p><a name="Connection"></a></p>
+<h3 id="Connection"><a href="#Connection" class="headerlink" title="Connection"></a>Connection</h3><p>Connection 字段有两个作用：</p>
+<ul>
+<li>控制不再转发给代理的首部字段</li>
+<li>管理持久连接</li>
+</ul>
+<p><a name="c08ce813"></a></p>
+<h4 id="控制不再转发给代理的首部字段"><a href="#控制不再转发给代理的首部字段" class="headerlink" title="控制不再转发给代理的首部字段"></a>控制不再转发给代理的首部字段</h4><p>以Upgrade 为例：</p>
+<p><img src="https://cdn.nlark.com/yuque/0/2019/png/92822/1550646534117-11009c64-0be3-4a99-b46a-cfa158091d8c.png#align=left&amp;display=inline&amp;height=377&amp;name=image.png&amp;originHeight=377&amp;originWidth=864&amp;size=243528&amp;width=864#align=left&amp;display=inline&amp;height=326&amp;originHeight=377&amp;originWidth=864&amp;status=done&amp;width=746" alt="image.png"></p>
+<p><img src="https://cdn.nlark.com/yuque/0/2019/png/92822/1550646579279-2d4a0d6b-3e2e-46e3-a088-3e48a62fe6a2.png#align=left&amp;display=inline&amp;height=373&amp;name=image.png&amp;originHeight=373&amp;originWidth=1118&amp;size=43887&amp;width=1118#align=left&amp;display=inline&amp;height=249&amp;originHeight=373&amp;originWidth=1118&amp;status=done&amp;width=746" alt="image.png"></p>
+<p>使用Connection 首部字段，可控制不再转发给代理的首部字段（即Hop-by-hop首部）</p>
+<p><a name="81cf69e3"></a></p>
+<h4 id="管理持久连接"><a href="#管理持久连接" class="headerlink" title="管理持久连接"></a>管理持久连接</h4><ul>
+<li>HTTP/1.1 默认连接都是持久连接，当服务端想明确端开连接时，指定Connection字段为Close</li>
+<li>HTTP/1.1 之前默认连接都是非持久连接。如果希望在旧版本维持持久连接，则将Connection 字段设置为Keep-Alive</li>
+</ul>
+<p><a name="Date"></a></p>
+<h3 id="Date"><a href="#Date" class="headerlink" title="Date"></a>Date</h3><p>表示创建 HTTP 报文的时间</p>
+<p><a name="e3127cc1"></a></p>
+<h4 id="格式"><a href="#格式" class="headerlink" title="格式"></a>格式</h4><p>HTTP/1.1 协议使用 RFC1123 规定的格式：<br><br><img src="https://cdn.nlark.com/yuque/0/2019/png/92822/1551596915547-851f8e2a-ac64-4e3d-ad02-1980873356c1.png#align=left&amp;display=inline&amp;height=115&amp;name=image.png&amp;originHeight=230&amp;originWidth=1320&amp;size=25231&amp;status=done&amp;width=660" alt="image.png"></p>
+<p>之前则使用 RFC850 规定的格式：</p>
+<p><img src="https://cdn.nlark.com/yuque/0/2019/png/92822/1551596962150-803a7a54-45dd-4887-8275-cc6dad63a3a5.png#align=left&amp;display=inline&amp;height=98&amp;name=image.png&amp;originHeight=196&amp;originWidth=1272&amp;size=23548&amp;status=done&amp;width=636" alt="image.png"></p>
+<p>除此之外，还有一个格式。与 C 中 asctime() 输出的格式一致：</p>
+<p><img src="https://cdn.nlark.com/yuque/0/2019/png/92822/1551597014283-501caf7e-f202-4e3a-bacd-6d0c5bc43333.png#align=left&amp;display=inline&amp;height=101&amp;name=image.png&amp;originHeight=202&amp;originWidth=1176&amp;size=20618&amp;status=done&amp;width=588" alt="image.png"></p>
+<p><a name="Pragma"></a></p>
+<h3 id="Pragma"><a href="#Pragma" class="headerlink" title="Pragma"></a>Pragma</h3><p>是 HTTP/1.1 之前版本的历史遗留字段，该首部字段属于通用首部字段，但仅作用于客户端发送的请求中：</p>
+<p>有时为了兼容，需要同时设置两个字段：</p>
+<p><img src="https://cdn.nlark.com/yuque/0/2019/png/92822/1551597233614-dc54561d-33fa-4737-ba59-10884cec81e6.png#align=left&amp;display=inline&amp;height=136&amp;name=image.png&amp;originHeight=272&amp;originWidth=908&amp;size=26577&amp;status=done&amp;width=454" alt="image.png"></p>
+<p><a name="Trailer"></a></p>
+<h3 id="Trailer"><a href="#Trailer" class="headerlink" title="Trailer"></a>Trailer</h3><p>事先说明在报文主体字段后记录了哪些首部字段</p>
+<p><a name="f4181202"></a></p>
+<h4 id="在报文主体后记录-Expires"><a href="#在报文主体后记录-Expires" class="headerlink" title="在报文主体后记录 Expires"></a>在报文主体后记录 Expires</h4><p><img src="https://cdn.nlark.com/yuque/0/2019/png/92822/1551597347732-8c4381d6-b8d0-4d5a-a101-bb1900919bbf.png#align=left&amp;display=inline&amp;height=347&amp;name=image.png&amp;originHeight=694&amp;originWidth=1232&amp;size=97883&amp;status=done&amp;width=616" alt="image.png"></p>
+<p><a name="Transfer-Encoding"></a></p>
+<h3 id="Transfer-Encoding"><a href="#Transfer-Encoding" class="headerlink" title="Transfer-Encoding"></a>Transfer-Encoding</h3><p>规定传输报文中使用的编码方式</p>
+<p><img src="https://cdn.nlark.com/yuque/0/2019/png/92822/1551597470171-2c09ed20-9ad0-4434-ae55-617325c6dee3.png#align=left&amp;display=inline&amp;height=647&amp;name=image.png&amp;originHeight=1294&amp;originWidth=1366&amp;size=216338&amp;status=done&amp;width=683" alt="image.png"></p>
+<p>HTTP/1.1 传输编码方式仅对分块传输有效</p>
+<p><a name="Upgrade"></a></p>
+<h3 id="Upgrade"><a href="#Upgrade" class="headerlink" title="Upgrade"></a>Upgrade</h3><p>检测 HTTP 协议及其他协议是否可使用更高的版本进行通信</p>
+<p><a name="Via"></a></p>
+<h3 id="Via"><a href="#Via" class="headerlink" title="Via"></a>Via</h3><p>追踪客户端与服务端之间的请求报文与响应报文的传输路径</p>
+<p><a name="Warning"></a></p>
+<h3 id="Warning"><a href="#Warning" class="headerlink" title="Warning"></a>Warning</h3><p>通常表示一些与缓存相关的警告</p>
+<p><a name="77a3e006"></a></p>
+<h2 id="请求首部字段"><a href="#请求首部字段" class="headerlink" title="请求首部字段"></a>请求首部字段</h2><p><a name="Accept"></a></p>
+<h3 id="Accept"><a href="#Accept" class="headerlink" title="Accept"></a>Accept</h3><p>通知服务器，客户端可处理的媒体类型及媒体类型的相对优先级</p>
+<p><img src="https://cdn.nlark.com/yuque/0/2019/png/92822/1551597839089-f633d0a8-d601-4090-9083-6db7c2798098.png#align=left&amp;display=inline&amp;height=91&amp;name=image.png&amp;originHeight=182&amp;originWidth=2176&amp;size=30783&amp;status=done&amp;width=1088" alt="image.png"></p>
+<p><a name="Accept-Charset"></a></p>
+<h3 id="Accept-Charset"><a href="#Accept-Charset" class="headerlink" title="Accept-Charset"></a>Accept-Charset</h3><p>通知服务器，客户端可支持的字符集和字符集相对顺序<br><br><img src="https://cdn.nlark.com/yuque/0/2019/png/92822/1551597896294-d7730dd1-d451-442b-acd6-38ecefde6677.png#align=left&amp;display=inline&amp;height=87&amp;name=image.png&amp;originHeight=174&amp;originWidth=1644&amp;size=30546&amp;status=done&amp;width=822" alt="image.png"></p>
+<p><a name="Accept-Encoding"></a></p>
+<h3 id="Accept-Encoding"><a href="#Accept-Encoding" class="headerlink" title="Accept-Encoding"></a>Accept-Encoding</h3><p>通知服务器，客户端可支持的内容编码及内容编码的顺序</p>
+<p><img src="https://cdn.nlark.com/yuque/0/2019/png/92822/1551597984874-4c829168-5dc5-4070-9b4c-e2f5ffccc254.png#align=left&amp;display=inline&amp;height=103&amp;name=image.png&amp;originHeight=206&amp;originWidth=1128&amp;size=21159&amp;status=done&amp;width=564" alt="image.png"></p>
+<p><a name="4e695651"></a></p>
+<h4 id="内容编码"><a href="#内容编码" class="headerlink" title="内容编码"></a>内容编码</h4><p><img src="https://cdn.nlark.com/yuque/0/2019/png/92822/1551598045484-90b8eef1-3b4d-4d2a-9e14-4a9d394ec7ff.png#align=left&amp;display=inline&amp;height=757&amp;name=image.png&amp;originHeight=1514&amp;originWidth=2174&amp;size=422818&amp;status=done&amp;width=1087" alt="image.png"></p>
+<p><a name="Accept-Language"></a></p>
+<h3 id="Accept-Language"><a href="#Accept-Language" class="headerlink" title="Accept-Language"></a>Accept-Language</h3><p>告知服务器，客户端支持的自然语言集</p>
+<p><img src="https://cdn.nlark.com/yuque/0/2019/png/92822/1551598092886-06d4c27b-f996-4821-aa47-cea54e8795a3.png#align=left&amp;display=inline&amp;height=91&amp;name=image.png&amp;originHeight=182&amp;originWidth=1700&amp;size=27768&amp;status=done&amp;width=850" alt="image.png"></p>
+<p><a name="Authorization"></a></p>
+<h3 id="Authorization"><a href="#Authorization" class="headerlink" title="Authorization"></a>Authorization</h3><p>告知服务器，客户端的认证信息</p>
+<p><img src="https://cdn.nlark.com/yuque/0/2019/png/92822/1551598197832-16637a9f-db47-4d77-8c8f-862f69da5f56.png#align=left&amp;display=inline&amp;height=104&amp;name=image.png&amp;originHeight=208&amp;originWidth=1652&amp;size=34549&amp;status=done&amp;width=826" alt="image.png"></p>
+<p><a name="Expect"></a></p>
+<h3 id="Expect"><a href="#Expect" class="headerlink" title="Expect"></a>Expect</h3><p>告知服务器，客户端期望出现的某种特定行为</p>
+<p><img src="https://cdn.nlark.com/yuque/0/2019/png/92822/1551599100790-2846eb8e-b88b-435d-b02f-9d5ab37a2f18.png#align=left&amp;display=inline&amp;height=96&amp;name=image.png&amp;originHeight=192&amp;originWidth=804&amp;size=14559&amp;status=done&amp;width=402" alt="image.png"></p>
+<p><a name="From"></a></p>
+<h3 id="From"><a href="#From" class="headerlink" title="From"></a>From</h3><p>告知服务器，使用用户代理的用户的电子邮件地址</p>
+<p><a name="Host"></a></p>
+<h3 id="Host"><a href="#Host" class="headerlink" title="Host"></a>Host</h3><p>告知服务器，请求的资源所处的互联网主机号+端口号</p>
+<p><a name="If-Match"></a></p>
+<h3 id="If-Match"><a href="#If-Match" class="headerlink" title="If-Match"></a>If-Match</h3><p>形如 If-xxx 的请求首部字段，皆被称为条件请求；<br>告知服务器，匹配资源所用的实体标记（ETag）</p>
+<p><a name="If-Modified-Since"></a></p>
+<h3 id="If-Modified-Since"><a href="#If-Modified-Since" class="headerlink" title="If-Modified-Since"></a>If-Modified-Since</h3><p>服务器只在所请求的资源在给定的日期时间之后对内容进行过修改的情况下才会将资源返回<br><br><img src="https://cdn.nlark.com/yuque/0/2019/png/92822/1551599761302-da9acd63-ba0a-4f2e-9791-372b2dc31022.png#align=left&amp;display=inline&amp;height=91&amp;name=image.png&amp;originHeight=182&amp;originWidth=1742&amp;size=29996&amp;status=done&amp;width=871" alt="image.png"></p>
+<p><a name="If-None-Cache"></a></p>
+<h3 id="If-None-Cache"><a href="#If-None-Cache" class="headerlink" title="If-None-Cache"></a>If-None-Cache</h3><p>当且仅当服务器上没有任何资源的 ETag 属性值与值相匹配时，服务器端会才返回所请求的资源</p>
+<p><a name="If-Range"></a></p>
+<h3 id="If-Range"><a href="#If-Range" class="headerlink" title="If-Range"></a>If-Range</h3><p><img src="https://cdn.nlark.com/yuque/0/2019/png/92822/1551600268568-fc7f15e1-a636-4051-9228-0a194cab379e.png#align=left&amp;display=inline&amp;height=109&amp;name=image.png&amp;originHeight=218&amp;originWidth=1384&amp;size=84453&amp;status=done&amp;width=692" alt="image.png"></p>
+<p><a name="If-Unmodified-Since"></a></p>
+<h3 id="If-Unmodified-Since"><a href="#If-Unmodified-Since" class="headerlink" title="If-Unmodified-Since"></a>If-Unmodified-Since</h3><p><img src="https://cdn.nlark.com/yuque/0/2019/png/92822/1551600333280-aab28da7-58c0-4272-82f0-d8825d2515f5.png#align=left&amp;display=inline&amp;height=107&amp;name=image.png&amp;originHeight=214&amp;originWidth=1388&amp;size=86192&amp;status=done&amp;width=694" alt="image.png"></p>
+<p><a name="Max-Forwards"></a></p>
+<h3 id="Max-Forwards"><a href="#Max-Forwards" class="headerlink" title="Max-Forwards"></a>Max-Forwards</h3><p>限定可经过转发服务器的个数<br><br><img src="https://cdn.nlark.com/yuque/0/2019/png/92822/1551600417185-35fed7f5-d61c-4ada-8090-ce58211cb72f.png#align=left&amp;display=inline&amp;height=99&amp;name=image.png&amp;originHeight=198&amp;originWidth=706&amp;size=15674&amp;status=done&amp;width=353" alt="image.png"></p>
+<p><a name="Proxy-Authorization"></a></p>
+<h3 id="Proxy-Authorization"><a href="#Proxy-Authorization" class="headerlink" title="Proxy-Authorization"></a>Proxy-Authorization</h3><p><img src="https://cdn.nlark.com/yuque/0/2019/png/92822/1551600480325-8816f17e-1a2c-4869-b3df-08600203154b.png#align=left&amp;display=inline&amp;height=91&amp;name=image.png&amp;originHeight=182&amp;originWidth=1392&amp;size=64951&amp;status=done&amp;width=696" alt="image.png"></p>
+<p><a name="Range"></a></p>
+<h3 id="Range"><a href="#Range" class="headerlink" title="Range"></a>Range</h3><p><img src="https://cdn.nlark.com/yuque/0/2019/png/92822/1551600532042-d8fe7138-beec-45b6-b94b-a777644c684e.png#align=left&amp;display=inline&amp;height=143&amp;name=image.png&amp;originHeight=286&amp;originWidth=1384&amp;size=106970&amp;status=done&amp;width=692" alt="image.png"></p>
+<p><a name="Referer"></a></p>
+<h3 id="Referer"><a href="#Referer" class="headerlink" title="Referer"></a>Referer</h3><p><img src="https://cdn.nlark.com/yuque/0/2019/png/92822/1551600659630-da063b56-7aa9-4265-a471-69630b283a00.png#align=left&amp;display=inline&amp;height=167&amp;name=image.png&amp;originHeight=334&amp;originWidth=1380&amp;size=96774&amp;status=done&amp;width=690" alt="image.png"></p>
+<p><a name="TE"></a></p>
+<h3 id="TE"><a href="#TE" class="headerlink" title="TE"></a>TE</h3><p><img src="https://cdn.nlark.com/yuque/0/2019/png/92822/1551600792413-c4e56cd7-6b85-4bdd-b1cf-a16d5e2e8281.png#align=left&amp;display=inline&amp;height=213&amp;name=image.png&amp;originHeight=426&amp;originWidth=1392&amp;size=129177&amp;status=done&amp;width=696" alt="image.png"></p>
+<p><a name="User-Agent"></a></p>
+<h3 id="User-Agent"><a href="#User-Agent" class="headerlink" title="User-Agent"></a>User-Agent</h3><p>表示客户端的类型</p>
+<p><a name="b7f3c1e8"></a></p>
+<h2 id="响应首部字段"><a href="#响应首部字段" class="headerlink" title="响应首部字段"></a>响应首部字段</h2><p><a name="Accept-Ranges"></a></p>
+<h3 id="Accept-Ranges"><a href="#Accept-Ranges" class="headerlink" title="Accept-Ranges"></a>Accept-Ranges</h3><p><img src="https://cdn.nlark.com/yuque/0/2019/png/92822/1551601004123-9f474911-9298-47f0-b048-7c6141b0415d.png#align=left&amp;display=inline&amp;height=168&amp;name=image.png&amp;originHeight=336&amp;originWidth=1424&amp;size=70632&amp;status=done&amp;width=712" alt="image.png"></p>
+<p><a name="Age"></a></p>
+<h3 id="Age"><a href="#Age" class="headerlink" title="Age"></a>Age</h3><p><img src="https://cdn.nlark.com/yuque/0/2019/png/92822/1551601056540-e7b984d3-936d-4eb2-abf5-f9b2b81117c9.png#align=left&amp;display=inline&amp;height=106&amp;name=image.png&amp;originHeight=212&amp;originWidth=1374&amp;size=69077&amp;status=done&amp;width=687" alt="image.png"></p>
+<p><a name="ETag"></a></p>
+<h3 id="ETag"><a href="#ETag" class="headerlink" title="ETag"></a>ETag</h3><p><img src="https://cdn.nlark.com/yuque/0/2019/png/92822/1551601107858-6b440252-1912-4b04-b07c-0426d7f61d5e.png#align=left&amp;display=inline&amp;height=173&amp;name=image.png&amp;originHeight=346&amp;originWidth=1376&amp;size=113145&amp;status=done&amp;width=688" alt="image.png"></p>
+<p><a name="Location"></a></p>
+<h3 id="Location"><a href="#Location" class="headerlink" title="Location"></a>Location</h3><p><img src="https://cdn.nlark.com/yuque/0/2019/png/92822/1551601222168-5744e8dd-c794-41ea-824f-199fc9af34f5.png#align=left&amp;display=inline&amp;height=507&amp;name=image.png&amp;originHeight=1014&amp;originWidth=1418&amp;size=279969&amp;status=done&amp;width=709" alt="image.png"></p>
+<p><a name="Proxy-Authenticate"></a></p>
+<h3 id="Proxy-Authenticate"><a href="#Proxy-Authenticate" class="headerlink" title="Proxy-Authenticate"></a>Proxy-Authenticate</h3><p><img src="https://cdn.nlark.com/yuque/0/2019/png/92822/1551601324281-946bc1d5-c37c-4a8c-bcd9-7505e37d3b14.png#align=left&amp;display=inline&amp;height=169&amp;name=image.png&amp;originHeight=338&amp;originWidth=1396&amp;size=79865&amp;status=done&amp;width=698" alt="image.png"></p>
+<p><a name="Retry-After"></a></p>
+<h3 id="Retry-After"><a href="#Retry-After" class="headerlink" title="Retry-After"></a>Retry-After</h3><p><img src="https://cdn.nlark.com/yuque/0/2019/png/92822/1551601388082-23041a9f-b621-4d20-bbf6-1e9ff403527a.png#align=left&amp;display=inline&amp;height=207&amp;name=image.png&amp;originHeight=414&amp;originWidth=1422&amp;size=108462&amp;status=done&amp;width=711" alt="image.png"></p>
+<p><a name="Server"></a></p>
+<h3 id="Server"><a href="#Server" class="headerlink" title="Server"></a>Server</h3><p><img src="https://cdn.nlark.com/yuque/0/2019/png/92822/1551601440762-3fc7493e-7732-42ce-b3b7-2e14eaa9e3f8.png#align=left&amp;display=inline&amp;height=124&amp;name=image.png&amp;originHeight=248&amp;originWidth=1380&amp;size=63901&amp;status=done&amp;width=690" alt="image.png"></p>
+<p><a name="Vary"></a></p>
+<h3 id="Vary"><a href="#Vary" class="headerlink" title="Vary"></a>Vary</h3><p><img src="https://cdn.nlark.com/yuque/0/2019/png/92822/1551601493514-0c4ad47f-750d-419e-9619-87fbc89653df.png#align=left&amp;display=inline&amp;height=165&amp;name=image.png&amp;originHeight=330&amp;originWidth=1386&amp;size=108008&amp;status=done&amp;width=693" alt="image.png"></p>
+<p><a name="WWW-Authenticate"></a></p>
+<h3 id="WWW-Authenticate"><a href="#WWW-Authenticate" class="headerlink" title="WWW-Authenticate"></a>WWW-Authenticate</h3><p><img src="https://cdn.nlark.com/yuque/0/2019/png/92822/1551601589010-0d7dc223-32fd-4483-b05c-4a5799828a5d.png#align=left&amp;display=inline&amp;height=102&amp;name=image.png&amp;originHeight=204&amp;originWidth=1308&amp;size=46054&amp;status=done&amp;width=654" alt="image.png"></p>
+<p><a name="56e4abe9"></a></p>
+<h2 id="实体首部字段"><a href="#实体首部字段" class="headerlink" title="实体首部字段"></a>实体首部字段</h2><p><a name="Allow"></a></p>
+<h3 id="Allow"><a href="#Allow" class="headerlink" title="Allow"></a>Allow</h3><p><img src="https://cdn.nlark.com/yuque/0/2019/png/92822/1551601740438-d0aa8cc0-ba1c-4917-958c-fef90a6ab877.png#align=left&amp;display=inline&amp;height=140&amp;name=image.png&amp;originHeight=280&amp;originWidth=1348&amp;size=80697&amp;status=done&amp;width=674" alt="image.png"></p>
+<p><a name="Content-Encoding"></a></p>
+<h3 id="Content-Encoding"><a href="#Content-Encoding" class="headerlink" title="Content-Encoding"></a>Content-Encoding</h3><p><img src="https://cdn.nlark.com/yuque/0/2019/png/92822/1551601808341-739fdec6-4022-4225-aa08-a6b54d8aa986.png#align=left&amp;display=inline&amp;height=185&amp;name=image.png&amp;originHeight=370&amp;originWidth=1388&amp;size=130108&amp;status=done&amp;width=694" alt="image.png"></p>
+<p><a name="Content-Language"></a></p>
+<h3 id="Content-Language"><a href="#Content-Language" class="headerlink" title="Content-Language"></a>Content-Language</h3><p><img src="https://cdn.nlark.com/yuque/0/2019/png/92822/1551601877359-d87c922e-0f25-445f-b0cf-1a9892ea0982.png#align=left&amp;display=inline&amp;height=89&amp;name=image.png&amp;originHeight=178&amp;originWidth=2130&amp;size=85013&amp;status=done&amp;width=1065" alt="image.png"></p>
+<p><a name="Content-Length"></a></p>
+<h3 id="Content-Length"><a href="#Content-Length" class="headerlink" title="Content-Length"></a>Content-Length</h3><p><img src="https://cdn.nlark.com/yuque/0/2019/png/92822/1551601926978-cc4c1174-ebaa-4ad1-a41a-b96be56b9050.png#align=left&amp;display=inline&amp;height=62&amp;name=image.png&amp;originHeight=124&amp;originWidth=1394&amp;size=34647&amp;status=done&amp;width=697" alt="image.png"></p>
+<p><a name="Content-Location"></a></p>
+<h3 id="Content-Location"><a href="#Content-Location" class="headerlink" title="Content-Location"></a>Content-Location</h3><p><img src="https://cdn.nlark.com/yuque/0/2019/png/92822/1551602071972-ccf23b91-db08-4c23-a173-ef19bf4e691e.png#align=left&amp;display=inline&amp;height=191&amp;name=image.png&amp;originHeight=382&amp;originWidth=1436&amp;size=117876&amp;status=done&amp;width=718" alt="image.png"></p>
+<p><a name="Content-MD5"></a></p>
+<h3 id="Content-MD5"><a href="#Content-MD5" class="headerlink" title="Content-MD5"></a>Content-MD5</h3><p><img src="https://cdn.nlark.com/yuque/0/2019/png/92822/1551602145103-e05f5f42-e897-406d-a419-6877297f3979.png#align=left&amp;display=inline&amp;height=238&amp;name=image.png&amp;originHeight=476&amp;originWidth=2176&amp;size=263214&amp;status=done&amp;width=1088" alt="image.png"></p>
+<p><a name="Content-Range"></a></p>
+<h3 id="Content-Range"><a href="#Content-Range" class="headerlink" title="Content-Range"></a>Content-Range</h3><p><img src="https://cdn.nlark.com/yuque/0/2019/png/92822/1551602188174-e8fcbc40-2154-4c8e-a483-ddb7f61f9284.png#align=left&amp;display=inline&amp;height=53&amp;name=image.png&amp;originHeight=106&amp;originWidth=1302&amp;size=23134&amp;status=done&amp;width=651" alt="image.png"></p>
+<p><a name="Content-Type"></a></p>
+<h3 id="Content-Type"><a href="#Content-Type" class="headerlink" title="Content-Type"></a>Content-Type</h3><p><img src="https://cdn.nlark.com/yuque/0/2019/png/92822/1551602239701-63ad8989-8a02-4355-94f8-48031aeab276.png#align=left&amp;display=inline&amp;height=193&amp;name=image.png&amp;originHeight=386&amp;originWidth=1398&amp;size=106739&amp;status=done&amp;width=699" alt="image.png"></p>
+<p><a name="Expires"></a></p>
+<h3 id="Expires"><a href="#Expires" class="headerlink" title="Expires"></a>Expires</h3><p><img src="https://cdn.nlark.com/yuque/0/2019/png/92822/1551602442868-c3e545b4-fc7b-4437-846d-cc7b70679e90.png#align=left&amp;display=inline&amp;height=175&amp;name=image.png&amp;originHeight=350&amp;originWidth=1408&amp;size=69443&amp;status=done&amp;width=704" alt="image.png"></p>
+<p><a name="Last-Modified"></a></p>
+<h3 id="Last-Modified"><a href="#Last-Modified" class="headerlink" title="Last-Modified"></a>Last-Modified</h3><p><img src="https://cdn.nlark.com/yuque/0/2019/png/92822/1551602505144-45f4139c-284f-4bd8-8f89-369c8bfd9b19.png#align=left&amp;display=inline&amp;height=116&amp;name=image.png&amp;originHeight=232&amp;originWidth=1372&amp;size=88246&amp;status=done&amp;width=686" alt="image.png"></p>
+<p><a name="fee7df1a"></a></p>
+<h2 id="Cookie-首部字段"><a href="#Cookie-首部字段" class="headerlink" title="Cookie 首部字段"></a>Cookie 首部字段</h2><p><img src="https://cdn.nlark.com/yuque/0/2019/png/92822/1551602735738-351d8a70-5d69-4ffe-96ed-eb2d05e999ed.png#align=left&amp;display=inline&amp;height=177&amp;name=image.png&amp;originHeight=354&amp;originWidth=1862&amp;size=115080&amp;status=done&amp;width=931" alt="image.png"></p>
+<p><a name="Set-Cookie"></a></p>
+<h3 id="Set-Cookie"><a href="#Set-Cookie" class="headerlink" title="Set-Cookie"></a>Set-Cookie</h3><p><img src="https://cdn.nlark.com/yuque/0/2019/png/92822/1551602796782-3b5a705d-96d5-417b-9259-81fdbbfa20dc.png#align=left&amp;display=inline&amp;height=89&amp;name=image.png&amp;originHeight=178&amp;originWidth=2174&amp;size=35215&amp;status=done&amp;width=1087" alt="image.png"><br></p>
+<p><img src="https://cdn.nlark.com/yuque/0/2019/png/92822/1551602833363-7b4db6c9-719c-48e3-8746-3733d76bffe9.png#align=left&amp;display=inline&amp;height=436&amp;name=image.png&amp;originHeight=872&amp;originWidth=2202&amp;size=367366&amp;status=done&amp;width=1101" alt="image.png"></p>
+<p><a name="Cookie"></a></p>
+<h3 id="Cookie"><a href="#Cookie" class="headerlink" title="Cookie"></a>Cookie</h3><p><img src="https://cdn.nlark.com/yuque/0/2019/png/92822/1551602883290-7c645233-4473-4e04-b2e1-fd64ff647449.png#align=left&amp;display=inline&amp;height=120&amp;name=image.png&amp;originHeight=240&amp;originWidth=1382&amp;size=60687&amp;status=done&amp;width=691" alt="image.png"></p>
+<p><a name="447564e4"></a></p>
+<h2 id="资料"><a href="#资料" class="headerlink" title="资料"></a>资料</h2><ul>
+<li><a href="https://tools.ietf.org/html/rfc2616#section-14" target="_blank" rel="noopener">https://tools.ietf.org/html/rfc2616#section-14</a></li>
+<li><a href="https://tools.ietf.org/html/rfc4229" target="_blank" rel="noopener">https://tools.ietf.org/html/rfc4229</a></li>
+<li><a href="https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Headers" target="_blank" rel="noopener">https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Headers</a></li>
+<li>《图解HTTP》</li>
+</ul>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/HTTP/" rel="tag"># HTTP</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/posts/http_header_0/" rel="next" title="HTTP header 介绍">
+                <i class="fa fa-chevron-left"></i> HTTP header 介绍
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/posts/nginx_log/" rel="prev" title="nginx log分片">
+                nginx log分片 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+    <div class="comments" id="comments">
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/avatar.jpg"
+                alt="Ryoma" />
+            
+              <p class="site-author-name" itemprop="name">Ryoma</p>
+              <p class="site-description motion-element" itemprop="description">Ryoma's Blog</p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">81</span>
+                    <span class="site-state-item-name">文章</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  <a href="/categories/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">19</span>
+                    <span class="site-state-item-name">分类</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  <a href="/tags/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">71</span>
+                    <span class="site-state-item-name">标签</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+            <div class="links-of-author motion-element">
+              
+                <span class="links-of-author-item">
+                  <a href="https://github.com/JianmingXia" target="_blank" title="GitHub"><i class="fa fa-fw fa-github"></i>GitHub</a>
+                  
+                </span>
+              
+                <span class="links-of-author-item">
+                  <a href="mailto:xiajianming_xjm@163.com" target="_blank" title="E-Mail"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                  
+                </span>
+              
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#通用首部字段"><span class="nav-number">1.</span> <span class="nav-text">通用首部字段</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Cache-Control"><span class="nav-number">1.1.</span> <span class="nav-text">Cache-Control</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#缓存请求指令"><span class="nav-number">1.1.1.</span> <span class="nav-text">缓存请求指令</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#缓存响应指令"><span class="nav-number">1.1.2.</span> <span class="nav-text">缓存响应指令</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#是否能缓存的指令"><span class="nav-number">1.1.3.</span> <span class="nav-text">是否能缓存的指令</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#控制可执行缓存的对象的指令"><span class="nav-number">1.1.4.</span> <span class="nav-text">控制可执行缓存的对象的指令</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#指定缓存期限和认证的指令"><span class="nav-number">1.1.5.</span> <span class="nav-text">指定缓存期限和认证的指令</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Cache-Control-扩展"><span class="nav-number">1.1.6.</span> <span class="nav-text">Cache-Control 扩展</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Connection"><span class="nav-number">1.2.</span> <span class="nav-text">Connection</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#控制不再转发给代理的首部字段"><span class="nav-number">1.2.1.</span> <span class="nav-text">控制不再转发给代理的首部字段</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#管理持久连接"><span class="nav-number">1.2.2.</span> <span class="nav-text">管理持久连接</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Date"><span class="nav-number">1.3.</span> <span class="nav-text">Date</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#格式"><span class="nav-number">1.3.1.</span> <span class="nav-text">格式</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Pragma"><span class="nav-number">1.4.</span> <span class="nav-text">Pragma</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Trailer"><span class="nav-number">1.5.</span> <span class="nav-text">Trailer</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#在报文主体后记录-Expires"><span class="nav-number">1.5.1.</span> <span class="nav-text">在报文主体后记录 Expires</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Transfer-Encoding"><span class="nav-number">1.6.</span> <span class="nav-text">Transfer-Encoding</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Upgrade"><span class="nav-number">1.7.</span> <span class="nav-text">Upgrade</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Via"><span class="nav-number">1.8.</span> <span class="nav-text">Via</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Warning"><span class="nav-number">1.9.</span> <span class="nav-text">Warning</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#请求首部字段"><span class="nav-number">2.</span> <span class="nav-text">请求首部字段</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Accept"><span class="nav-number">2.1.</span> <span class="nav-text">Accept</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Accept-Charset"><span class="nav-number">2.2.</span> <span class="nav-text">Accept-Charset</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Accept-Encoding"><span class="nav-number">2.3.</span> <span class="nav-text">Accept-Encoding</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#内容编码"><span class="nav-number">2.3.1.</span> <span class="nav-text">内容编码</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Accept-Language"><span class="nav-number">2.4.</span> <span class="nav-text">Accept-Language</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Authorization"><span class="nav-number">2.5.</span> <span class="nav-text">Authorization</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Expect"><span class="nav-number">2.6.</span> <span class="nav-text">Expect</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#From"><span class="nav-number">2.7.</span> <span class="nav-text">From</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Host"><span class="nav-number">2.8.</span> <span class="nav-text">Host</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#If-Match"><span class="nav-number">2.9.</span> <span class="nav-text">If-Match</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#If-Modified-Since"><span class="nav-number">2.10.</span> <span class="nav-text">If-Modified-Since</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#If-None-Cache"><span class="nav-number">2.11.</span> <span class="nav-text">If-None-Cache</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#If-Range"><span class="nav-number">2.12.</span> <span class="nav-text">If-Range</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#If-Unmodified-Since"><span class="nav-number">2.13.</span> <span class="nav-text">If-Unmodified-Since</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Max-Forwards"><span class="nav-number">2.14.</span> <span class="nav-text">Max-Forwards</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Proxy-Authorization"><span class="nav-number">2.15.</span> <span class="nav-text">Proxy-Authorization</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Range"><span class="nav-number">2.16.</span> <span class="nav-text">Range</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Referer"><span class="nav-number">2.17.</span> <span class="nav-text">Referer</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#TE"><span class="nav-number">2.18.</span> <span class="nav-text">TE</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#User-Agent"><span class="nav-number">2.19.</span> <span class="nav-text">User-Agent</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#响应首部字段"><span class="nav-number">3.</span> <span class="nav-text">响应首部字段</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Accept-Ranges"><span class="nav-number">3.1.</span> <span class="nav-text">Accept-Ranges</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Age"><span class="nav-number">3.2.</span> <span class="nav-text">Age</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#ETag"><span class="nav-number">3.3.</span> <span class="nav-text">ETag</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Location"><span class="nav-number">3.4.</span> <span class="nav-text">Location</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Proxy-Authenticate"><span class="nav-number">3.5.</span> <span class="nav-text">Proxy-Authenticate</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Retry-After"><span class="nav-number">3.6.</span> <span class="nav-text">Retry-After</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Server"><span class="nav-number">3.7.</span> <span class="nav-text">Server</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Vary"><span class="nav-number">3.8.</span> <span class="nav-text">Vary</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#WWW-Authenticate"><span class="nav-number">3.9.</span> <span class="nav-text">WWW-Authenticate</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#实体首部字段"><span class="nav-number">4.</span> <span class="nav-text">实体首部字段</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Allow"><span class="nav-number">4.1.</span> <span class="nav-text">Allow</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Content-Encoding"><span class="nav-number">4.2.</span> <span class="nav-text">Content-Encoding</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Content-Language"><span class="nav-number">4.3.</span> <span class="nav-text">Content-Language</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Content-Length"><span class="nav-number">4.4.</span> <span class="nav-text">Content-Length</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Content-Location"><span class="nav-number">4.5.</span> <span class="nav-text">Content-Location</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Content-MD5"><span class="nav-number">4.6.</span> <span class="nav-text">Content-MD5</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Content-Range"><span class="nav-number">4.7.</span> <span class="nav-text">Content-Range</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Content-Type"><span class="nav-number">4.8.</span> <span class="nav-text">Content-Type</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Expires"><span class="nav-number">4.9.</span> <span class="nav-text">Expires</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Last-Modified"><span class="nav-number">4.10.</span> <span class="nav-text">Last-Modified</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Cookie-首部字段"><span class="nav-number">5.</span> <span class="nav-text">Cookie 首部字段</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Set-Cookie"><span class="nav-number">5.1.</span> <span class="nav-text">Set-Cookie</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Cookie"><span class="nav-number">5.2.</span> <span class="nav-text">Cookie</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#资料"><span class="nav-number">6.</span> <span class="nav-text">资料</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2017 &mdash; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Ryoma</span>
+
+  
+
+  
+</div>
+
+
+
+
+  <div class="powered-by"><a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> v3.7.1</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://theme-next.org">NexT.Gemini</a> v6.3.0</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+	
+    
+
+    
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/three/three.min.js"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/three/canvas_sphere.min.js"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=6.3.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=6.3.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=6.3.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=6.3.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=6.3.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=6.3.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=6.3.0"></script>
+
+
+
+  
+
+  
+    <script id="dsq-count-scr" src="https://ryoma-blog.disqus.com/count.js" async></script>
+  
+
+  
+    <script type="text/javascript">
+      var disqus_config = function () {
+        this.page.url = 'https://blog.ryoma.top/posts/http_header_1/';
+        this.page.identifier = 'posts/http_header_1/';
+        this.page.title = 'HTTP header 详解';
+        };
+      function loadComments () {
+        var d = document, s = d.createElement('script');
+        s.src = 'https://ryoma-blog.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', '' + +new Date());
+        (d.head || d.body).appendChild(s);
+      }
+      
+        $(function () {
+          var offsetTop = $('#comments').offset().top - $(window).height();
+          if (offsetTop <= 0) {
+            // load directly when there's no a scrollbar
+            loadComments();
+          } else {
+            $(window).on('scroll.disqus_scroll', function () {
+              var scrollTop = document.documentElement.scrollTop;
+              if (scrollTop >= offsetTop) {
+                $(window).off('.disqus_scroll');
+                loadComments();
+              }
+            });
+          }
+        });
+      
+    </script>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
