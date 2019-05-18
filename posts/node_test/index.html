@@ -1,0 +1,1103 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=6.3.0" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=6.3.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=6.3.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=6.3.0">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=6.3.0" color="#222">
+
+
+
+
+
+
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '6.3.0',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="为什么要有单元测试先问自己几个问题：  代码质量是如何度量的？ 如何保证代码的质量？ 代码可以随时重构代码吗？ 重构之后代码的质量如何保障？ 有足够信心在没有测试的情况下随时发布代码码？  在职业生涯之初，面对上面的问题我也回答不了。当偶尔线上发现紧急 bug 时，定位到问题 &amp;amp; 改完 bug 后——急速发了一个版本，结果带来了更多问题。">
+<meta name="keywords" content="NodeJS,Mocha">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Node 单元测试">
+<meta property="og:url" content="https://blog.ryoma.top/posts/node_test/index.html">
+<meta property="og:site_name" content="Ryoma&#39;s Blog">
+<meta property="og:description" content="为什么要有单元测试先问自己几个问题：  代码质量是如何度量的？ 如何保证代码的质量？ 代码可以随时重构代码吗？ 重构之后代码的质量如何保障？ 有足够信心在没有测试的情况下随时发布代码码？  在职业生涯之初，面对上面的问题我也回答不了。当偶尔线上发现紧急 bug 时，定位到问题 &amp;amp; 改完 bug 后——急速发了一个版本，结果带来了更多问题。">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2019/png/92822/1558186250426-96c55f9d-bf93-493f-a390-c7fa5fe1302c.png#align=left&display=inline&height=674&name=image.png&originHeight=1348&originWidth=1166&size=127527&status=done&width=583">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2019/png/92822/1558186737441-f6ec117c-3a0d-41b8-af29-e64190bc3468.png#align=left&display=inline&height=294&name=image.png&originHeight=588&originWidth=1048&size=79195&status=done&width=524">
+<meta property="og:updated_time" content="2019-05-18T14:17:31.929Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Node 单元测试">
+<meta name="twitter:description" content="为什么要有单元测试先问自己几个问题：  代码质量是如何度量的？ 如何保证代码的质量？ 代码可以随时重构代码吗？ 重构之后代码的质量如何保障？ 有足够信心在没有测试的情况下随时发布代码码？  在职业生涯之初，面对上面的问题我也回答不了。当偶尔线上发现紧急 bug 时，定位到问题 &amp;amp; 改完 bug 后——急速发了一个版本，结果带来了更多问题。">
+<meta name="twitter:image" content="https://cdn.nlark.com/yuque/0/2019/png/92822/1558186250426-96c55f9d-bf93-493f-a390-c7fa5fe1302c.png#align=left&display=inline&height=674&name=image.png&originHeight=1348&originWidth=1166&size=127527&status=done&width=583">
+
+
+
+
+
+
+  <link rel="canonical" href="https://blog.ryoma.top/posts/node_test/"/>
+
+
+
+<script type="text/javascript" id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>Node 单元测试 | Ryoma's Blog</title>
+  
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style type="text/css">
+    .use-motion .motion-element,
+    .use-motion .brand,
+    .use-motion .menu-item,
+    .sidebar-inner,
+    .use-motion .post-block,
+    .use-motion .pagination,
+    .use-motion .comments,
+    .use-motion .post-header,
+    .use-motion .post-body,
+    .use-motion .collection-title { opacity: initial; }
+
+    .use-motion .logo,
+    .use-motion .site-title,
+    .use-motion .site-subtitle {
+      opacity: initial;
+      top: initial;
+    }
+
+    .use-motion {
+      .logo-line-before i { left: initial; }
+      .logo-line-after i { right: initial; }
+    }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Ryoma's Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+      
+        <p class="site-subtitle">纸上得来终觉浅</p>
+      
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+    <a href="/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-home"></i> <br />首页</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+    <a href="/tags/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />标签</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+    <a href="/categories/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-th"></i> <br />分类</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+    <a href="/archives/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />归档</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+    <a href="/about/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-user"></i> <br />关于我</a>
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.ryoma.top/posts/node_test/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Ryoma">
+      <meta itemprop="description" content="Ryoma's Blog">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Ryoma's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Node 单元测试
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2019-02-10 18:30:00" itemprop="dateCreated datePublished" datetime="2019-02-10T18:30:00+08:00">2019-02-10</time>
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/NodeJS/" itemprop="url" rel="index"><span itemprop="name">NodeJS</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/posts/node_test/#comments" itemprop="discussionUrl">
+                
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="posts/node_test/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="为什么要有单元测试"><a href="#为什么要有单元测试" class="headerlink" title="为什么要有单元测试"></a>为什么要有单元测试</h2><p>先问自己几个问题：</p>
+<ul>
+<li>代码质量是如何度量的？</li>
+<li>如何保证代码的质量？</li>
+<li>代码可以随时重构代码吗？</li>
+<li>重构之后代码的质量如何保障？</li>
+<li>有足够信心在没有测试的情况下随时发布代码码？</li>
+</ul>
+<p>在职业生涯之初，面对上面的问题我也回答不了。<br>当偶尔线上发现紧急 bug 时，定位到问题 &amp; 改完 bug 后——急速发了一个版本，结果带来了更多问题。<br><a id="more"></a></p>
+<p>等到后面，我了解到了单元测试，有了单元测试就可以回答上面的问题：</p>
+<ul>
+<li>代码质量可度量</li>
+<li>代码质量有保障</li>
+<li>重构后代码质量保障</li>
+<li>敢于随时发布</li>
+</ul>
+<p>下面介绍如何在 Node 中进行单元测试。</p>
+<h2 id="单元测试框架"><a href="#单元测试框架" class="headerlink" title="单元测试框架"></a>单元测试框架</h2><blockquote>
+<p><a href="https://mochajs.org/" target="_blank" rel="noopener">https://mochajs.org/</a></p>
+</blockquote>
+<p>首先是单元测试框架，在单元测试框架这方面，我一直用的是 Mocha：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Mocha is a feature-rich JavaScript test framework running on Node.js and in the browser, making asynchronous testing simple and fun. Mocha tests run serially, allowing for flexible and accurate reporting, while mapping uncaught exceptions to the correct test cases.</span><br></pre></td></tr></table></figure>
+<p>在 Mocha 中，有 describe 和 it 两个基础部分。</p>
+<ul>
+<li>describe 块称为<strong>测试套件</strong>，表示一组相关的测试</li>
+<li>it 块称为<strong>测试用例</strong>，表示一个单独的测试，是测试的最小单位</li>
+</ul>
+<p>除此之外，还提供了如 before 及 after 等钩子，会在指定的时间执行。</p>
+<p>当然，除了 Mocha 外，还有 Jest 和 Ava 等，感兴趣的也可以去试试。</p>
+<h2 id="断言库"><a href="#断言库" class="headerlink" title="断言库"></a>断言库</h2><p>断言库这方面，使用过 should、expect 和 power-assert，在这里贴一下这三个断言库测试的demo：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">// 这里只贴一下部分代码</span><br><span class="line">const arr = [1, 2, 3];</span><br><span class="line"></span><br><span class="line">it(&apos;should&apos;, async () =&gt; &#123;</span><br><span class="line">  should.equal(arr[0], 0);</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">it(&apos;expect&apos;, async () =&gt; &#123;</span><br><span class="line">  expect(arr[0]).eq(0);</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">it(&apos;assert&apos;, async () =&gt; &#123;</span><br><span class="line">  assert(arr[0] === 0);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<p>测试结果：</p>
+<p><img src="https://cdn.nlark.com/yuque/0/2019/png/92822/1558186250426-96c55f9d-bf93-493f-a390-c7fa5fe1302c.png#align=left&amp;display=inline&amp;height=674&amp;name=image.png&amp;originHeight=1348&amp;originWidth=1166&amp;size=127527&amp;status=done&amp;width=583" alt="image.png"></p>
+<p>从提示来看，power-assert 无疑是最优秀的，报错信息比较丰富。除此之外，power-assert 还支持不使用 API 的方式，写起来足够简单。<br>当然，如果大家对上述这两个优点不在乎的话，我相信 should 和 expect 也都是支持使用的。</p>
+<h2 id="测试覆盖率"><a href="#测试覆盖率" class="headerlink" title="测试覆盖率"></a>测试覆盖率</h2><blockquote>
+<p><a href="https://istanbul.js.org/" target="_blank" rel="noopener">https://istanbul.js.org/</a></p>
+</blockquote>
+<p>上面说到如何度量代码的质量，这个重任就交给测试覆盖率了——如果测试覆盖率足够高，这就表示每行代码都经历过测试，代码的质量相对来说也会更高一点。<br>关于测试覆盖率，它是有 4 个测试维度的：</p>
+<ul>
+<li>语句覆盖率</li>
+<li>分支覆盖率</li>
+<li>函数覆盖率</li>
+<li>行覆盖率</li>
+</ul>
+<p>下面这是使用 Nyc 后的截图，</p>
+<p><img src="https://cdn.nlark.com/yuque/0/2019/png/92822/1558186737441-f6ec117c-3a0d-41b8-af29-e64190bc3468.png#align=left&amp;display=inline&amp;height=294&amp;name=image.png&amp;originHeight=588&amp;originWidth=1048&amp;size=79195&amp;status=done&amp;width=524" alt="image.png"></p>
+<h2 id="网络请求处理"><a href="#网络请求处理" class="headerlink" title="网络请求处理"></a>网络请求处理</h2><p>在单元测试中，我们总是需要对服务提供的 API 进行测试。而此时我们就需要一个 <a href="https://github.com/visionmedia/supertest" target="_blank" rel="noopener">supertest</a>，它是一个HTTP 服务器测试模块，让 HTTP 断言变得非常简单。<br>同时，supertest 也跟 express 和 koa 结合也很简单。这里可以看看例子：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">const request = require(&apos;supertest&apos;);</span><br><span class="line">const express = require(&apos;express&apos;);</span><br><span class="line"></span><br><span class="line">const app = express();</span><br><span class="line"></span><br><span class="line">app.get(&apos;/user&apos;, function(req, res) &#123;</span><br><span class="line">  res.status(200).json(&#123; name: &apos;john&apos; &#125;);</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">request(app)</span><br><span class="line">  .get(&apos;/user&apos;)</span><br><span class="line">  .expect(&apos;Content-Type&apos;, /json/)</span><br><span class="line">  .expect(&apos;Content-Length&apos;, &apos;15&apos;)</span><br><span class="line">  .expect(200)</span><br><span class="line">  .end(function(err, res) &#123;</span><br><span class="line">    if (err) throw err;</span><br><span class="line">  &#125;);</span><br></pre></td></tr></table></figure>
+<h2 id="Mock-服务"><a href="#Mock-服务" class="headerlink" title="Mock 服务"></a>Mock 服务</h2><p>上面说到，我们需要对服务提供的 API 进行测试，但是每个服务都难免会有服务依赖。但是从微服务的角度来说，每个服务都是单独治理的。有时候，我们依赖的服务是其它团队维护，我们没有办法部署这个服务，这个时候我们就需要 Mock 了。<br>在 Mock 服务这，我使用了 <a href="https://github.com/nock/nock" target="_blank" rel="noopener">Nock</a>：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">const nock = require(&apos;nock&apos;)</span><br><span class="line"></span><br><span class="line">const scope = nock(&apos;https://api.github.com&apos;)</span><br><span class="line">  .get(&apos;/repos/atom/atom/license&apos;)</span><br><span class="line">  .reply(200, &#123;</span><br><span class="line">    license: &#123;</span><br><span class="line">      key: &apos;mit&apos;,</span><br><span class="line">      name: &apos;MIT License&apos;,</span><br><span class="line">      spdx_id: &apos;MIT&apos;,</span><br><span class="line">      url: &apos;https://api.github.com/licenses/mit&apos;,</span><br><span class="line">      node_id: &apos;MDc6TGljZW5zZTEz&apos;,</span><br><span class="line">    &#125;,</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+<p>上面的例子表示：拦截请求到域名：<a href="https://api.github.com" target="_blank" rel="noopener">https://api.github.com</a> 及 path：/repos/atom/atom/license 的请求。</p>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/NodeJS/" rel="tag"># NodeJS</a>
+          
+            <a href="/tags/Mocha/" rel="tag"># Mocha</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/posts/archiver/" rel="next" title="Archiver zip打包">
+                <i class="fa fa-chevron-left"></i> Archiver zip打包
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+    <div class="comments" id="comments">
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/avatar.jpg"
+                alt="Ryoma" />
+            
+              <p class="site-author-name" itemprop="name">Ryoma</p>
+              <p class="site-description motion-element" itemprop="description">Ryoma's Blog</p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">82</span>
+                    <span class="site-state-item-name">文章</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  <a href="/categories/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">19</span>
+                    <span class="site-state-item-name">分类</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  <a href="/tags/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">72</span>
+                    <span class="site-state-item-name">标签</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+            <div class="links-of-author motion-element">
+              
+                <span class="links-of-author-item">
+                  <a href="https://github.com/JianmingXia" target="_blank" title="GitHub"><i class="fa fa-fw fa-github"></i>GitHub</a>
+                  
+                </span>
+              
+                <span class="links-of-author-item">
+                  <a href="mailto:xiajianming_xjm@163.com" target="_blank" title="E-Mail"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                  
+                </span>
+              
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#为什么要有单元测试"><span class="nav-number">1.</span> <span class="nav-text">为什么要有单元测试</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#单元测试框架"><span class="nav-number">2.</span> <span class="nav-text">单元测试框架</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#断言库"><span class="nav-number">3.</span> <span class="nav-text">断言库</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#测试覆盖率"><span class="nav-number">4.</span> <span class="nav-text">测试覆盖率</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#网络请求处理"><span class="nav-number">5.</span> <span class="nav-text">网络请求处理</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Mock-服务"><span class="nav-number">6.</span> <span class="nav-text">Mock 服务</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2017 &mdash; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Ryoma</span>
+
+  
+
+  
+</div>
+
+
+
+
+  <div class="powered-by"><a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> v3.7.1</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://theme-next.org">NexT.Gemini</a> v6.3.0</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+	
+    
+
+    
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/three/three.min.js"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/three/canvas_sphere.min.js"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=6.3.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=6.3.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=6.3.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=6.3.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=6.3.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=6.3.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=6.3.0"></script>
+
+
+
+  
+
+  
+    <script id="dsq-count-scr" src="https://ryoma-blog.disqus.com/count.js" async></script>
+  
+
+  
+    <script type="text/javascript">
+      var disqus_config = function () {
+        this.page.url = 'https://blog.ryoma.top/posts/node_test/';
+        this.page.identifier = 'posts/node_test/';
+        this.page.title = 'Node 单元测试';
+        };
+      function loadComments () {
+        var d = document, s = d.createElement('script');
+        s.src = 'https://ryoma-blog.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', '' + +new Date());
+        (d.head || d.body).appendChild(s);
+      }
+      
+        $(function () {
+          var offsetTop = $('#comments').offset().top - $(window).height();
+          if (offsetTop <= 0) {
+            // load directly when there's no a scrollbar
+            loadComments();
+          } else {
+            $(window).on('scroll.disqus_scroll', function () {
+              var scrollTop = document.documentElement.scrollTop;
+              if (scrollTop >= offsetTop) {
+                $(window).off('.disqus_scroll');
+                loadComments();
+              }
+            });
+          }
+        });
+      
+    </script>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

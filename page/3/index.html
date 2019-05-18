@@ -309,6 +309,184 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.ryoma.top/posts/kong_practice_0/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Ryoma">
+      <meta itemprop="description" content="Ryoma's Blog">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Ryoma's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/posts/kong_practice_0/" itemprop="url">
+                  Kong——负载均衡
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2018-10-08 20:00:00" itemprop="dateCreated datePublished" datetime="2018-10-08T20:00:00+08:00">2018-10-08</time>
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/微服务/" itemprop="url" rel="index"><span itemprop="name">微服务</span></a></span>
+
+                
+                
+                  ，
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/Kong/" itemprop="url" rel="index"><span itemprop="name">Kong</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/posts/kong_practice_0/#comments" itemprop="discussionUrl">
+                
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="posts/kong_practice_0/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <h2 id="说在前面"><a href="#说在前面" class="headerlink" title="说在前面"></a>说在前面</h2><p>这段时间看了Kong的官方文档，按照文档的接口也做了一些实践，安装了Kong及对应的UI页面，这次打算在Kong中如何做负载均衡。</p>
+<h2 id="Nginx中的负载均衡"><a href="#Nginx中的负载均衡" class="headerlink" title="Nginx中的负载均衡"></a>Nginx中的负载均衡</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">upstream test &#123;</span><br><span class="line">	server localhost:5000 weight=100;</span><br><span class="line">	server localhost:5001 weight=50;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">server &#123;</span><br><span class="line">	listen	80;</span><br><span class="line">	location /api &#123;</span><br><span class="line">		proxy_pass http://test;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/posts/kong_practice_0/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="https://blog.ryoma.top/posts/kong_admin_api/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1046,180 +1224,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://blog.ryoma.top/posts/kong_vs_express-gateway/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Ryoma">
-      <meta itemprop="description" content="Ryoma's Blog">
-      <meta itemprop="image" content="/images/avatar.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Ryoma's Blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/posts/kong_vs_express-gateway/" itemprop="url">
-                  Kong VS express gateway
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-
-            
-            
-            
-
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-
-              
-                
-              
-
-              <time title="创建时间：2018-09-26 20:00:00" itemprop="dateCreated datePublished" datetime="2018-09-26T20:00:00+08:00">2018-09-26</time>
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/微服务/" itemprop="url" rel="index"><span itemprop="name">微服务</span></a></span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/posts/kong_vs_express-gateway/#comments" itemprop="discussionUrl">
-                
-                  <span class="post-comments-count disqus-comment-count"
-                        data-disqus-identifier="posts/kong_vs_express-gateway/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <blockquote>
-<p>下文简写：Kong =&gt; K；express gateway =&gt; E</p>
-</blockquote>
-<h2 id="说在前面"><a href="#说在前面" class="headerlink" title="说在前面"></a>说在前面</h2><p>在<a href="/posts/how_to_select_api_gateway">如何选择 API Gateway</a>一文中，列举了选择API Gateway的一些标准。基于这个标准，对Kong和express-gateway做了一系列对比。</p>
-<h2 id="高优先级"><a href="#高优先级" class="headerlink" title="高优先级"></a>高优先级</h2><h3 id="高可用性"><a href="#高可用性" class="headerlink" title="高可用性"></a>高可用性</h3><p>K支持多种环境，最简单的部署方式是使用Docker或K8S。支持集群，内部存储K节点、API、消费者、插件等信息，有两种存储方式，PostgreSQL及Cassandra——高可用建议使用Cassandra</p>
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/posts/kong_vs_express-gateway/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -1271,7 +1275,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">81</span>
+                    <span class="site-state-item-count">82</span>
                     <span class="site-state-item-name">文章</span>
                   </a>
                 </div>
@@ -1477,7 +1481,9 @@
                     
                       
                     
-                    <span class="site-state-item-count">71</span>
+                      
+                    
+                    <span class="site-state-item-count">72</span>
                     <span class="site-state-item-name">标签</span>
                   </a>
                 </div>
