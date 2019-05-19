@@ -118,7 +118,7 @@
 <meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="https://cdn.nlark.com/yuque/0/2019/png/92822/1558186250426-96c55f9d-bf93-493f-a390-c7fa5fe1302c.png#align=left&display=inline&height=674&name=image.png&originHeight=1348&originWidth=1166&size=127527&status=done&width=583">
 <meta property="og:image" content="https://cdn.nlark.com/yuque/0/2019/png/92822/1558186737441-f6ec117c-3a0d-41b8-af29-e64190bc3468.png#align=left&display=inline&height=294&name=image.png&originHeight=588&originWidth=1048&size=79195&status=done&width=524">
-<meta property="og:updated_time" content="2019-05-18T14:17:31.929Z">
+<meta property="og:updated_time" content="2019-05-19T13:35:22.315Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Node 单元测试">
 <meta name="twitter:description" content="为什么要有单元测试先问自己几个问题：  代码质量是如何度量的？ 如何保证代码的质量？ 代码可以随时重构代码吗？ 重构之后代码的质量如何保障？ 有足够信心在没有测试的情况下随时发布代码码？  在职业生涯之初，面对上面的问题我也回答不了。当偶尔线上发现紧急 bug 时，定位到问题 &amp;amp; 改完 bug 后——急速发了一个版本，结果带来了更多问题。">
@@ -469,6 +469,21 @@
 <h2 id="Mock-服务"><a href="#Mock-服务" class="headerlink" title="Mock 服务"></a>Mock 服务</h2><p>上面说到，我们需要对服务提供的 API 进行测试，但是每个服务都难免会有服务依赖。但是从微服务的角度来说，每个服务都是单独治理的。有时候，我们依赖的服务是其它团队维护，我们没有办法部署这个服务，这个时候我们就需要 Mock 了。<br>在 Mock 服务这，我使用了 <a href="https://github.com/nock/nock" target="_blank" rel="noopener">Nock</a>：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">const nock = require(&apos;nock&apos;)</span><br><span class="line"></span><br><span class="line">const scope = nock(&apos;https://api.github.com&apos;)</span><br><span class="line">  .get(&apos;/repos/atom/atom/license&apos;)</span><br><span class="line">  .reply(200, &#123;</span><br><span class="line">    license: &#123;</span><br><span class="line">      key: &apos;mit&apos;,</span><br><span class="line">      name: &apos;MIT License&apos;,</span><br><span class="line">      spdx_id: &apos;MIT&apos;,</span><br><span class="line">      url: &apos;https://api.github.com/licenses/mit&apos;,</span><br><span class="line">      node_id: &apos;MDc6TGljZW5zZTEz&apos;,</span><br><span class="line">    &#125;,</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
 <p>上面的例子表示：拦截请求到域名：<a href="https://api.github.com" target="_blank" rel="noopener">https://api.github.com</a> 及 path：/repos/atom/atom/license 的请求。</p>
+<h2 id="测试结构"><a href="#测试结构" class="headerlink" title="测试结构"></a>测试结构</h2><p>在我之前的习惯中，测试是分为四段的：</p>
+<ul>
+<li>前置准备：就是单元测试执行时所需的依赖，比如要调用第三方服务的 API 时，提前准备 Mock 数据</li>
+<li>执行：执行即为此次测试的目标</li>
+<li>断言：断言即为我们的预期</li>
+<li>清理现场：测试结束后，需要将前置准备 或是 执行时产生的副作用清理掉</li>
+</ul>
+<h2 id="什么样的测试是好的测试"><a href="#什么样的测试是好的测试" class="headerlink" title="什么样的测试是好的测试"></a>什么样的测试是好的测试</h2><ul>
+<li>Automatic（自动化）：测试能直接被机器执行，无需人工判断；</li>
+<li>Thorough（全面）：需要尽可能覆盖各种场景——这也是两个方面，一是写代码时要考虑各种场景；另一个则是测试需要覆盖更多的分支；</li>
+<li>Repeatable（可重复）：测试用例可以重复执行</li>
+<li>Independent（独立）：测试和测试之间不应该有依赖——每个测试用例都可以单独执行</li>
+<li>Professional（专业）：写测试代码也要按代码的标准去维护，不要有双标</li>
+</ul>
+<p>这就是好的测试 A-Trip</p>
 
       
     </div>
@@ -513,6 +528,10 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
+            
+              <a href="/posts/log/" rel="prev" title="关于代码日志">
+                关于代码日志 <i class="fa fa-chevron-right"></i>
+              </a>
             
           </div>
         </div>
@@ -596,7 +615,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">82</span>
+                    <span class="site-state-item-count">83</span>
                     <span class="site-state-item-name">文章</span>
                   </a>
                 </div>
@@ -804,7 +823,9 @@
                     
                       
                     
-                    <span class="site-state-item-count">72</span>
+                      
+                    
+                    <span class="site-state-item-count">73</span>
                     <span class="site-state-item-name">标签</span>
                   </a>
                 </div>
@@ -854,7 +875,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#为什么要有单元测试"><span class="nav-number">1.</span> <span class="nav-text">为什么要有单元测试</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#单元测试框架"><span class="nav-number">2.</span> <span class="nav-text">单元测试框架</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#断言库"><span class="nav-number">3.</span> <span class="nav-text">断言库</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#测试覆盖率"><span class="nav-number">4.</span> <span class="nav-text">测试覆盖率</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#网络请求处理"><span class="nav-number">5.</span> <span class="nav-text">网络请求处理</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Mock-服务"><span class="nav-number">6.</span> <span class="nav-text">Mock 服务</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#为什么要有单元测试"><span class="nav-number">1.</span> <span class="nav-text">为什么要有单元测试</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#单元测试框架"><span class="nav-number">2.</span> <span class="nav-text">单元测试框架</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#断言库"><span class="nav-number">3.</span> <span class="nav-text">断言库</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#测试覆盖率"><span class="nav-number">4.</span> <span class="nav-text">测试覆盖率</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#网络请求处理"><span class="nav-number">5.</span> <span class="nav-text">网络请求处理</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Mock-服务"><span class="nav-number">6.</span> <span class="nav-text">Mock 服务</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#测试结构"><span class="nav-number">7.</span> <span class="nav-text">测试结构</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#什么样的测试是好的测试"><span class="nav-number">8.</span> <span class="nav-text">什么样的测试是好的测试</span></a></li></ol></div>
             
 
           </div>
