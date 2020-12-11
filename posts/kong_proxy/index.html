@@ -117,7 +117,7 @@
 <meta property="og:description" content="通过详细解释Kong的路由功能和内部工作原理来介绍Kong的代理功能  Kong公开几个接口，可以调整两个配置属性：  proxy_listen：定义了一个地址/端口列表——Kong将接受来自客户端的流量并代理上游服务 admin_listen：同样定义了一个地址/端口列表——但这些仅限于管理员访问  从0.13.0版本开始，API实体被弃用，使用 Routes 及 Services 实体替代">
 <meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="https://cdn.nlark.com/yuque/0/2018/png/92822/1538126272900-eb1ca537-d0d3-433e-bb77-15ddd385e8b4.png">
-<meta property="og:updated_time" content="2020-11-25T02:08:03.785Z">
+<meta property="og:updated_time" content="2020-12-11T13:20:10.044Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Kong——Proxy文档">
 <meta name="twitter:description" content="通过详细解释Kong的路由功能和内部工作原理来介绍Kong的代理功能  Kong公开几个接口，可以调整两个配置属性：  proxy_listen：定义了一个地址/端口列表——Kong将接受来自客户端的流量并代理上游服务 admin_listen：同样定义了一个地址/端口列表——但这些仅限于管理员访问  从0.13.0版本开始，API实体被弃用，使用 Routes 及 Services 实体替代">
@@ -473,7 +473,7 @@
 <li>hosts 接受多个值，当通过Admin API指定它们时，必须用逗号分隔</li>
 <li>hosts 接受多个值，在JSON payload中很容易表示</li>
 </ul>
-<h4 id="基础配置"><a href="#基础配置" class="headerlink" title="基础配置"></a>基础配置</h4><p>JSON payload：<br><figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">curl <span class="literal">-i</span> <span class="literal">-X</span> POST http://localhost:<span class="number">8001</span>/routes/ \</span><br><span class="line">    <span class="literal">-H</span> <span class="string">'Content-Type: application/json'</span> \</span><br><span class="line">    <span class="literal">-d</span> <span class="string">'&#123;"hosts":["example.com", "foo-service.com"]&#125;'</span></span><br></pre></td></tr></table></figure></p>
+<h4 id="基础配置"><a href="#基础配置" class="headerlink" title="基础配置"></a>基础配置</h4><p>JSON payload：<br><figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">curl -i -X POST http://localhost:<span class="number">8001</span>/routes/ \</span><br><span class="line">    -H <span class="string">'Content-Type: application/json'</span> \</span><br><span class="line">    -d <span class="string">'&#123;"hosts":["example.com", "foo-service.com"]&#125;'</span></span><br></pre></td></tr></table></figure></p>
 <p>hosts[]：由于Admin API也支持form-urlencoded内容类型<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">curl -i -X POST http://localhost:8001/routes/ \</span><br><span class="line">    -d &apos;hosts[]=example.com&apos; \</span><br><span class="line">    -d &apos;hosts[]=foo-service.com&apos;</span><br></pre></td></tr></table></figure></p>
 <p>按照上述的方式添加Route后，如果要匹配，则在请求头中需要满足以下二者之一：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Host: example.com</span><br><span class="line">Host: foo-service.com</span><br></pre></td></tr></table></figure></p>
 <h4 id="使用通配符的主机名"><a href="#使用通配符的主机名" class="headerlink" title="使用通配符的主机名"></a>使用通配符的主机名</h4><p>为了提供灵活性，Kong允许在hosts字段中使用通配符指定主机名。通配符主机名允许任何匹配的Host header满足条件，从而匹配给定的路由。<br>通配符主机名必须在域的最左或最右标签上仅包含一个星号：</p>
